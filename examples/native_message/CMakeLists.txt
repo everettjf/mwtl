@@ -1,0 +1,1 @@
+mwtl_add_example(mwtl_native_message_demo main.cpp)

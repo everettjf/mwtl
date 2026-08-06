@@ -86,15 +86,39 @@ When mwtl is included with `add_subdirectory`, examples and tests default to off
 
 ## Component examples
 
-All examples are managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++17, warning, and Per-Monitor V2 manifest setup.
+The repository contains **12 independently buildable GUI examples**. They are all managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++17, warning, and Per-Monitor V2 manifest setup.
 
 | Component | Directory | CMake target | Demonstrates |
 |---|---|---|---|
 | Quick start | `examples/hello` | `mwtl_hello` | Smallest complete program |
 | `mwtl::Application` | `examples/application` | `mwtl_application_demo` | HINSTANCE observation, Run, exit code, and wWinMain boundary |
 | `mwtl::Window<T>` | `examples/window` | `mwtl_window_demo` | HWND access, WTL message maps, WM_APP messages, and direct WM_CLOSE |
+| Native message | `examples/native_message` | `mwtl_native_message_demo` | Typed `WM_APP` constant, payload, `PostMessageW`, and a WTL handler |
+| Keyboard | `examples/keyboard` | `mwtl_keyboard_demo` | `WM_KEYDOWN`, virtual-key values, and Escape-to-close |
+| Mouse | `examples/mouse` | `mwtl_mouse_demo` | Client coordinates from `WM_MOUSEMOVE` and `WM_LBUTTONDOWN` |
+| Resize | `examples/resize` | `mwtl_resize_demo` | Width, height, and state from `WM_SIZE` |
+| Timer | `examples/timer` | `mwtl_timer_demo` | `SetTimer`, `WM_TIMER`, and deterministic `KillTimer` cleanup |
+| Native paint | `examples/paint` | `mwtl_paint_demo` | Direct HWND/GDI interoperability through `WM_PAINT` |
+| Minimum size | `examples/minmax` | `mwtl_minmax_demo` | A native minimum tracking size through `WM_GETMINMAXINFO` |
+| Close policy | `examples/close_policy` | `mwtl_close_policy_demo` | Intercepting `WM_CLOSE` without changing `Application` lifetime policy |
+| Window state | `examples/window_state` | `mwtl_window_state_demo` | Restored, minimized, and maximized state from `WM_SIZE` |
 
-See [examples/README.md](examples/README.md) for focused build commands. Each component directory contains its own source and usage notes.
+Build any one directly, for example:
+
+```powershell
+cmake --build build/x64 --config Debug --target mwtl_native_message_demo
+./build/x64/examples/native_message/Debug/mwtl_native_message_demo.exe
+```
+
+See [examples/README.md](examples/README.md) for the complete target and run-command index.
+
+### Screenshots
+
+These images are captured from the actual x64 Debug executables in this repository.
+
+| Native `WM_PAINT` | Custom `WM_APP` message | Win32 timer |
+|---|---|---|
+| ![Native GDI paint example](docs/images/paint-demo.png) | ![Native message example](docs/images/native-message-demo.png) | ![Timer example](docs/images/timer-demo.png) |
 
 ## Tests
 
@@ -140,6 +164,94 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
 `BuildUI` is called during `WM_CREATE`, after the HWND is attached. `SetTitle` returns `bool` so callers that need to react to failure can do so without relying on exceptions. The HWND remains directly available through `GetHwnd()`, including for `::SendMessageW(GetHwnd(), ...)`.
 
 The main-window C++ object is stack-owned by `Application::Run`; Win32/WTL manages its HWND. Closing this milestone-1 main window exits the one message loop. Multi-main-window lifetime policy is intentionally deferred.
+
+## More code recipes
+
+### Handle a WTL message and keep the native return value
+
+```cpp
+class KeyboardWindow final : public mwtl::Window<KeyboardWindow> {
+public:
+    void BuildUI() { SetTitle(L"Press Escape to close"); }
+
+    BEGIN_MSG_MAP(KeyboardWindow)
+        MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
+        CHAIN_MSG_MAP(mwtl::Window<KeyboardWindow>)
+    END_MSG_MAP()
+
+private:
+    LRESULT OnKeyDown(UINT, WPARAM key, LPARAM, BOOL& handled) {
+        if (key == VK_ESCAPE) {
+            return ::SendMessageW(GetHwnd(), WM_CLOSE, 0, 0);
+        }
+        handled = FALSE;
+        return 0;
+    }
+};
+```
+
+### Post and receive an application-defined message
+
+```cpp
+constexpr UINT kRefresh = WM_APP + 1;
+
+void BuildUI() {
+    if (::PostMessageW(GetHwnd(), kRefresh, 42, 0) == FALSE) {
+        throw std::runtime_error("PostMessageW failed");
+    }
+}
+
+BEGIN_MSG_MAP(MainWindow)
+    MESSAGE_HANDLER(kRefresh, OnRefresh)
+    CHAIN_MSG_MAP(mwtl::Window<MainWindow>)
+END_MSG_MAP()
+
+LRESULT OnRefresh(UINT, WPARAM payload, LPARAM, BOOL&) {
+    // payload == 42; GetHwnd() remains available for native Win32 calls.
+    return 0;
+}
+```
+
+### Observe resize without introducing a layout abstraction
+
+```cpp
+BEGIN_MSG_MAP(MainWindow)
+    MESSAGE_HANDLER(WM_SIZE, OnSize)
+    CHAIN_MSG_MAP(mwtl::Window<MainWindow>)
+END_MSG_MAP()
+
+LRESULT OnSize(UINT, WPARAM state, LPARAM size, BOOL& handled) {
+    const unsigned width = LOWORD(size);
+    const unsigned height = HIWORD(size);
+    // Use native pixel values in milestone 1. DIP layout is intentionally later.
+    handled = FALSE;
+    return 0;
+}
+```
+
+### Own a Win32 timer with explicit cleanup
+
+```cpp
+void BuildUI() {
+    if (::SetTimer(GetHwnd(), 1, 1000, nullptr) == 0) {
+        throw std::runtime_error("SetTimer failed");
+    }
+}
+
+BEGIN_MSG_MAP(MainWindow)
+    MESSAGE_HANDLER(WM_TIMER, OnTimer)
+    MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+    CHAIN_MSG_MAP(mwtl::Window<MainWindow>)
+END_MSG_MAP()
+
+LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL& handled) {
+    ::KillTimer(GetHwnd(), 1);
+    handled = FALSE; // allow the base window to post the quit message
+    return 0;
+}
+```
+
+The full compilable forms of these recipes live under `examples/`; the snippets above intentionally omit the process entry point for focus.
 
 ## License
 

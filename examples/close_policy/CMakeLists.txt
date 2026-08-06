@@ -1,0 +1,1 @@
+mwtl_add_example(mwtl_close_policy_demo main.cpp)

@@ -42,7 +42,16 @@ if(TARGET mwtl_hello)
     foreach(example_target IN ITEMS
             mwtl_hello
             mwtl_application_demo
-            mwtl_window_demo)
+            mwtl_window_demo
+            mwtl_native_message_demo
+            mwtl_keyboard_demo
+            mwtl_mouse_demo
+            mwtl_resize_demo
+            mwtl_timer_demo
+            mwtl_paint_demo
+            mwtl_minmax_demo
+            mwtl_close_policy_demo
+            mwtl_window_state_demo)
         add_test(
             NAME mwtl.manifest.${example_target}
             COMMAND "${CMAKE_COMMAND}"
@@ -60,3 +69,10 @@ add_test(
         "-DSITE_ROOT=${PROJECT_SOURCE_DIR}/site"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_site.cmake")
 set_tests_properties(mwtl.site_links PROPERTIES TIMEOUT 20)
+
+add_test(
+    NAME mwtl.examples.catalog
+    COMMAND "${CMAKE_COMMAND}"
+        "-DPROJECT_ROOT=${PROJECT_SOURCE_DIR}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_examples.cmake")
+set_tests_properties(mwtl.examples.catalog PROPERTIES TIMEOUT 20)

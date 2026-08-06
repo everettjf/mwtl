@@ -11,7 +11,7 @@ permissions:
 jobs:
   x64:
     name: x64 ${{ matrix.configuration }}
-    runs-on: windows-latest
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
@@ -35,7 +35,7 @@ jobs:
 
   arm64:
     name: ARM64 compile and link
-    runs-on: windows-latest
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:

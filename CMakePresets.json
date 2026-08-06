@@ -1,0 +1,72 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vs2022-base",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "MWTL_BUILD_EXAMPLES": "ON",
+        "MWTL_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "vs2022-x64",
+      "displayName": "Visual Studio 2022 x64",
+      "inherits": "vs2022-base",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/presets/x64"
+    },
+    {
+      "name": "vs2022-arm64",
+      "displayName": "Visual Studio 2022 ARM64",
+      "inherits": "vs2022-base",
+      "architecture": "ARM64",
+      "binaryDir": "${sourceDir}/build/presets/arm64",
+      "cacheVariables": {
+        "MWTL_BUILD_TESTS": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-debug",
+      "configurePreset": "vs2022-x64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "x64-release",
+      "configurePreset": "vs2022-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "arm64-debug",
+      "configurePreset": "vs2022-arm64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "arm64-release",
+      "configurePreset": "vs2022-arm64",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "x64-debug",
+      "configurePreset": "vs2022-x64",
+      "configuration": "Debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "x64-release",
+      "configurePreset": "vs2022-x64",
+      "configuration": "Release",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}

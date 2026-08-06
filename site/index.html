@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="mwtl — 基于 WTL 和 WIL 的轻量现代 Windows 原生 C++ UI 基础库。">
+  <title>mwtl · modern WTL foundations</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="shell nav">
+    <a class="brand" href="index.html">mwtl</a>
+    <nav class="nav-links" aria-label="主导航">
+      <a href="#components">组件</a>
+      <a href="building.html">构建</a>
+      <a href="https://github.com/everettjf/mwtl">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="shell hero">
+      <div class="eyebrow">Native Windows · C++17 · HWND first</div>
+      <h1>Modern foundations.<br>Native Windows.</h1>
+      <p class="lede">mwtl 在 ATL/WTL 与 Microsoft WIL 之上提供清晰的应用生命周期、真实 Win32 消息互操作与安全异常边界，同时保留小体积、快速启动和直接 HWND 访问。</p>
+      <div class="actions">
+        <a class="button primary" href="components/application.html">从 Application 开始</a>
+        <a class="button" href="building.html">构建 examples</a>
+      </div>
+    </section>
+
+    <section id="components" class="shell section">
+      <div class="eyebrow">Milestone 1 components</div>
+      <h2>每个公共组件都有独立、可构建的示例</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">lifecycle</span>
+          <h3>mwtl::Application</h3>
+          <p>管理唯一 WTL CAppModule、消息循环、主窗口栈生命周期和逆序清理。</p>
+          <a href="components/application.html">查看完整用法 →</a>
+        </article>
+        <article class="card">
+          <span class="tag">HWND + messages</span>
+          <h3>mwtl::Window&lt;T&gt;</h3>
+          <p>WTL CRTP 顶层窗口、原生 HWND、消息映射、WM_APP 互操作与异常隔离。</p>
+          <a href="components/window.html">查看完整用法 →</a>
+        </article>
+        <article class="card">
+          <span class="tag">quick start</span>
+          <h3>Hello</h3>
+          <p>最少代码创建、显示并正常关闭一个 Unicode、Per-Monitor V2 主窗口。</p>
+          <a href="components/hello.html">查看最小示例 →</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="shell section">
+      <div class="eyebrow">Project boundary</div>
+      <h2>轻量、原生、可维护</h2>
+      <div class="grid">
+        <div class="card"><h3>不隐藏 Win32</h3><p>随时取得 HWND，直接调用 SendMessageW、PostMessageW 与其他 Windows API。</p></div>
+        <div class="card"><h3>真实 C++17</h3><p>公共 target 明确要求 cxx_std_17，不依赖 concepts、modules 或标准协程。</p></div>
+        <div class="card"><h3>依赖可复现</h3><p>WTL 与 WIL 来自官方仓库并锁定完整 commit SHA，同时支持离线源码覆盖。</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell footer">mwtl is an independent MIT-licensed project. Microsoft and upstream projects do not endorse mwtl.</footer>
+</body>
+</html>

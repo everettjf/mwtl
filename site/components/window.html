@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Window · mwtl</title><link rel="stylesheet" href="../styles.css"></head>
+<body>
+  <header class="shell nav"><a class="brand" href="../index.html">mwtl</a><nav class="nav-links"><a href="application.html">Application</a><a href="../building.html">构建</a></nav></header>
+  <main class="shell prose">
+    <div class="eyebrow">Component</div><h1>mwtl::Window&lt;T&gt;</h1>
+    <p>Window 是 WTL CRTP 主顶层窗口基类。它不隐藏 HWND 或消息映射，并在 WTL 实际 WindowProc 外建立 noexcept C++ 异常边界。</p>
+    <h2>原生消息互操作</h2>
+    <pre><code>constexpr UINT kRefresh = WM_APP + 1;
+
+class MainWindow final : public mwtl::Window&lt;MainWindow&gt; {
+public:
+    void BuildUI() { SetTitle(L"Window demo"); }
+
+    BEGIN_MSG_MAP(MainWindow)
+        MESSAGE_HANDLER(WM_LBUTTONDOWN, OnClick)
+        MESSAGE_HANDLER(kRefresh, OnRefresh)
+        CHAIN_MSG_MAP(mwtl::Window&lt;MainWindow&gt;)
+    END_MSG_MAP()
+
+private:
+    LRESULT OnClick(UINT, WPARAM, LPARAM, BOOL&amp;) {
+        return ::SendMessageW(GetHwnd(), kRefresh, 0, 0);
+    }
+    LRESULT OnRefresh(UINT, WPARAM, LPARAM, BOOL&amp;) {
+        SetTitle(L"Native message received");
+        return 0;
+    }
+};</code></pre>
+    <h2>关键行为</h2>
+    <ul><li><code>BuildUI()</code> 在 WM_CREATE 阶段、HWND 已附着后调用。</li><li><code>GetHwnd()</code> 返回 non-owning 原生句柄；<code>IsWindow()</code> 观察实时有效性。</li><li>派生消息映射必须通过 <code>CHAIN_MSG_MAP</code> 链回 mwtl/WTL 基类。</li><li>WM_NCDESTROY 后不再暴露旧 HWND。</li><li>创建期异常导致 Create 失败；普通消息异常触发安全关闭；异常不会越过 Win32 ABI。</li></ul>
+    <p>仓库源码：<a href="https://github.com/everettjf/mwtl/tree/main/examples/window">examples/window</a></p>
+  </main>
+  <footer class="shell footer">返回 <a href="../index.html#components">组件列表</a></footer>
+</body></html>

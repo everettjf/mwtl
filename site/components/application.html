@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Application · mwtl</title><link rel="stylesheet" href="../styles.css"></head>
+<body>
+  <header class="shell nav"><a class="brand" href="../index.html">mwtl</a><nav class="nav-links"><a href="window.html">Window</a><a href="../building.html">构建</a></nav></header>
+  <main class="shell prose">
+    <div class="eyebrow">Component</div><h1>mwtl::Application</h1>
+    <p>Application 是里程碑 1 的进程入口适配器。它保存 non-owning HINSTANCE，管理 WTL CAppModule、CMessageLoop、主窗口对象和所有失败路径的逆序清理。</p>
+    <h2>完整示例</h2>
+    <pre><code>#include &lt;mwtl/mwtl.h&gt;
+
+class MainWindow final : public mwtl::Window&lt;MainWindow&gt; {
+public:
+    void BuildUI() { SetTitle(L"Application demo"); }
+};
+
+int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
+    try {
+        mwtl::Application app(instance);
+        return app.Run&lt;MainWindow&gt;(show);
+    } catch (...) {
+        return EXIT_FAILURE;
+    }
+}</code></pre>
+    <h2>生命周期保证</h2>
+    <ol><li>初始化唯一的 WTL <code>_Module</code>。</li><li>注册栈上的消息循环。</li><li>在栈上构造主窗口 C++ 对象并创建 HWND。</li><li>运行消息循环并返回其退出码。</li><li>所有正常和受控失败路径先移除消息循环，再终止 <code>_Module</code>。</li></ol>
+    <div class="callout">Application 不可复制、不可移动；一次只管理一个活动运行周期。wWinMain 仍应保留最后一道 catch 边界。</div>
+    <p>仓库源码：<a href="https://github.com/everettjf/mwtl/tree/main/examples/application">examples/application</a></p>
+  </main>
+  <footer class="shell footer">下一篇：<a href="window.html">mwtl::Window&lt;T&gt;</a></footer>
+</body></html>

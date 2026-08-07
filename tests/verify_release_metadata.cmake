@@ -6,7 +6,7 @@ set(project_version "${CMAKE_MATCH_1}")
 if(project_version STREQUAL "")
     message(FATAL_ERROR "Could not read the mwtl project version")
 endif()
-if(NOT changelog_text MATCHES "## ${project_version} - (Unreleased|[0-9]{4}-[0-9]{2}-[0-9]{2})")
+if(NOT changelog_text MATCHES "## ${project_version} - (Unreleased|[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])")
     message(FATAL_ERROR "CHANGELOG does not contain project version ${project_version}")
 endif()
 if(NOT EXISTS "${PROJECT_ROOT}/cmake/mwtlConfig.cmake.in" OR

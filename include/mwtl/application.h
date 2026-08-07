@@ -10,13 +10,26 @@
 #include <exception>
 #include <type_traits>
 
+#include <mwtl/message_pump.h>
 #include <mwtl/window.h>
+#include <mwtl/window_options.h>
 
 namespace mwtl {
+
+enum class ComApartment {
+    none,
+    sta,
+    mta,
+};
+
+struct ApplicationOptions {
+    ComApartment com_apartment = ComApartment::none;
+};
 
 class Application final {
 public:
     explicit Application(HINSTANCE instance) noexcept;
+    Application(HINSTANCE instance, ApplicationOptions options) noexcept;
     ~Application() noexcept;
 
     Application(const Application&) = delete;
@@ -26,8 +39,32 @@ public:
 
     template <typename MainWindow>
     int Run(int show_command) noexcept {
-        static_assert(std::is_base_of_v<Window<MainWindow>, MainWindow>,
-                      "MainWindow must derive from mwtl::Window<MainWindow>");
+        return RunImpl<MainWindow>(show_command, WindowOptions{}, nullptr);
+    }
+
+    template <typename MainWindow>
+    int Run(int show_command, const WindowOptions& options) noexcept {
+        return RunImpl<MainWindow>(show_command, options, nullptr);
+    }
+
+    template <typename MainWindow>
+    int Run(
+        int show_command,
+        const WindowOptions& options,
+        MessagePump& message_pump) noexcept {
+        return RunImpl<MainWindow>(show_command, options, &message_pump);
+    }
+
+    HINSTANCE GetInstance() const noexcept { return instance_; }
+
+private:
+    template <typename MainWindow>
+    int RunImpl(
+        int show_command,
+        const WindowOptions& options,
+        MessagePump* message_pump) noexcept {
+        static_assert(std::is_base_of_v<detail::WindowMarker, MainWindow>,
+                      "MainWindow must derive from an mwtl::Window specialization");
 
         if (!BeginRun()) {
             return EXIT_FAILURE;
@@ -37,14 +74,22 @@ public:
 
         try {
             MainWindow main_window;
+            main_window.ConfigureWindowOptions(options);
+            RECT bounds = options.use_default_bounds
+                ? ATL::CWindow::rcDefault
+                : detail::ResolveWindowBounds(options);
             const HWND window = main_window.Create(
                 nullptr,
-                ATL::CWindow::rcDefault,
-                L"mwtl application");
+                bounds,
+                options.title,
+                options.style,
+                options.extended_style);
             if (window == nullptr) {
                 ReportWindowCreationFailure(::GetLastError());
                 return EXIT_FAILURE;
             }
+
+            main_window.ApplyNativeResources(options);
 
             ::ShowWindow(window, show_command);
             ::SetLastError(ERROR_SUCCESS);
@@ -57,7 +102,20 @@ public:
                 }
             }
 
-            return RunMessageLoop();
+            const int loop_result = RunMessageLoop(message_pump);
+
+            // A custom pump may stop because one of its callbacks failed before
+            // the window received WM_CLOSE. Keep the stack-owned C++ window
+            // object alive until its HWND is synchronously detached.
+            if (main_window.IsWindow()) {
+                const HWND hwnd = main_window.GetHwnd();
+                if (::DestroyWindow(hwnd) == FALSE) {
+                    ReportWindowDisplayFailure(::GetLastError());
+                    return EXIT_FAILURE;
+                }
+            }
+
+            return loop_result;
         } catch (const std::exception& error) {
             ReportRunException(error.what());
         } catch (...) {
@@ -66,19 +124,18 @@ public:
         return EXIT_FAILURE;
     }
 
-    HINSTANCE GetInstance() const noexcept { return instance_; }
-
-private:
     bool BeginRun() noexcept;
     void EndRun() noexcept;
-    int RunMessageLoop();
+    int RunMessageLoop(MessagePump* message_pump);
     void ReportWindowCreationFailure(DWORD error) noexcept;
     void ReportWindowDisplayFailure(DWORD error) noexcept;
     void ReportRunException(const char* description) noexcept;
     void ReportUnknownRunException() noexcept;
 
     HINSTANCE instance_ = nullptr;  // Non-owning process module handle.
+    ApplicationOptions options_{};
     WTL::CMessageLoop message_loop_;
+    wil::unique_couninitialize_call com_uninitialize_;
     bool module_initialized_ = false;
     bool loop_registered_ = false;
     bool running_ = false;

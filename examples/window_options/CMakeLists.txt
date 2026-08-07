@@ -1,0 +1,1 @@
+mwtl_add_example(mwtl_window_options_demo main.cpp)

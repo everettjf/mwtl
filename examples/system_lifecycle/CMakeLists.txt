@@ -1,0 +1,1 @@
+mwtl_add_example(mwtl_system_lifecycle_demo main.cpp)

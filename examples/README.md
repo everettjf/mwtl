@@ -1,6 +1,6 @@
 # mwtl examples
 
-Milestone 1 includes 12 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path.
+The repository includes 19 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path.
 
 | Directory | Target | Focus |
 |---|---|---|
@@ -16,6 +16,13 @@ Milestone 1 includes 12 focused executables. Each example is intentionally small
 | `minmax` | `mwtl_minmax_demo` | Apply a minimum tracking size with `WM_GETMINMAXINFO` |
 | `close_policy` | `mwtl_close_policy_demo` | Intercept close once, then delegate to the base policy |
 | `window_state` | `mwtl_window_state_demo` | Observe restored, minimized, and maximized states |
+| `dpi` | `mwtl_dpi_demo` | Per-window DPI context and the default `WM_DPICHANGED` rectangle policy |
+| `window_options` | `mwtl_window_options_demo` | Class traits, styles, centered DIP client bounds, and native resources |
+| `wait_aware` | `mwtl_wait_aware_demo` | A non-busy wait-aware pump with idle callbacks |
+| `wakeup` | `mwtl_wakeup_demo` | A lifetime-safe worker-to-window wake token |
+| `com_sta` | `mwtl_com_sta_demo` | Application-owned COM STA initialization and cleanup |
+| `self_drawn_host` | `mwtl_self_drawn_host_demo` | Worker-driven dirty frames, GDI paint, wake token, and wait-aware pump |
+| `system_lifecycle` | `mwtl_system_lifecycle_demo` | Power, display, settings, IME, end-session, and accessibility hand-off messages |
 
 Configure with `MWTL_BUILD_EXAMPLES=ON`, then build one target or all targets:
 
@@ -43,4 +50,4 @@ Run a target from its configuration directory, for example:
 ./build/x64/examples/timer/Debug/mwtl_timer_demo.exe
 ```
 
-Every example remains within milestone 1: native messages and GDI calls demonstrate HWND interoperability, not new mwtl layout, control, theme, or rendering abstractions.
+The examples remain native: messages and GDI calls demonstrate HWND interoperability, not a new layout, control, theme, or rendering abstraction.

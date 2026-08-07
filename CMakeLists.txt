@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(mwtl VERSION 0.1.0 LANGUAGES CXX)
+project(mwtl VERSION 0.2.0 LANGUAGES CXX)
 
 if(NOT WIN32)
-    message(FATAL_ERROR "mwtl milestone 1 supports Windows only.")
+    message(FATAL_ERROR "mwtl supports Windows only.")
 endif()
 
 if(NOT MSVC)
-    message(FATAL_ERROR "mwtl milestone 1 supports the MSVC toolchain only (not MinGW or clang-cl).")
+    message(FATAL_ERROR "mwtl supports the MSVC toolchain only (not MinGW or clang-cl).")
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    message(FATAL_ERROR "mwtl milestone 1 supports x64 and ARM64 only; 32-bit targets are not supported.")
+    message(FATAL_ERROR "mwtl supports x64 and ARM64 only; 32-bit targets are not supported.")
 endif()
 
 if(CMAKE_GENERATOR_PLATFORM AND NOT CMAKE_GENERATOR_PLATFORM MATCHES "^(x64|ARM64)$")
-    message(FATAL_ERROR "mwtl milestone 1 supports only the x64 and ARM64 generator platforms.")
+    message(FATAL_ERROR "mwtl supports only the x64 and ARM64 generator platforms.")
 endif()
 
 if(PROJECT_IS_TOP_LEVEL)
@@ -32,8 +32,11 @@ mwtl_resolve_dependencies()
 
 add_library(mwtl STATIC
     src/application.cpp
+    src/dpi.cpp
     src/detail/diagnostics.cpp
-    src/module.cpp)
+    src/message_pump.cpp
+    src/module.cpp
+    src/window_options.cpp)
 add_library(mwtl::mwtl ALIAS mwtl)
 
 target_compile_features(mwtl PUBLIC cxx_std_17)
@@ -57,7 +60,9 @@ target_include_directories(mwtl
 target_link_libraries(mwtl
     PUBLIC
         WTL::WTL
-        WIL::WIL)
+        WIL::WIL
+    PRIVATE
+        ole32)
 
 if(MWTL_BUILD_TESTS)
     target_compile_definitions(mwtl PRIVATE MWTL_TESTING)

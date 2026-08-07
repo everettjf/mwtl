@@ -31,6 +31,9 @@ LifecycleSnapshot GetLifecycleSnapshotForTesting() noexcept {
 
 Application::Application(HINSTANCE instance) noexcept : instance_(instance) {}
 
+Application::Application(HINSTANCE instance, ApplicationOptions options) noexcept
+    : instance_(instance), options_(options) {}
+
 Application::~Application() noexcept {
     EndRun();
 }
@@ -41,6 +44,24 @@ bool Application::BeginRun() noexcept {
         return false;
     }
     running_ = true;
+
+    if (options_.com_apartment != ComApartment::none) {
+        const DWORD flags = options_.com_apartment == ComApartment::sta
+            ? COINIT_APARTMENTTHREADED
+            : COINIT_MULTITHREADED;
+        const HRESULT com_result = ::CoInitializeEx(nullptr, flags);
+        if (FAILED(com_result)) {
+            detail::ReportHresult(
+                com_result == RPC_E_CHANGED_MODE
+                    ? L"COM apartment mode conflict"
+                    : L"CoInitializeEx",
+                com_result,
+                true);
+            running_ = false;
+            return false;
+        }
+        com_uninitialize_.activate();
+    }
 
     const HRESULT result = _Module.Init(nullptr, instance_);
 #ifdef MWTL_TESTING
@@ -60,6 +81,7 @@ bool Application::BeginRun() noexcept {
 #ifdef MWTL_TESTING
         ++detail::lifecycle_snapshot.module_terminated;
 #endif
+        com_uninitialize_.reset();
         running_ = false;
         return false;
     }
@@ -109,11 +131,14 @@ void Application::EndRun() noexcept {
         ++detail::lifecycle_snapshot.module_terminated;
 #endif
     }
+    com_uninitialize_.reset();
     running_ = false;
 }
 
-int Application::RunMessageLoop() {
-    return message_loop_.Run();
+int Application::RunMessageLoop(MessagePump* message_pump) {
+    return message_pump == nullptr
+        ? message_loop_.Run()
+        : message_pump->Run(message_loop_);
 }
 
 void Application::ReportWindowCreationFailure(DWORD error) noexcept {

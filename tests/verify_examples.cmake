@@ -10,7 +10,14 @@ set(example_names
     paint
     minmax
     close_policy
-    window_state)
+    window_state
+    dpi
+    window_options
+    wait_aware
+    wakeup
+    com_sta
+    self_drawn_host
+    system_lifecycle)
 
 file(READ "${PROJECT_ROOT}/README.md" root_readme)
 file(READ "${PROJECT_ROOT}/examples/README.md" examples_readme)
@@ -44,6 +51,6 @@ foreach(image_name IN ITEMS paint-demo.png native-message-demo.png timer-demo.pn
 endforeach()
 
 list(LENGTH example_names example_count)
-if(example_count LESS 10)
-    message(FATAL_ERROR "fewer than 10 examples are cataloged")
+if(example_count LESS 19)
+    message(FATAL_ERROR "fewer than 19 examples are cataloged")
 endif()

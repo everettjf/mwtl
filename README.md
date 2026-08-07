@@ -6,7 +6,17 @@ The project is not a replacement for Qt, WinUI, XAML/QML, or a cross-platform/fu
 
 ## Current status
 
-Milestone 1 provides:
+Version 0.2 extends the milestone-1 foundation with:
+
+- DIP geometry conversion and per-window `DpiContext`;
+- configurable class traits, styles, icons/cursor/background, and initial bounds;
+- automatic `WM_DPICHANGED` suggested-rectangle handling (opt-out is explicit);
+- a `MsgWaitForMultipleObjectsEx` pump preserving WTL message filters;
+- a lifetime-safe, non-owning `WindowWakeup` token for worker-to-UI notification;
+- optional application-owned STA/MTA COM initialization;
+- C++17 and C++20 consumer compile checks.
+
+The original foundation provides:
 
 - a CMake static library target named `mwtl::mwtl`;
 - pinned official WTL and WIL dependencies;
@@ -19,13 +29,22 @@ Milestone 1 provides:
 - CTest coverage for normal exit, creation failure cleanup, message-handler exceptions, public-header independence, and the embedded DPI manifest;
 - a static component documentation site under `site/`, ready for GitHub Pages deployment.
 
-There is currently no DIP/geometry API, DPI relayout, layout system, control DSL/wrappers, theme/font system, dispatcher, Mica/backdrop, Direct2D, or DirectWrite support.
+There is currently no layout system, control DSL/wrappers, theme/font system, general task dispatcher, Mica/backdrop, Direct2D, DirectWrite, terminal, or ConPTY abstraction.
 
-The proposed [`v0.2.0` development plan](docs/mwtl-0.2-plan.md) focuses on an
+The [`v0.2.0` development plan](docs/mwtl-0.2-plan.md) defines the
 advanced native window host: configurable HWND creation, per-window DPI,
 wait-aware message pumping, thread-safe wake-up, system lifecycle
 interoperability, and a liney-win migration spike. It does not move terminal,
 rendering, or workspace product logic into mwtl.
+
+Implementation details are recorded in the [0.2 design](docs/mwtl-0.2-design.md),
+the [API and ownership reference](docs/api-0.2.md),
+the [liney-win migration spike](docs/liney-win-migration-spike.md), and the
+[native system-message recipes](docs/system-message-recipes.md). See also the
+[0.2.0 release notes](docs/release-notes-0.2.0.md).
+Performance results and the remaining manual gates are in the
+[0.2 evidence](docs/performance-0.2.0.md) and
+[release checklist](docs/release-checklist-0.2.0.md).
 
 ## Requirements
 
@@ -92,7 +111,7 @@ When mwtl is included with `add_subdirectory`, examples and tests default to off
 
 ## Component examples
 
-The repository contains **12 independently buildable GUI examples**. They are all managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++17, warning, and Per-Monitor V2 manifest setup.
+The repository contains **19 independently buildable GUI examples**. They are all managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++17, warning, and Per-Monitor V2 manifest setup.
 
 | Component | Directory | CMake target | Demonstrates |
 |---|---|---|---|
@@ -108,6 +127,13 @@ The repository contains **12 independently buildable GUI examples**. They are al
 | Minimum size | `examples/minmax` | `mwtl_minmax_demo` | A native minimum tracking size through `WM_GETMINMAXINFO` |
 | Close policy | `examples/close_policy` | `mwtl_close_policy_demo` | Intercepting `WM_CLOSE` without changing `Application` lifetime policy |
 | Window state | `examples/window_state` | `mwtl_window_state_demo` | Restored, minimized, and maximized state from `WM_SIZE` |
+| DPI | `examples/dpi` | `mwtl_dpi_demo` | Per-window DPI and `WM_DPICHANGED` |
+| Window options | `examples/window_options` | `mwtl_window_options_demo` | Class traits, styles, DIP client size and centering |
+| Wait-aware pump | `examples/wait_aware` | `mwtl_wait_aware_demo` | Non-busy message/timer waiting |
+| Safe wake-up | `examples/wakeup` | `mwtl_wakeup_demo` | Worker-to-HWND lifetime-safe wake notification |
+| COM STA | `examples/com_sta` | `mwtl_com_sta_demo` | Optional COM apartment lifecycle |
+| Self-drawn host | `examples/self_drawn_host` | `mwtl_self_drawn_host_demo` | Dirty-frame wake-up, native GDI and wait-aware pumping |
+| System lifecycle | `examples/system_lifecycle` | `mwtl_system_lifecycle_demo` | Power/display/settings/IME/end-session/accessibility messages |
 
 Build any one directly, for example:
 
@@ -137,6 +163,9 @@ These images are captured from the actual x64 Debug executables in this reposito
 - exact `CAppModule`/message-loop cleanup counts on each path;
 - independent C++17 compilation of every public header;
 - extraction and inspection of the final hello EXE manifest with the Windows SDK manifest tool.
+- DPI conversion edge cases, C++20 consumption, custom class traits, COM STA,
+  wait-handle dispatch, callback exception containment, 2,000-message wake-up
+  bursts, idle CPU behavior, and a liney-style native host fixture.
 
 The repository CI workflow builds and tests x64 Debug and Release and separately cross-builds Debug and Release for ARM64.
 

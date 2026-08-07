@@ -8,6 +8,11 @@
 
 #include <cstdlib>
 #include <exception>
+#include <memory>
+
+#include <mwtl/dpi.h>
+#include <mwtl/wakeup.h>
+#include <mwtl/window_options.h>
 
 namespace mwtl::detail {
 
@@ -22,12 +27,16 @@ void ReportUnknownException(const wchar_t* stage, UINT message, bool show_user) 
 
 namespace mwtl {
 
-template <typename T>
-class Window : public WTL::CFrameWindowImpl<T> {
+namespace detail {
+struct WindowMarker {};
+}
+
+template <typename T, typename ClassTraits = DefaultWindowClassTraits>
+class Window : public WTL::CFrameWindowImpl<T>, public detail::WindowMarker {
 public:
     using Base = WTL::CFrameWindowImpl<T>;
 
-    Window() noexcept = default;
+    Window() : wake_state_(std::make_shared<detail::WindowWakeState>()) {}
     ~Window() = default;
 
     Window(const Window&) = delete;
@@ -35,12 +44,29 @@ public:
     Window(Window&&) = delete;
     Window& operator=(Window&&) = delete;
 
-    DECLARE_FRAME_WND_CLASS_EX2(
-        L"mwtl.MainWindow",
-        Window<T>,
-        0,
-        CS_HREDRAW | CS_VREDRAW,
-        COLOR_WINDOW)
+    static WTL::CFrameWndClassInfo& GetWndClassInfo() {
+        static WTL::CFrameWndClassInfo info = {
+            {sizeof(WNDCLASSEXW),
+             ClassTraits::GetClassStyle(),
+             Window<T, ClassTraits>::StartWindowProc,
+             0,
+             0,
+             nullptr,
+             ClassTraits::GetIcon(),
+             ClassTraits::GetCursor(),
+             ClassTraits::GetBackground(),
+             nullptr,
+             ClassTraits::GetClassName(),
+             ClassTraits::GetSmallIcon()},
+            nullptr,
+            nullptr,
+            nullptr,
+            TRUE,
+            0,
+            L"",
+            0};
+        return info;
+    }
 
     HWND GetHwnd() const noexcept { return this->m_hWnd; }
 
@@ -50,6 +76,40 @@ public:
 
     bool SetTitle(const wchar_t* title) noexcept {
         return this->m_hWnd != nullptr && ::SetWindowTextW(this->m_hWnd, title) != FALSE;
+    }
+
+    DpiContext GetDpiContext() const noexcept {
+        return DpiContext::FromWindow(GetHwnd());
+    }
+
+    WindowWakeup GetWakeup() const noexcept { return WindowWakeup(wake_state_); }
+
+    void ConfigureWindowOptions(const WindowOptions& options) noexcept {
+        apply_suggested_dpi_rect_ = options.apply_suggested_dpi_rect;
+    }
+
+    void ApplyNativeResources(const WindowOptions& options) noexcept {
+        const HWND window = GetHwnd();
+        if (window == nullptr) {
+            return;
+        }
+        if (options.icon != nullptr) {
+            ::SendMessageW(window, WM_SETICON, ICON_BIG,
+                           reinterpret_cast<LPARAM>(options.icon));
+        }
+        if (options.small_icon != nullptr) {
+            ::SendMessageW(window, WM_SETICON, ICON_SMALL,
+                           reinterpret_cast<LPARAM>(options.small_icon));
+        }
+        if (options.cursor != nullptr) {
+            ::SetClassLongPtrW(
+                window, GCLP_HCURSOR, reinterpret_cast<LONG_PTR>(options.cursor));
+        }
+        if (options.background != nullptr) {
+            ::SetClassLongPtrW(
+                window, GCLP_HBRBACKGROUND,
+                reinterpret_cast<LONG_PTR>(options.background));
+        }
     }
 
 protected:
@@ -71,19 +131,42 @@ private:
         UINT message,
         WPARAM wparam,
         LPARAM lparam) noexcept {
-        auto* self = reinterpret_cast<Window<T>*>(object_pointer);
+        auto* self = reinterpret_cast<Window<T, ClassTraits>*>(object_pointer);
         const bool creation_message = !self->creation_complete_;
         const wchar_t* const stage = StageFor(message, self->creation_complete_);
         const _ATL_MSG* const previous_message = self->m_pCurrentMsg;
 
         try {
+            if (message == WindowWakeup::Message() &&
+                wparam != reinterpret_cast<WPARAM>(self->wake_state_.get())) {
+                return 0;
+            }
+
             if (message == WM_CLOSE && self->recovery_requested_) {
                 const HWND window = self->m_hWnd;
                 return window != nullptr && ::DestroyWindow(window) != FALSE ? 0 : -1;
             }
 
             if (message == WM_CREATE) {
+                self->wake_state_->window.store(self->m_hWnd, std::memory_order_release);
                 static_cast<T*>(self)->BuildUI();
+            }
+
+            if (message == WM_DPICHANGED && self->apply_suggested_dpi_rect_ &&
+                lparam != 0) {
+                const RECT* suggested = reinterpret_cast<const RECT*>(lparam);
+                ::SetWindowPos(
+                    self->m_hWnd,
+                    nullptr,
+                    suggested->left,
+                    suggested->top,
+                    suggested->right - suggested->left,
+                    suggested->bottom - suggested->top,
+                    SWP_NOZORDER | SWP_NOACTIVATE);
+            }
+
+            if (message == WM_NCDESTROY) {
+                self->wake_state_->window.store(nullptr, std::memory_order_release);
             }
 
             const LRESULT result = Base::WindowProc(object_pointer, message, wparam, lparam);
@@ -93,6 +176,9 @@ private:
             }
             if (message == WM_DESTROY) {
                 ::PostQuitMessage(self->exit_code_);
+            }
+            if (message == WM_NCDESTROY) {
+                self->wake_state_->window.store(nullptr, std::memory_order_release);
             }
             return result;
         } catch (const std::exception& error) {
@@ -118,6 +204,7 @@ private:
         }
 
         if (message == WM_NCDESTROY) {
+            wake_state_->window.store(nullptr, std::memory_order_release);
             const HWND window = this->m_hWnd;
             const LRESULT result = window != nullptr
                 ? ::DefWindowProcW(window, message, wparam, lparam)
@@ -142,7 +229,9 @@ private:
 
     bool creation_complete_ = false;
     bool recovery_requested_ = false;
+    bool apply_suggested_dpi_rect_ = true;
     int exit_code_ = EXIT_SUCCESS;
+    std::shared_ptr<detail::WindowWakeState> wake_state_;
 };
 
 }  // namespace mwtl

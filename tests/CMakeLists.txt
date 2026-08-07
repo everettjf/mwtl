@@ -10,7 +10,8 @@ foreach(mode IN ITEMS
         module_init_failure
         loop_registration_failure
         create_failure
-        message_failure)
+        message_failure
+        destruction_failure)
     add_test(NAME mwtl.lifecycle.${mode} COMMAND mwtl_lifecycle_test ${mode})
     set(test_environment "MWTL_TEST_NO_DIALOGS=1")
     if(mode STREQUAL "module_init_failure")
@@ -23,12 +24,49 @@ foreach(mode IN ITEMS
         TIMEOUT 20)
 endforeach()
 
-foreach(header IN ITEMS application window umbrella)
+foreach(header IN ITEMS application dpi message_pump window window_options wakeup umbrella)
     add_library(mwtl_header_${header} OBJECT header_${header}.cpp)
     target_compile_features(mwtl_header_${header} PRIVATE cxx_std_17)
     target_compile_options(mwtl_header_${header} PRIVATE /W4 /permissive- /EHsc /utf-8)
     target_link_libraries(mwtl_header_${header} PRIVATE mwtl::mwtl)
 endforeach()
+
+add_library(mwtl_consumer_cpp20 OBJECT consumer_cpp20.cpp)
+target_compile_features(mwtl_consumer_cpp20 PRIVATE cxx_std_20)
+target_compile_options(mwtl_consumer_cpp20 PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_consumer_cpp20 PRIVATE mwtl::mwtl)
+
+add_executable(mwtl_dpi_test dpi_test.cpp)
+target_compile_features(mwtl_dpi_test PRIVATE cxx_std_17)
+target_compile_options(mwtl_dpi_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_dpi_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.dpi COMMAND mwtl_dpi_test)
+set_tests_properties(mwtl.dpi PROPERTIES TIMEOUT 20)
+
+add_executable(mwtl_advanced_lifecycle_test advanced_lifecycle_test.cpp)
+target_compile_features(mwtl_advanced_lifecycle_test PRIVATE cxx_std_17)
+target_compile_options(mwtl_advanced_lifecycle_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_compile_definitions(mwtl_advanced_lifecycle_test PRIVATE MWTL_TESTING)
+target_include_directories(mwtl_advanced_lifecycle_test PRIVATE "${PROJECT_SOURCE_DIR}/src")
+target_link_libraries(mwtl_advanced_lifecycle_test PRIVATE mwtl::mwtl)
+foreach(mode IN ITEMS
+        custom_window wait_handle wakeup wake_stress wake_latency idle_efficiency com_sta com_conflict
+        pump_exception after_dispatch_exception wait_callback_exception
+        wait_failure exact_exit dpi_change)
+    add_test(NAME mwtl.advanced.${mode} COMMAND mwtl_advanced_lifecycle_test ${mode})
+    set_tests_properties(mwtl.advanced.${mode} PROPERTIES
+        ENVIRONMENT "MWTL_TEST_NO_DIALOGS=1"
+        TIMEOUT 20)
+endforeach()
+
+add_executable(mwtl_liney_host_compat_test liney_host_compat_test.cpp)
+target_compile_features(mwtl_liney_host_compat_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_liney_host_compat_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_liney_host_compat_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.liney_host_compat COMMAND mwtl_liney_host_compat_test)
+set_tests_properties(mwtl.liney_host_compat PROPERTIES
+    ENVIRONMENT "MWTL_TEST_NO_DIALOGS=1"
+    TIMEOUT 20)
 
 if(TARGET mwtl_hello)
     set(mwtl_mt_tool "${CMAKE_MT}")
@@ -51,7 +89,14 @@ if(TARGET mwtl_hello)
             mwtl_paint_demo
             mwtl_minmax_demo
             mwtl_close_policy_demo
-            mwtl_window_state_demo)
+            mwtl_window_state_demo
+            mwtl_dpi_demo
+            mwtl_window_options_demo
+            mwtl_wait_aware_demo
+            mwtl_wakeup_demo
+            mwtl_com_sta_demo
+            mwtl_self_drawn_host_demo
+            mwtl_system_lifecycle_demo)
         add_test(
             NAME mwtl.manifest.${example_target}
             COMMAND "${CMAKE_COMMAND}"

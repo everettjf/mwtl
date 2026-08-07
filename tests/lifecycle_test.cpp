@@ -12,6 +12,7 @@ enum class TestMode {
     create_failure,
     normal_close,
     message_failure,
+    destruction_failure,
 };
 
 TestMode current_mode = TestMode::normal_close;
@@ -33,6 +34,7 @@ public:
 
     BEGIN_MSG_MAP(TestWindow)
         MESSAGE_HANDLER(WM_APP + 1, OnInjectedFailure)
+        MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
         CHAIN_MSG_MAP(mwtl::Window<TestWindow>)
     END_MSG_MAP()
 
@@ -41,6 +43,14 @@ private:
         if (current_mode == TestMode::message_failure) {
             throw std::runtime_error("injected message handler failure");
         }
+        return 0;
+    }
+
+    LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL& handled) {
+        if (current_mode == TestMode::destruction_failure) {
+            throw std::runtime_error("injected destruction failure");
+        }
+        handled = FALSE;
         return 0;
     }
 };
@@ -73,6 +83,8 @@ int main(int argc, char** argv) {
         current_mode = TestMode::create_failure;
     } else if (std::strcmp(argv[1], "message_failure") == 0) {
         current_mode = TestMode::message_failure;
+    } else if (std::strcmp(argv[1], "destruction_failure") == 0) {
+        current_mode = TestMode::destruction_failure;
     } else {
         std::fprintf(stderr, "unknown test mode: %s\n", argv[1]);
         return 21;

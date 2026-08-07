@@ -69,13 +69,13 @@ injection, while dialogs use structured filters and `std::filesystem::path`.
 using mwtl::operator""_dip;
 
 mwtl::ControlHost ui{*this};
-ui.Add(name_, {100}, L"Developer");
-ui.Add(save_, {101}, L"Save");
-ui.Add(progress_, {102}).SetRange(0, 100).SetValue(64);
+ui.Add(name_, L"Developer");
+ui.Add(save_, L"Save");
+ui.Add(progress_).SetRange(0, 100).SetValue(64);
 mwtl::Must(mwtl::AddItems(
     theme_, {L"System", L"Light", L"Dark"}));
 
-UseLayout(
+SetLayout(
     mwtl::Row()
         .Gap(8_dip)
         .Add(name_, mwtl::Stretch(1.0f, 160_dip))
@@ -104,9 +104,9 @@ windows stay in the full catalog instead of taking over the front page.
   <tr>
     <td valign="top"><pre><code>void BuildUI() {
     mwtl::ControlHost ui{*this};
-    ui.Add(message_, {100}, L"Hello, mwtl");
-    ui.Add(button_, {101}, L"Try it");
-    UseLayout(
+    ui.Add(message_, L"Hello, mwtl");
+    ui.Add(button_, L"Try it");
+    SetLayout(
         mwtl::Column()
             .Margin(20_dip).Gap(8_dip)
             .Add(message_, mwtl::Fixed(28_dip))
@@ -148,15 +148,15 @@ mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
   <tr>
     <td valign="top"><pre><code>void BuildUI() {
     mwtl::ControlHost ui{*this};
-    ui.Add(name_, {102}, L"mwtl developer");
-    ui.Add(greet_, {103}, L"Say hello");
-    ui.Add(enabled_, {104}, L"Button enabled");
-    ui.Add(accent_, {105});
-    ui.Add(progress_, {106});
-    ui.Add(group_, {107}, L"Choices");
-    ui.Add(radio_, {108}, L"Sky blue");
-    ui.Add(list_, {109});
-    ui.Add(slider_, {110});
+    ui.Add(name_, L"mwtl developer");
+    ui.Add(greet_, L"Say hello");
+    ui.Add(enabled_, L"Button enabled");
+    ui.Add(accent_);
+    ui.Add(progress_);
+    ui.Add(group_, L"Choices");
+    ui.Add(radio_, L"Sky blue");
+    ui.Add(list_);
+    ui.Add(slider_);
     heartbeat_.Start(*this, {1}, 1s);
 }
 

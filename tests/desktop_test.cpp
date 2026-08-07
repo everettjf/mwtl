@@ -12,20 +12,6 @@ namespace {
 
 bool accelerator_seen = false;
 
-UINT_PTR CALLBACK CancelFileDialog(HWND dialog, UINT message, WPARAM, LPARAM) {
-    if (message == WM_INITDIALOG) {
-        ::PostMessageW(::GetParent(dialog), WM_COMMAND, IDCANCEL, 0);
-    }
-    return 0;
-}
-
-int CALLBACK CancelFolderDialog(HWND dialog, UINT message, LPARAM, LPARAM) {
-    if (message == BFFM_INITIALIZED) {
-        ::PostMessageW(dialog, WM_COMMAND, IDCANCEL, 0);
-    }
-    return 0;
-}
-
 class AcceleratorWindow final : public mwtl::Window<AcceleratorWindow> {
 public:
     void BuildUI() {
@@ -136,16 +122,6 @@ int main(int argc, char** argv) {
     ::RegDeleteTreeW(HKEY_CURRENT_USER, key);
     if (!loaded_ok || loaded.placement.rcNormalPosition.left != 10 ||
         loaded.placement.rcNormalPosition.bottom != 320) return 3;
-
-    mwtl::FileDialogOptions file_options{};
-    file_options.title = L"mwtl automated cancellation test";
-    file_options.hook = CancelFileDialog;
-    if (!mwtl::ShowOpenFileDialog(file_options).Cancelled()) return 4;
-
-    mwtl::FolderDialogOptions folder_options{};
-    folder_options.title = L"mwtl automated cancellation test";
-    folder_options.callback = CancelFolderDialog;
-    if (!mwtl::ShowFolderDialog(folder_options).Cancelled()) return 5;
 
     if (!skip_clipboard && !VerifyClipboardRoundTrip()) return 6;
     if (!VerifyDroppedFiles()) return 7;

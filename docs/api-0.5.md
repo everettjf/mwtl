@@ -3,6 +3,18 @@
 Version 0.5 treats the pre-1.0 API as unfrozen and prioritizes concise, safe
 application code over historical source compatibility.
 
+## Concise ownership defaults
+
+`ControlHost::Add(control, ...)` allocates a host-local control ID starting
+at `0x4000`; pass a `ControlId` only when a stable resource ID is required.
+`WindowBase::SetLayout(LayoutNode)` owns the layout tree, so there is no
+non-owning layout attachment whose lifetime the caller must manage. Layout
+measurement stores HWND values rather than references to movable wrappers.
+
+Open, save, and folder pickers use the Vista-era `IFileDialog` family. Their
+options use strings, booleans, and `std::filesystem::path` instead of legacy
+hook callbacks and `OPENFILENAME`/`BROWSEINFO` flags.
+
 ## Layout and controls
 
 All built-in controls expose dynamic intrinsic measurement. `Auto()` remeasures

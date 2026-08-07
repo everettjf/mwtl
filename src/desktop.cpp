@@ -1,5 +1,7 @@
 #include <mwtl/desktop.h>
 
+#include <shobjidl.h>
+
 #include <algorithm>
 #include <cstring>
 #include <utility>
@@ -11,41 +13,88 @@ std::wstring Terminate(std::wstring_view value) {
     return std::wstring(value);
 }
 
+template <typename Interface>
+class ComPtr final {
+public:
+    ~ComPtr() { if (value_ != nullptr) value_->Release(); }
+    Interface** Put() noexcept { return &value_; }
+    Interface* operator->() const noexcept { return value_; }
+    Interface* Get() const noexcept { return value_; }
+private:
+    Interface* value_ = nullptr;
+};
+
+class ComApartment final {
+public:
+    ComApartment() noexcept : result_(::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)) {}
+    ~ComApartment() { if (SUCCEEDED(result_)) ::CoUninitialize(); }
+    HRESULT Result() const noexcept { return result_; }
+private:
+    HRESULT result_;
+};
+
+FileDialogResult DialogResult(IFileDialog& dialog) {
+    ComPtr<IShellItem> item;
+    HRESULT result = dialog.GetResult(item.Put());
+    if (FAILED(result)) return {{}, static_cast<DWORD>(result), false};
+    PWSTR native_path = nullptr;
+    result = item->GetDisplayName(SIGDN_FILESYSPATH, &native_path);
+    if (FAILED(result)) return {{}, static_cast<DWORD>(result), false};
+    struct FreePath { PWSTR value; ~FreePath() { ::CoTaskMemFree(value); } } free_path{native_path};
+    return {std::filesystem::path(native_path), 0, true};
+}
+
+void SetInitialPath(IFileDialog& dialog, const std::filesystem::path& path) {
+    if (path.empty()) return;
+    const auto folder = std::filesystem::is_directory(path) ? path : path.parent_path();
+    if (!folder.empty()) {
+        ComPtr<IShellItem> item;
+        if (SUCCEEDED(::SHCreateItemFromParsingName(
+                folder.c_str(), nullptr, IID_PPV_ARGS(item.Put())))) {
+            dialog.SetFolder(item.Get());
+        }
+    }
+    if (!std::filesystem::is_directory(path) && !path.filename().empty()) {
+        dialog.SetFileName(path.filename().c_str());
+    }
+}
+
 FileDialogResult ShowFileDialog(const FileDialogOptions& options, bool save) {
-    constexpr DWORD kBufferCharacters = 32768;
-    std::vector<wchar_t> path(kBufferCharacters, L'\0');
-    const std::wstring initial_path = options.initial_path.native();
-    if (!initial_path.empty()) {
-        const auto count = (std::min)(initial_path.size(), path.size() - 1);
-        std::copy_n(initial_path.data(), count, path.data());
+    ComApartment apartment;
+    if (FAILED(apartment.Result()) && apartment.Result() != RPC_E_CHANGED_MODE) {
+        return {{}, static_cast<DWORD>(apartment.Result()), false};
     }
+    ComPtr<IFileDialog> dialog;
+    const HRESULT created = save
+        ? ::CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC_SERVER,
+                             IID_PPV_ARGS(dialog.Put()))
+        : ::CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER,
+                             IID_PPV_ARGS(dialog.Put()));
+    if (FAILED(created)) return {{}, static_cast<DWORD>(created), false};
 
-    std::wstring filters;
+    FILEOPENDIALOGOPTIONS flags{};
+    dialog->GetOptions(&flags);
+    flags |= FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR;
+    if (options.path_must_exist) flags |= FOS_PATHMUSTEXIST;
+    if (save) flags |= FOS_OVERWRITEPROMPT; else flags |= FOS_FILEMUSTEXIST;
+    dialog->SetOptions(flags);
+    if (!options.title.empty()) dialog->SetTitle(options.title.c_str());
+    if (!options.default_extension.empty()) {
+        dialog->SetDefaultExtension(options.default_extension.c_str());
+    }
+    std::vector<COMDLG_FILTERSPEC> filters;
+    filters.reserve(options.filters.size());
     for (const auto& filter : options.filters) {
-        filters.append(filter.name).push_back(L'\0');
-        filters.append(filter.pattern).push_back(L'\0');
+        filters.push_back({filter.name.c_str(), filter.pattern.c_str()});
     }
-    if (!filters.empty()) filters.push_back(L'\0');
-
-    OPENFILENAMEW dialog{};
-    dialog.lStructSize = sizeof(dialog);
-    dialog.hwndOwner = options.owner;
-    dialog.lpstrFilter = filters.empty() ? nullptr : filters.c_str();
-    dialog.lpstrFile = path.data();
-    dialog.nMaxFile = static_cast<DWORD>(path.size());
-    dialog.lpstrTitle = options.title.empty() ? nullptr : options.title.c_str();
-    dialog.lpstrDefExt = options.default_extension.empty()
-        ? nullptr : options.default_extension.c_str();
-    dialog.Flags = options.flags | (save ? OFN_OVERWRITEPROMPT : OFN_FILEMUSTEXIST) |
-        (options.hook != nullptr ? OFN_ENABLEHOOK : 0);
-    dialog.lpfnHook = options.hook;
-    dialog.lCustData = options.custom_data;
-
-    const BOOL accepted = save ? ::GetSaveFileNameW(&dialog) : ::GetOpenFileNameW(&dialog);
-    if (accepted != FALSE) {
-        return {std::filesystem::path(path.data()), 0, true};
+    if (!filters.empty()) {
+        dialog->SetFileTypes(static_cast<UINT>(filters.size()), filters.data());
     }
-    return {{}, ::CommDlgExtendedError(), false};
+    SetInitialPath(*dialog.Get(), options.initial_path);
+    const HRESULT shown = dialog->Show(options.owner);
+    if (shown == HRESULT_FROM_WIN32(ERROR_CANCELLED)) return {};
+    if (FAILED(shown)) return {{}, static_cast<DWORD>(shown), false};
+    return DialogResult(*dialog.Get());
 }
 
 RECT ClampRectToWorkArea(RECT rect) noexcept {
@@ -115,21 +164,25 @@ void AcceleratorTable::Reset() noexcept { if (table_ != nullptr) ::DestroyAccele
 FileDialogResult ShowOpenFileDialog(const FileDialogOptions& options) { return ShowFileDialog(options, false); }
 FileDialogResult ShowSaveFileDialog(const FileDialogOptions& options) { return ShowFileDialog(options, true); }
 FileDialogResult ShowFolderDialog(const FolderDialogOptions& options) {
-    BROWSEINFOW browse{};
-    browse.hwndOwner = options.owner;
-    browse.lpszTitle = options.title.empty() ? nullptr : options.title.c_str();
-    browse.ulFlags = options.flags;
-    browse.lpfn = options.callback;
-    browse.lParam = options.custom_data;
-    PIDLIST_ABSOLUTE item = ::SHBrowseForFolderW(&browse);
-    if (item == nullptr) return {{}, 0, false};
-    struct FreeItem { PIDLIST_ABSOLUTE value; ~FreeItem() { ::CoTaskMemFree(value); } } free_item{item};
-    std::wstring path(32768, L'\0');
-    if (::SHGetPathFromIDListEx(item, path.data(), static_cast<DWORD>(path.size()), 0) == FALSE) {
-        return {{}, ERROR_PATH_NOT_FOUND, false};
+    ComApartment apartment;
+    if (FAILED(apartment.Result()) && apartment.Result() != RPC_E_CHANGED_MODE) {
+        return {{}, static_cast<DWORD>(apartment.Result()), false};
     }
-    path.resize(std::char_traits<wchar_t>::length(path.c_str()));
-    return {std::filesystem::path(std::move(path)), 0, true};
+    ComPtr<IFileOpenDialog> dialog;
+    const HRESULT created = ::CoCreateInstance(
+        CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(dialog.Put()));
+    if (FAILED(created)) return {{}, static_cast<DWORD>(created), false};
+    FILEOPENDIALOGOPTIONS flags{};
+    dialog->GetOptions(&flags);
+    dialog->SetOptions(flags | FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM |
+                       FOS_PATHMUSTEXIST | FOS_NOCHANGEDIR);
+    if (!options.title.empty()) dialog->SetTitle(options.title.c_str());
+    SetInitialPath(*dialog.Get(), options.initial_path);
+    const HRESULT shown = dialog->Show(options.owner);
+    if (shown == HRESULT_FROM_WIN32(ERROR_CANCELLED)) return {};
+    if (FAILED(shown)) return {{}, static_cast<DWORD>(shown), false};
+    return DialogResult(*dialog.Get());
 }
 
 bool SetClipboardText(HWND owner, std::wstring_view text) noexcept {

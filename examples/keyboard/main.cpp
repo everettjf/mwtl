@@ -14,7 +14,7 @@ public:
 
     void OnKeyDown(const mwtl::KeyEvent& event) {
         if (event.virtual_key == VK_ESCAPE) {
-            static_cast<void>(Close());
+            Close();
             return;
         }
         wchar_t title[96]{};

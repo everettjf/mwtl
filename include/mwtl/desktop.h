@@ -1,9 +1,8 @@
 #pragma once
 
 #include <windows.h>
-#include <commdlg.h>
 #include <shellapi.h>
-#include <shlobj.h>
+#include <shlobj_core.h>
 
 #include <span>
 #include <concepts>
@@ -78,9 +77,7 @@ struct FileDialogOptions {
     std::vector<Filter> filters;
     std::wstring default_extension;
     std::filesystem::path initial_path;
-    DWORD flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
-    LPOFNHOOKPROC hook = nullptr;
-    LPARAM custom_data = 0;
+    bool path_must_exist = true;
 };
 
 struct FileDialogResult {
@@ -99,9 +96,7 @@ FileDialogResult ShowSaveFileDialog(const FileDialogOptions& options);
 struct FolderDialogOptions {
     HWND owner = nullptr;
     std::wstring title;
-    UINT flags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE | BIF_USENEWUI;
-    BFFCALLBACK callback = nullptr;
-    LPARAM custom_data = 0;
+    std::filesystem::path initial_path;
 };
 
 FileDialogResult ShowFolderDialog(

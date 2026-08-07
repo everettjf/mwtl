@@ -38,20 +38,20 @@ public:
             {kAbout, L"Task Dialog"}, {kRefresh, L"Refresh"}}),
             "populate Toolbar buttons");
         toolbar_.AutoSize();
-        static_cast<void>(rebar_.AddBand(toolbar_, L"", 360));
-        static_cast<void>(tooltip_.AddTool(toolbar_.GetHwnd(), L"Native Toolbar hosted by a Rebar"));
+        rebar_.AddBand(toolbar_, L"", 360);
+        tooltip_.AddTool(toolbar_.GetHwnd(), L"Native Toolbar hosted by a Rebar");
 
         const HTREEITEM root = tree_.AddItem(L"Common Controls");
-        static_cast<void>(tree_.AddItem(L"Navigation", root));
-        static_cast<void>(tree_.AddItem(L"Input", root));
-        static_cast<void>(tree_.AddItem(L"Commands", root));
-        static_cast<void>(tree_.Expand(root));
+        tree_.AddItem(L"Navigation", root);
+        tree_.AddItem(L"Input", root);
+        tree_.AddItem(L"Commands", root);
+        tree_.Expand(root);
 
         mwtl::Must(mwtl::AddColumns(list_, {
             {L"Control", 170}, {L"Ownership", 150}}),
             "populate ListView columns");
         const int row = list_.AddItem(L"ListView");
-        static_cast<void>(list_.SetSubItem(row, 1, L"Native HWND"));
+        list_.SetSubItem(row, 1, L"Native HWND");
         list_.SetExtendedListStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
         mwtl::Must(mwtl::AddColumns(header_, {
             {L"Standalone Header", 210}, {L"Resizable column", 180}}),
@@ -61,28 +61,28 @@ public:
         mwtl::Must(mwtl::AddItems(combo_ex_, {
             L"ComboBoxEx item", L"Image-capable item"}),
             "populate ComboBoxEx items");
-        static_cast<void>(combo_ex_.SetSelection(0));
+        combo_ex_.SetSelection(0);
         hot_key_.SetValue('K', HOTKEYF_CONTROL | HOTKEYF_ALT);
         ip_.SetValue(127, 0, 0, 1);
         spin_.SetBuddy(number_); spin_.SetRange(0, 100); spin_.SetValue(42);
         pager_.SetChild(pager_text_); pager_.SetButtonSize(24);
         scroll_.SetRange(0, 100); scroll_.SetValue(35);
-        static_cast<void>(mwtl::InitializeFlatScrollBars(scroll_.GetHwnd()));
+        mwtl::InitializeFlatScrollBars(scroll_.GetHwnd());
         const std::array parts{700, 980, -1};
-        static_cast<void>(status_.SetParts(parts));
+        status_.SetParts(parts);
         mwtl::Must(mwtl::SetPartTexts(status_, {
             {0, L"All specialized control families are native"},
             {1, L"Unicode + DPI aware"}}), "populate Status text");
-        static_cast<void>(images_.AddIcon(::LoadIconW(nullptr, IDI_INFORMATION)));
+        images_.AddIcon(::LoadIconW(nullptr, IDI_INFORMATION));
     }
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {
         if (event.id == kAbout) {
-            static_cast<void>(mwtl::ShowTaskDialog(GetHwnd(), L"mwtl", L"Native Task Dialog", L"This modal control is wrapped as a function, not a child HWND."));
+            mwtl::ShowTaskDialog(GetHwnd(), L"mwtl", L"Native Task Dialog", L"This modal control is wrapped as a function, not a child HWND.");
             return mwtl::EventResult::Handled();
         }
         if (event.id == kRefresh) {
-            static_cast<void>(status_.SetPartText(2, L"Toolbar command received"));
+            status_.SetPartText(2, L"Toolbar command received");
             return mwtl::EventResult::Handled();
         }
         return mwtl::EventResult::Propagate();

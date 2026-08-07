@@ -14,6 +14,8 @@
 
 namespace mwtl {
 
+SizeDip MeasureNativeControl(HWND window, DpiContext dpi);
+
 class NativeControl {
 public:
     NativeControl() noexcept = default;

@@ -13,39 +13,39 @@ public:
     void BuildUI() override {
         SetTitle(L"Modern native controls");
         mwtl::ControlHost ui{*this};
-        ui.Add(heading_, kHeading, L"Native controls, modern C++20 ownership");
-        ui.Add(name_label_, kNameLabel, L"Your name");
-        ui.Add(name_, kName, L"mwtl developer");
-        ui.Add(greet_, kGreet, L"Say hello");
-        ui.Add(enabled_, kEnabled, L"Keep the native button enabled");
-        ui.Add(accent_, kAccent);
-        ui.Add(progress_, kProgress);
-        ui.Add(status_, kStatus, L"Ready — the UI remains native HWNDs");
-        ui.Add(choices_, kChoices, L"Choice controls");
-        ui.Add(sky_, kSky, L"Sky blue");
-        ui.Add(cosmos_, kCosmos, L"Cosmic violet");
-        ui.Add(items_, kItems);
-        ui.Add(volume_, kVolume);
+        ui.Add(heading_, L"Native controls, modern C++20 ownership");
+        ui.Add(name_label_, L"Your name");
+        ui.Add(name_, L"mwtl developer");
+        ui.Add(greet_, L"Say hello");
+        ui.Add(enabled_, L"Keep the native button enabled");
+        ui.Add(accent_);
+        ui.Add(progress_);
+        ui.Add(status_, L"Ready — the UI remains native HWNDs");
+        ui.Add(choices_, L"Choice controls");
+        ui.Add(sky_, L"Sky blue");
+        ui.Add(cosmos_, L"Cosmic violet");
+        ui.Add(items_);
+        ui.Add(volume_);
         mwtl::Must(
             heartbeat_.Start(*this, kHeartbeat, 1s), "start heartbeat");
         enabled_.SetChecked(true);
         mwtl::Must(mwtl::AddItems(
             accent_, {L"Sunrise orange", L"Geometry blue", L"Optimistic green"}),
             "populate accent choices");
-        static_cast<void>(accent_.SetSelection(0));
+        accent_.SetSelection(0);
         progress_.SetRange(0, 100);
         progress_.SetValue(18);
         sky_.SetChecked(true);
         mwtl::Must(mwtl::AddItems(
             items_, {L"Label + text input", L"Buttons and choices", L"Lists and progress"}),
             "populate control topics");
-        static_cast<void>(items_.SetSelection(0));
+        items_.SetSelection(0);
         volume_.SetRange(0, 100);
         volume_.SetValue(65);
         name_.SelectAll();
         name_.Focus();
 
-        UseLayout(
+        SetLayout(
             mwtl::Row()
                 .Margin(28.0_dip)
                 .Gap(32.0_dip)
@@ -91,18 +91,18 @@ public:
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {
         if (event.IsClicked(greet_)) {
-            static_cast<void>(status_.SetText(
+            status_.SetText(
                 L"Hello, " + name_.GetText() +
-                L"! Button notification received."));
+                L"! Button notification received.");
         } else if (event.IsClicked(enabled_)) {
             greet_.SetEnabled(enabled_.IsChecked());
         } else if (event.Is(accent_, CBN_SELCHANGE)) {
-            static_cast<void>(status_.SetText(
-                L"ComboBox selection changed — still a native notification."));
+            status_.SetText(
+                L"ComboBox selection changed; still a native notification.");
         } else if (event.IsClicked(sky_) || event.IsClicked(cosmos_)) {
-            static_cast<void>(status_.SetText(L"RadioButton choice changed."));
+            status_.SetText(L"RadioButton choice changed.");
         } else if (event.Is(items_, LBN_SELCHANGE)) {
-            static_cast<void>(status_.SetText(L"ListBox selection changed."));
+            status_.SetText(L"ListBox selection changed.");
         } else {
             return mwtl::EventResult::Propagate();
         }
@@ -130,19 +130,6 @@ public:
     }
 
 private:
-    static constexpr mwtl::ControlId kHeading{100};
-    static constexpr mwtl::ControlId kNameLabel{101};
-    static constexpr mwtl::ControlId kName{102};
-    static constexpr mwtl::ControlId kGreet{103};
-    static constexpr mwtl::ControlId kEnabled{104};
-    static constexpr mwtl::ControlId kAccent{105};
-    static constexpr mwtl::ControlId kProgress{106};
-    static constexpr mwtl::ControlId kStatus{107};
-    static constexpr mwtl::ControlId kChoices{108};
-    static constexpr mwtl::ControlId kSky{109};
-    static constexpr mwtl::ControlId kCosmos{110};
-    static constexpr mwtl::ControlId kItems{111};
-    static constexpr mwtl::ControlId kVolume{112};
     static constexpr mwtl::TimerId kHeartbeat{1};
 
     mwtl::Label heading_;

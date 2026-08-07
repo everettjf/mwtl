@@ -15,7 +15,7 @@ public:
                 std::this_thread::sleep_for(1s);
             }
             if (!stop.stop_requested()) {
-                static_cast<void>(wake.TryWake());
+                wake.TryWake();
             }
         });
     }

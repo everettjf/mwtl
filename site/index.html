@@ -36,7 +36,7 @@
       <div class="grid">
         <article class="card"><span class="tag">27 controls</span><h3>Consistent creation</h3><p>Bind a parent once with <code>ControlHost</code>; omit provisional bounds when layout owns positioning.</p></article>
         <article class="card"><span class="tag">C++20 ranges</span><h3>Checked setup</h3><p>Populate controls from lists, spans, ranges, or views, then use <code>Must</code> for source-located failures.</p></article>
-        <article class="card"><span class="tag">One expression</span><h3>Native HWND layout</h3><p>Pass nested rvalue rows, columns, and overlays directly to window-owned <code>UseLayout</code>.</p></article>
+        <article class="card"><span class="tag">One expression</span><h3>Native HWND layout</h3><p>Pass nested rvalue rows, columns, and overlays directly to window-owned <code>SetLayout</code>.</p></article>
       </div>
     </section>
 
@@ -48,7 +48,7 @@
       </div>
       <pre><code>using mwtl::operator""_dip;
 
-UseLayout(
+SetLayout(
     mwtl::Row()
         .Gap(8_dip)
         .Add(name_, mwtl::Stretch(1.0f, 160_dip))

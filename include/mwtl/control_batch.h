@@ -41,27 +41,8 @@ concept TextItemControl = requires(Control& control, std::wstring_view text) {
     { control.AddItem(text) } -> std::signed_integral;
 };
 
-template <TextItemControl Control>
-BatchResult AddItems(
-    Control& control,
-    std::span<const std::wstring_view> items) {
-    std::size_t completed = 0;
-    for (const std::wstring_view item : items) {
-        const auto result = control.AddItem(item);
-        if (result < 0) {
-            return BatchResult::Failure(
-                completed, static_cast<std::intptr_t>(result));
-        }
-        ++completed;
-    }
-    return BatchResult::Success(completed);
-}
-
 template <TextItemControl Control, std::ranges::input_range Range>
-    requires (!std::same_as<
-                  std::remove_cvref_t<Range>,
-                  std::span<const std::wstring_view>>) &&
-             requires(std::ranges::range_reference_t<Range> item) {
+    requires requires(std::ranges::range_reference_t<Range> item) {
                  std::wstring_view{item};
              }
 BatchResult AddItems(Control& control, Range&& items) {
@@ -96,28 +77,8 @@ concept ColumnControl = requires(Control& control, const ColumnSpec& column) {
         -> std::signed_integral;
 };
 
-template <ColumnControl Control>
-BatchResult AddColumns(
-    Control& control,
-    std::span<const ColumnSpec> columns) {
-    std::size_t completed = 0;
-    for (const ColumnSpec& column : columns) {
-        const auto result = control.AddColumn(
-            column.text, column.width_pixels, column.index);
-        if (result < 0) {
-            return BatchResult::Failure(
-                completed, static_cast<std::intptr_t>(result));
-        }
-        ++completed;
-    }
-    return BatchResult::Success(completed);
-}
-
 template <ColumnControl Control, std::ranges::input_range Range>
-    requires (!std::same_as<
-                  std::remove_cvref_t<Range>,
-                  std::span<const ColumnSpec>>) &&
-             std::convertible_to<
+    requires std::convertible_to<
                  std::ranges::range_reference_t<Range>, ColumnSpec>
 BatchResult AddColumns(Control& control, Range&& columns) {
     std::size_t completed = 0;
@@ -141,23 +102,8 @@ BatchResult AddColumns(
     return AddColumns(control, std::span(columns.begin(), columns.size()));
 }
 
-inline BatchResult AddTabs(
-    TabControl& control,
-    std::span<const std::wstring_view> tabs) {
-    std::size_t completed = 0;
-    for (const std::wstring_view text : tabs) {
-        const int result = control.AddTab(text);
-        if (result < 0) return BatchResult::Failure(completed, result);
-        ++completed;
-    }
-    return BatchResult::Success(completed);
-}
-
 template <std::ranges::input_range Range>
-    requires (!std::same_as<
-                  std::remove_cvref_t<Range>,
-                  std::span<const std::wstring_view>>) &&
-             requires(std::ranges::range_reference_t<Range> item) {
+    requires requires(std::ranges::range_reference_t<Range> item) {
                  std::wstring_view{item};
              }
 BatchResult AddTabs(TabControl& control, Range&& tabs) {
@@ -181,29 +127,8 @@ struct ToolbarButtonSpec {
     std::wstring_view text;
 };
 
-inline BatchResult AddButtons(
-    Toolbar& toolbar,
-    std::span<const ToolbarButtonSpec> buttons) {
-    std::size_t completed = 0;
-    for (const ToolbarButtonSpec& button : buttons) {
-        ::SetLastError(ERROR_SUCCESS);
-        if (!toolbar.AddTextButton(button.command, button.text)) {
-            const DWORD error = ::GetLastError();
-            return BatchResult::Failure(
-                completed, error == ERROR_SUCCESS
-                    ? std::intptr_t{-1}
-                    : static_cast<std::intptr_t>(error));
-        }
-        ++completed;
-    }
-    return BatchResult::Success(completed);
-}
-
 template <std::ranges::input_range Range>
-    requires (!std::same_as<
-                  std::remove_cvref_t<Range>,
-                  std::span<const ToolbarButtonSpec>>) &&
-             std::convertible_to<
+    requires std::convertible_to<
                  std::ranges::range_reference_t<Range>, ToolbarButtonSpec>
 BatchResult AddButtons(Toolbar& toolbar, Range&& buttons) {
     std::size_t completed = 0;
@@ -233,29 +158,8 @@ struct StatusPartText {
     std::wstring_view text;
 };
 
-inline BatchResult SetPartTexts(
-    StatusBar& status,
-    std::span<const StatusPartText> parts) {
-    std::size_t completed = 0;
-    for (const StatusPartText& part : parts) {
-        ::SetLastError(ERROR_SUCCESS);
-        if (!status.SetPartText(part.part, part.text)) {
-            const DWORD error = ::GetLastError();
-            return BatchResult::Failure(
-                completed, error == ERROR_SUCCESS
-                    ? std::intptr_t{-1}
-                    : static_cast<std::intptr_t>(error));
-        }
-        ++completed;
-    }
-    return BatchResult::Success(completed);
-}
-
 template <std::ranges::input_range Range>
-    requires (!std::same_as<
-                  std::remove_cvref_t<Range>,
-                  std::span<const StatusPartText>>) &&
-             std::convertible_to<
+    requires std::convertible_to<
                  std::ranges::range_reference_t<Range>, StatusPartText>
 BatchResult SetPartTexts(StatusBar& status, Range&& parts) {
     std::size_t completed = 0;

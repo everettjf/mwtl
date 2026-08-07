@@ -22,7 +22,7 @@ public:
 
     mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) {
         if (event.virtual_key == VK_ESCAPE) {
-            static_cast<void>(Close());
+            Close();
             return mwtl::EventResult::Handled();
         }
         return mwtl::EventResult::Propagate();

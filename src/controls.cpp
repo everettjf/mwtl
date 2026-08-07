@@ -53,42 +53,50 @@ bool NativeControl::IsOwnerThread() const noexcept {
         owner_thread_id_ == ::GetCurrentThreadId();
 }
 
-SizeDip NativeControl::GetPreferredSize(DpiContext dpi) const {
-    if (!IsWindow()) return {};
+SizeDip MeasureNativeControl(HWND window, DpiContext dpi) {
+    if (window == nullptr || ::IsWindow(window) == FALSE) return {};
 
     SIZE ideal{};
     wchar_t class_name[64]{};
-    ::GetClassNameW(window_, class_name, static_cast<int>(std::size(class_name)));
+    ::GetClassNameW(window, class_name, static_cast<int>(std::size(class_name)));
     if (_wcsicmp(class_name, L"Button") == 0 &&
-        ::SendMessageW(window_, BCM_GETIDEALSIZE, 0,
+        ::SendMessageW(window, BCM_GETIDEALSIZE, 0,
                        reinterpret_cast<LPARAM>(&ideal)) != FALSE &&
         ideal.cx > 0 && ideal.cy > 0) {
         return {dpi.FromPixels(ideal.cx), dpi.FromPixels(ideal.cy)};
     }
     if (_wcsicmp(class_name, TOOLBARCLASSNAMEW) == 0 &&
-        ::SendMessageW(window_, TB_GETMAXSIZE, 0,
+        ::SendMessageW(window, TB_GETMAXSIZE, 0,
                        reinterpret_cast<LPARAM>(&ideal)) != FALSE &&
         ideal.cx > 0 && ideal.cy > 0) {
         return {dpi.FromPixels(ideal.cx), dpi.FromPixels(ideal.cy)};
     }
     RECT ideal_rect{};
     if (_wcsicmp(class_name, MONTHCAL_CLASSW) == 0 &&
-        ::SendMessageW(window_, MCM_GETMINREQRECT, 0,
+        ::SendMessageW(window, MCM_GETMINREQRECT, 0,
                        reinterpret_cast<LPARAM>(&ideal_rect)) != FALSE) {
         return {dpi.FromPixels(ideal_rect.right - ideal_rect.left),
                 dpi.FromPixels(ideal_rect.bottom - ideal_rect.top)};
     }
 
-    HDC dc = ::GetDC(window_);
+    HDC dc = ::GetDC(window);
     if (dc == nullptr) return {80.0_dip, 24.0_dip};
-    const auto release_dc = wil::scope_exit([&] { ::ReleaseDC(window_, dc); });
+    const auto release_dc = wil::scope_exit([&] { ::ReleaseDC(window, dc); });
     const HFONT font = reinterpret_cast<HFONT>(
-        ::SendMessageW(window_, WM_GETFONT, 0, 0));
+        ::SendMessageW(window, WM_GETFONT, 0, 0));
     const HGDIOBJ old_font = font ? ::SelectObject(dc, font) : nullptr;
     const auto restore_font = wil::scope_exit([&] {
         if (old_font) ::SelectObject(dc, old_font);
     });
-    const std::wstring text = GetText();
+    const int text_length = ::GetWindowTextLengthW(window);
+    std::wstring text(
+        static_cast<std::size_t>((std::max)(text_length, 0)) + 1, L'\0');
+    if (text_length > 0) {
+        const int copied = ::GetWindowTextW(window, text.data(), text_length + 1);
+        text.resize(static_cast<std::size_t>((std::max)(copied, 0)));
+    } else {
+        text.clear();
+    }
     RECT text_bounds{0, 0, 0, 0};
     if (!text.empty()) {
         ::DrawTextW(dc, text.c_str(), static_cast<int>(text.size()),
@@ -100,7 +108,7 @@ SizeDip NativeControl::GetPreferredSize(DpiContext dpi) const {
     int height = (std::max)(static_cast<int>(text_bounds.bottom - text_bounds.top),
                             static_cast<int>(metrics.tmHeight));
 
-    const DWORD style = static_cast<DWORD>(::GetWindowLongPtrW(window_, GWL_STYLE));
+    const DWORD style = static_cast<DWORD>(::GetWindowLongPtrW(window, GWL_STYLE));
     if (_wcsicmp(class_name, L"Static") == 0) {
         width += 2; height += 2;
     } else if (_wcsicmp(class_name, L"Edit") == 0) {
@@ -126,6 +134,11 @@ SizeDip NativeControl::GetPreferredSize(DpiContext dpi) const {
     }
     if ((style & WS_BORDER) != 0) { width += 2; height += 2; }
     return {dpi.FromPixels(width), dpi.FromPixels(height)};
+}
+
+SizeDip NativeControl::GetPreferredSize(DpiContext dpi) const {
+    if (!IsWindow()) return {};
+    return MeasureNativeControl(window_, dpi);
 }
 
 bool NativeControl::SetText(std::wstring_view text) {

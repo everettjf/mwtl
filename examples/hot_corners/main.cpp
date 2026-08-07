@@ -103,7 +103,7 @@ public:
             throw std::runtime_error("self-test timer creation failed");
         SavedWindowPlacement saved{};
         if (LoadWindowPlacementFromRegistry(HKEY_CURRENT_USER, kRegistryKey, L"MainWindow", saved))
-            (void)RestoreWindowPlacement(GetHwnd(), saved);
+            RestoreWindowPlacement(GetHwnd(), saved);
     }
 
     EventResult OnCommand(const CommandEvent& event) {
@@ -140,7 +140,7 @@ public:
             manual_paused_ = !manual_paused_; tracker_.Reset(); UpdateStatus(); return EventResult::Handled();
         }
         if (event.control == nullptr && event.id.value == static_cast<int>(kExitCommand)) {
-            (void)Close(); return EventResult::Handled();
+            Close(); return EventResult::Handled();
         }
         return EventResult::Propagate();
     }
@@ -149,7 +149,7 @@ public:
         StoreVisibleMonitor(); SaveSettings(); RemoveTrayIcon();
         SavedWindowPlacement saved{};
         if (CaptureWindowPlacement(GetHwnd(), saved))
-            (void)SaveWindowPlacementToRegistry(HKEY_CURRENT_USER, kRegistryKey, L"MainWindow", saved);
+            SaveWindowPlacementToRegistry(HKEY_CURRENT_USER, kRegistryKey, L"MainWindow", saved);
         return EventResult::Propagate();
     }
 
@@ -157,7 +157,7 @@ public:
         if (id == kSelfTest) {
             ::KillTimer(GetHwnd(), kSelfTest.value);
             Activate({0, hot_corners::Corner::top_left});
-            (void)Close();
+            Close();
             return EventResult::Handled();
         }
         if (id != kPoll) return EventResult::Propagate();
@@ -231,10 +231,10 @@ private:
         }
         ui.Add(dwell_label_, {150}, L"Dwell", {16_dip, 246_dip, 80_dip, 24_dip});
         ui.Add(dwell_, kDwell, {96_dip, 242_dip, 140_dip, 150_dip});
-        for (auto value : kDwellValues) (void)dwell_.AddItem(std::to_wstring(value) + L" ms");
+        for (auto value : kDwellValues) dwell_.AddItem(std::to_wstring(value) + L" ms");
         ui.Add(tolerance_label_, {151}, L"Tolerance", {260_dip, 246_dip, 100_dip, 24_dip});
         ui.Add(tolerance_, kTolerance, {360_dip, 242_dip, 140_dip, 150_dip});
-        for (auto value : kToleranceValues) (void)tolerance_.AddItem(std::to_wstring(value) + L" px");
+        for (auto value : kToleranceValues) tolerance_.AddItem(std::to_wstring(value) + L" px");
         ui.Add(status_, kStatus, L"Starting...", {16_dip, 302_dip, 650_dip, 48_dip});
     }
 
@@ -251,23 +251,23 @@ private:
         ::SendMessageW(fullscreen_.GetHwnd(), BM_SETCHECK, settings_.pause_for_fullscreen ? BST_CHECKED : BST_UNCHECKED, 0);
         PopulateMonitorList();
         const auto dwell = std::find(kDwellValues.begin(), kDwellValues.end(), settings_.dwell_ms);
-        (void)dwell_.SetSelection(dwell == kDwellValues.end() ? 1 : static_cast<int>(dwell - kDwellValues.begin()));
+        dwell_.SetSelection(dwell == kDwellValues.end() ? 1 : static_cast<int>(dwell - kDwellValues.begin()));
         const auto tolerance = std::find(kToleranceValues.begin(), kToleranceValues.end(), settings_.tolerance);
-        (void)tolerance_.SetSelection(tolerance == kToleranceValues.end() ? 1 : static_cast<int>(tolerance - kToleranceValues.begin()));
+        tolerance_.SetSelection(tolerance == kToleranceValues.end() ? 1 : static_cast<int>(tolerance - kToleranceValues.begin()));
         LoadVisibleMonitor(); UpdateStatus();
     }
 
     void PopulateMonitorList() {
         ::SendMessageW(monitor_.GetHwnd(), CB_RESETCONTENT, 0, 0);
         for (std::size_t i = 0; i < monitors_.size(); ++i)
-            (void)monitor_.AddItem(L"Monitor " + std::to_wstring(i + 1));
-        if (!monitors_.empty()) (void)monitor_.SetSelection(static_cast<int>(shown_monitor_));
+            monitor_.AddItem(L"Monitor " + std::to_wstring(i + 1));
+        if (!monitors_.empty()) monitor_.SetSelection(static_cast<int>(shown_monitor_));
     }
 
     void LoadVisibleMonitor() {
         if (shown_monitor_ >= settings_.monitors.size()) return;
         for (std::size_t i = 0; i < 4; ++i)
-            (void)actions_[i].SetSelection(static_cast<int>(settings_.monitors[shown_monitor_].corners[i]));
+            actions_[i].SetSelection(static_cast<int>(settings_.monitors[shown_monitor_].corners[i]));
     }
 
     void StoreVisibleMonitor() {
@@ -313,7 +313,7 @@ private:
 
     void Activate(const hot_corners::Hit& hit) {
         const auto action = hot_corners::ResolveAction(settings_, hit);
-        (void)status_.SetText((g_test_mode ? L"TEST (input suppressed): " : L"") +
+        status_.SetText((g_test_mode ? L"TEST (input suppressed): " : L"") +
             std::wstring(L"Monitor ") + std::to_wstring(hit.monitor + 1) + L" - " + ActionName(action));
         SendAction(action);
     }
@@ -322,7 +322,7 @@ private:
         std::wstring state = !settings_.enabled ? L"Disabled" : manual_paused_ ? L"Paused from tray/menu" :
             last_fullscreen_paused_ ? L"Paused for fullscreen app" : L"Watching";
         if (g_test_mode) state += L" (test mode: input suppressed)";
-        (void)status_.SetText(state + L"; " + std::to_wstring(monitors_.size()) + L" monitor(s), " +
+        status_.SetText(state + L"; " + std::to_wstring(monitors_.size()) + L" monitor(s), " +
             std::to_wstring(settings_.dwell_ms) + L" ms / " + std::to_wstring(settings_.tolerance) + L" px");
     }
 

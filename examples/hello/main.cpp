@@ -10,10 +10,10 @@ public:
         mwtl::Must(SetTitle(L"mwtl hello"), "set window title");
         mwtl::ControlHost ui{*this};
         ui.Add(
-            message_, kMessage,
+            message_,
             L"Hello from a native Windows UI with modern C++20 ergonomics.");
-        ui.Add(button_, kButton, L"Make it brighter");
-        UseLayout(
+        ui.Add(button_, L"Make it brighter");
+        SetLayout(
             mwtl::Column()
                 .Margin(28.0_dip)
                 .Gap(20.0_dip)
@@ -26,16 +26,14 @@ public:
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {
         if (event.IsClicked(button_)) {
-            static_cast<void>(message_.SetText(
-                L"A real BUTTON HWND, dispatched without message-map macros."));
+            message_.SetText(
+                L"A real BUTTON HWND, dispatched without message-map macros.");
             return mwtl::EventResult::Handled();
         }
         return mwtl::EventResult::Propagate();
     }
 
 private:
-    static constexpr mwtl::ControlId kMessage{100};
-    static constexpr mwtl::ControlId kButton{101};
     mwtl::Label message_;
     mwtl::Button button_;
 };

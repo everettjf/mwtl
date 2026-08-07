@@ -116,11 +116,11 @@ if (fired) Activate(*fired);</code></pre></div>
         <div class="doc-heading"><div><span class="tag">Basic controls</span><h2>Native form controls</h2></div><p>Label, Button, TextBox, CheckBox, RadioButton, GroupBox, ComboBox, ListBox, ProgressBar, Slider, and ScrollBar.</p></div>
         <div class="example-grid">
           <div class="code-panel"><div class="panel-label">Create and configure</div><pre><code>mwtl::ControlHost ui{*this};
-ui.Add(name_, {102}, L"mwtl developer");
-ui.Add(greet_, {103}, L"Say hello");
-ui.Add(enabled_, {104}, L"Button enabled");
-ui.Add(accent_, {105});
-ui.Add(progress_, {106});
+ui.Add(name_, L"mwtl developer");
+ui.Add(greet_, L"Say hello");
+ui.Add(enabled_, L"Button enabled");
+ui.Add(accent_);
+ui.Add(progress_);
 
 mwtl::Must(mwtl::AddItems(
     accent_, {L"Sky blue", L"Graphite", L"Forest"}));
@@ -145,8 +145,8 @@ progress_.SetValue(64);</code></pre></div>
         <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Data and navigation</h2></div><p><code>TreeView</code>, <code>ListView</code>, <code>Header</code>, <code>TabControl</code>, and <code>ComboBoxEx</code>.</p></div>
         <div class="example-grid">
           <div class="code-panel"><div class="panel-label">TreeView + ListView</div><pre><code>mwtl::ControlHost ui{*this};
-ui.Add(tree_, {202});
-ui.Add(list_, {203});
+ui.Add(tree_);
+ui.Add(list_);
 
 const auto root = tree_.AddItem(L"Common Controls");
 tree_.AddItem(L"Navigation", root);
@@ -165,11 +165,11 @@ list_.SetSubItem(row, 1, L"Native HWND");</code></pre></div>
       <section id="date-input" class="doc-section">
         <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Date and input</h2></div><p><code>DateTimePicker</code>, <code>MonthCalendar</code>, <code>HotKey</code>, <code>IpAddress</code>, <code>UpDown</code>, and <code>SysLink</code>.</p></div>
         <div class="code-panel compact"><pre><code>mwtl::ControlHost ui{*this};
-ui.Add(date_, {207});
-ui.Add(calendar_, {208});
-ui.Add(hot_key_, {209});
-ui.Add(ip_, {210});
-ui.Add(spin_, {212});
+ui.Add(date_);
+ui.Add(calendar_);
+ui.Add(hot_key_);
+ui.Add(ip_);
+ui.Add(spin_);
 
 hot_key_.SetValue('K', HOTKEYF_CONTROL | HOTKEYF_ALT);
 ip_.SetValue(127, 0, 0, 1);
@@ -198,7 +198,7 @@ mwtl::Must(mwtl::SetPartTexts(
         <div class="doc-heading"><div><span class="tag">Responsive layout</span><h2>Rows, columns, and overlays</h2></div><p>Compose DPI-aware layouts with margins, gaps, fixed, automatic, and weighted stretch tracks. The window rearranges attached controls on every resize.</p></div>
         <div class="code-panel compact"><pre><code>using mwtl::operator""_dip;
 
-UseLayout(
+SetLayout(
     mwtl::Column()
         .Margin(16.0_dip)
         .Gap(10.0_dip)

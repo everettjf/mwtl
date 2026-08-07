@@ -51,8 +51,12 @@ class ModernApiWindow final : public mwtl::WindowBase {
 public:
     void BuildUI() override {
         mwtl::ControlHost ui{*this};
-        ui.Add(label_, kLabel, L"Modern API test", mwtl::LabelOptions{});
-        ui.Add(text_, kText, L"native edit");
+        ui.Add(label_, L"Modern API test", mwtl::LabelOptions{});
+        ui.Add(text_, L"native edit");
+        if (label_.GetId().value != 0x4000 ||
+            text_.GetId().value != 0x4001) {
+            throw std::runtime_error("automatic control IDs are not sequential");
+        }
         ui.Add(button_, kButton, L"Verify");
         ui.Add(check_, kCheck, L"Checked");
         ui.Add(combo_, kCombo);
@@ -158,10 +162,7 @@ public:
             throw std::runtime_error("modern controls state verification failed");
         }
 
-        legacy_layout_.SetRoot(
-            mwtl::Column().Add(label_, mwtl::Stretch()));
-        mwtl::Must(SetLayout(legacy_layout_), "attach external layout");
-        UseLayout(
+        SetLayout(
             mwtl::Row()
                 .Margin(8.0_dip)
                 .Gap(8.0_dip)
@@ -227,8 +228,6 @@ public:
 
 private:
     static constexpr UINT kCustomMessage = WM_APP + 76;
-    static constexpr mwtl::ControlId kLabel{200};
-    static constexpr mwtl::ControlId kText{201};
     static constexpr mwtl::ControlId kButton{202};
     static constexpr mwtl::ControlId kCheck{203};
     static constexpr mwtl::ControlId kCombo{204};
@@ -257,7 +256,6 @@ private:
     mwtl::ScrollBar scroll_; mwtl::StatusBar status_bar_; mwtl::Tooltip tooltip_;
     mwtl::ImageList images_;
     mwtl::UiTimer timer_;
-    mwtl::LayoutHost legacy_layout_;
 };
 
 }  // namespace

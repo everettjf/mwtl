@@ -197,6 +197,7 @@ int main() {
     if (!worker_rejected.load(std::memory_order_acquire)) return 29;
     Label move_source;
     if (!move_source.Create(parent, {502}, L"move ownership", {})) return 30;
+    LayoutHost moved_layout(Column().Add(move_source, Auto()));
     Label move_target(std::move(move_source));
     if (!move_target.IsOwnerThread() || move_source.IsWindow() ||
         !move_target.IsWindow()) {
@@ -208,6 +209,11 @@ int main() {
     });
     moved_ownership_probe.join();
     if (!worker_rejected.load(std::memory_order_acquire)) return 32;
+    const SizeDip moved_preferred = moved_layout.GetPreferredSize(parent);
+    if (moved_preferred.width.value <= 0.0f ||
+        moved_preferred.height.value <= 0.0f) {
+        return 33;
+    }
     const SizeDip intrinsic = measured_label.GetPreferredSize(dpi);
     if (intrinsic.width.value <= 0.0f || intrinsic.height.value <= 0.0f)
         return 21;

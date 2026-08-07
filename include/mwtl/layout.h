@@ -11,6 +11,7 @@
 #include <functional>
 
 #include <mwtl/concepts.h>
+#include <mwtl/controls.h>
 #include <mwtl/dpi.h>
 
 namespace mwtl {
@@ -136,10 +137,11 @@ public:
         LayoutLength length = LayoutLength::Auto(),
         LayoutItemOptions options = {}) & {
         if constexpr (IntrinsicallyMeasurable<Control>) {
+            const HWND window = control.GetHwnd();
             return AddMeasured(
-                control.GetHwnd(),
-                [&control](DpiContext dpi) {
-                    return control.GetPreferredSize(dpi);
+                window,
+                [window](DpiContext dpi) {
+                    return MeasureNativeControl(window, dpi);
                 },
                 length, std::move(options));
         } else {
@@ -152,10 +154,11 @@ public:
         LayoutLength length = LayoutLength::Auto(),
         LayoutItemOptions options = {}) && {
         if constexpr (IntrinsicallyMeasurable<Control>) {
+            const HWND window = control.GetHwnd();
             AddMeasured(
-                control.GetHwnd(),
-                [&control](DpiContext dpi) {
-                    return control.GetPreferredSize(dpi);
+                window,
+                [window](DpiContext dpi) {
+                    return MeasureNativeControl(window, dpi);
                 },
                 length, std::move(options));
         } else {

@@ -136,13 +136,7 @@ public:
         }
     }
 
-    bool SetLayout(LayoutHost& layout) {
-        owned_layout_.reset();
-        layout_ = &layout;  // Non-owning; the layout must outlive the HWND.
-        return !IsWindow() || layout.Arrange(GetHwnd());
-    }
-
-    void UseLayout(LayoutNode root) {
+    void SetLayout(LayoutNode root) {
         owned_layout_.emplace();
         owned_layout_->SetRoot(std::move(root));
         layout_ = &*owned_layout_;

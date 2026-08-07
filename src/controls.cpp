@@ -217,6 +217,44 @@ void CheckBox::SetChecked(bool checked) noexcept {
     }
 }
 
+bool RadioButton::Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options) {
+    return CreateNative(L"BUTTON", parent, id, text, bounds, options.style, options.extended_style);
+}
+
+bool RadioButton::IsChecked() const noexcept {
+    return IsWindow() && ::SendMessageW(GetHwnd(), BM_GETCHECK, 0, 0) == BST_CHECKED;
+}
+
+void RadioButton::SetChecked(bool checked) noexcept {
+    if (IsWindow()) {
+        ::SendMessageW(GetHwnd(), BM_SETCHECK, checked ? BST_CHECKED : BST_UNCHECKED, 0);
+    }
+}
+
+bool GroupBox::Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options) {
+    return CreateNative(L"BUTTON", parent, id, text, bounds, options.style, options.extended_style);
+}
+
+bool ListBox::Create(HWND parent, ControlId id, RectDip bounds, ListBoxOptions options) {
+    return CreateNative(L"LISTBOX", parent, id, L"", bounds, options.style, options.extended_style);
+}
+
+int ListBox::AddItem(std::wstring_view text) {
+    if (!IsWindow()) {
+        return LB_ERR;
+    }
+    const std::wstring terminated{text};
+    return static_cast<int>(::SendMessageW(GetHwnd(), LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(terminated.c_str())));
+}
+
+int ListBox::GetSelection() const noexcept {
+    return IsWindow() ? static_cast<int>(::SendMessageW(GetHwnd(), LB_GETCURSEL, 0, 0)) : LB_ERR;
+}
+
+bool ListBox::SetSelection(int index) noexcept {
+    return IsWindow() && ::SendMessageW(GetHwnd(), LB_SETCURSEL, index, 0) != LB_ERR;
+}
+
 bool ComboBox::Create(
     HWND parent,
     ControlId id,
@@ -279,6 +317,31 @@ int ProgressBar::GetValue() const noexcept {
     return IsWindow()
         ? static_cast<int>(::SendMessageW(GetHwnd(), PBM_GETPOS, 0, 0))
         : 0;
+}
+
+bool Slider::Create(HWND parent, ControlId id, RectDip bounds, SliderOptions options) {
+    INITCOMMONCONTROLSEX controls{sizeof(controls), ICC_BAR_CLASSES};
+    if (::InitCommonControlsEx(&controls) == FALSE) {
+        return false;
+    }
+    return CreateNative(TRACKBAR_CLASSW, parent, id, L"", bounds, options.style, options.extended_style);
+}
+
+void Slider::SetRange(int minimum, int maximum) noexcept {
+    if (IsWindow()) {
+        ::SendMessageW(GetHwnd(), TBM_SETRANGEMIN, FALSE, minimum);
+        ::SendMessageW(GetHwnd(), TBM_SETRANGEMAX, TRUE, maximum);
+    }
+}
+
+void Slider::SetValue(int value) noexcept {
+    if (IsWindow()) {
+        ::SendMessageW(GetHwnd(), TBM_SETPOS, TRUE, value);
+    }
+}
+
+int Slider::GetValue() const noexcept {
+    return IsWindow() ? static_cast<int>(::SendMessageW(GetHwnd(), TBM_GETPOS, 0, 0)) : 0;
 }
 
 }  // namespace mwtl

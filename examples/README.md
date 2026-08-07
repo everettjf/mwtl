@@ -21,7 +21,7 @@ The repository includes 20 focused executables. Each example is intentionally sm
 | `wait_aware` | `mwtl_wait_aware_demo` | A non-busy wait-aware pump with idle callbacks |
 | `wakeup` | `mwtl_wakeup_demo` | A lifetime-safe worker-to-window wake token |
 | `com_sta` | `mwtl_com_sta_demo` | Application-owned COM STA initialization and cleanup |
-| `controls` | `mwtl_controls_demo` | Label, Button, TextBox, CheckBox, ComboBox, ProgressBar, commands, and timer |
+| `controls` | `mwtl_controls_demo` | All ten supported wrappers: text, buttons, grouping, choices, list, progress, slider, commands, and timer |
 | `self_drawn_host` | `mwtl_self_drawn_host_demo` | Worker-driven dirty frames, GDI paint, wake token, and wait-aware pump |
 | `system_lifecycle` | `mwtl_system_lifecycle_demo` | Power, display, settings, IME, end-session, and accessibility hand-off messages |
 

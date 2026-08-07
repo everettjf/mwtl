@@ -23,6 +23,20 @@ set(example_names
 file(READ "${PROJECT_ROOT}/README.md" root_readme)
 file(READ "${PROJECT_ROOT}/examples/README.md" examples_readme)
 file(READ "${PROJECT_ROOT}/examples/CMakeLists.txt" examples_cmake)
+file(READ "${PROJECT_ROOT}/include/mwtl/controls.h" controls_header)
+file(READ "${PROJECT_ROOT}/examples/controls/main.cpp" controls_example)
+
+set(public_control_types
+    Label Button TextBox CheckBox RadioButton GroupBox ComboBox ListBox
+    ProgressBar Slider)
+foreach(control_type IN LISTS public_control_types)
+    if(NOT controls_header MATCHES "class ${control_type} final")
+        message(FATAL_ERROR "public control wrapper is missing: ${control_type}")
+    endif()
+    if(NOT controls_example MATCHES "mwtl::${control_type}")
+        message(FATAL_ERROR "controls example does not instantiate: ${control_type}")
+    endif()
+endforeach()
 
 foreach(example_name IN LISTS example_names)
     if(NOT EXISTS "${PROJECT_ROOT}/examples/${example_name}/main.cpp")

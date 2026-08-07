@@ -35,6 +35,18 @@ public:
             !progress_.Create(
                 *this, kProgress,
                 {{8.0_dip, 148.0_dip}, {180.0_dip, 20.0_dip}}) ||
+            !group_.Create(
+                *this, kGroup, L"Choices",
+                {{208.0_dip, 8.0_dip}, {180.0_dip, 92.0_dip}}) ||
+            !radio_.Create(
+                *this, kRadio, L"Selected",
+                {{224.0_dip, 36.0_dip}, {120.0_dip, 24.0_dip}}) ||
+            !list_.Create(
+                *this, kList,
+                {{208.0_dip, 108.0_dip}, {180.0_dip, 72.0_dip}}) ||
+            !slider_.Create(
+                *this, kSlider,
+                {{8.0_dip, 180.0_dip}, {180.0_dip, 28.0_dip}}) ||
             !timer_.Start(*this, kTimer, 1ms)) {
             throw std::runtime_error("modern API fixture setup failed");
         }
@@ -44,8 +56,15 @@ public:
         static_cast<void>(combo_.AddItem(L"second"));
         progress_.SetRange(0, 100);
         progress_.SetValue(64);
+        radio_.SetChecked(true);
+        static_cast<void>(list_.AddItem(L"first"));
+        static_cast<void>(list_.AddItem(L"second"));
+        slider_.SetRange(0, 100);
+        slider_.SetValue(73);
         if (!combo_.SetSelection(1) || combo_.GetSelection() != 1 ||
-            !check_.IsChecked() || progress_.GetValue() != 64) {
+            !check_.IsChecked() || progress_.GetValue() != 64 ||
+            !radio_.IsChecked() || !list_.SetSelection(1) ||
+            list_.GetSelection() != 1 || slider_.GetValue() != 73) {
             throw std::runtime_error("modern controls state verification failed");
         }
 
@@ -91,6 +110,10 @@ private:
     static constexpr mwtl::ControlId kCheck{203};
     static constexpr mwtl::ControlId kCombo{204};
     static constexpr mwtl::ControlId kProgress{205};
+    static constexpr mwtl::ControlId kGroup{206};
+    static constexpr mwtl::ControlId kRadio{207};
+    static constexpr mwtl::ControlId kList{208};
+    static constexpr mwtl::ControlId kSlider{209};
     static constexpr mwtl::TimerId kTimer{9};
 
     mwtl::Label label_;
@@ -99,6 +122,10 @@ private:
     mwtl::CheckBox check_;
     mwtl::ComboBox combo_;
     mwtl::ProgressBar progress_;
+    mwtl::GroupBox group_;
+    mwtl::RadioButton radio_;
+    mwtl::ListBox list_;
+    mwtl::Slider slider_;
     mwtl::UiTimer timer_;
 };
 

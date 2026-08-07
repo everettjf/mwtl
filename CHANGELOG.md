@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Expanded the native controls set with GroupBox, RadioButton, ListBox, and
+  Slider; the controls gallery and runtime test now instantiate all ten public
+  wrappers.
 - Added `WindowBase`, a concise inheritance path that hides WTL's repeated CRTP
   class name while preserving `Window<T>` for compile-time and message-map use.
 - Raised the required language level to C++20 and added convention-based message

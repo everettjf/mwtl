@@ -70,8 +70,9 @@ Existing WTL maps may override it and chain to `Window<T>`.
 
 ## Native controls and timer
 
-Label, Button, TextBox, CheckBox, ComboBox, and ProgressBar wrap standard
-system child windows. They accept DIP bounds, own their HWND while valid, and
+Label, Button, TextBox, CheckBox, RadioButton, GroupBox, ComboBox, ListBox,
+ProgressBar, and Slider wrap standard system child windows. They accept DIP
+bounds, own their HWND while valid, and
 expose it through `GetHwnd()`. `CommandEvent` retains the native control ID,
 notification code, and child HWND. `UiTimer::Start` accepts `TimerId` and
 `std::chrono::milliseconds`; `Stop` is idempotent and automatic at destruction.

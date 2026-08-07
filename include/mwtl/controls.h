@@ -166,6 +166,53 @@ public:
     void SetChecked(bool checked) noexcept;
 };
 
+struct RadioButtonOptions {
+    DWORD style = WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTORADIOBUTTON;
+    DWORD extended_style = 0;
+};
+
+class RadioButton final : public NativeControl {
+public:
+    [[nodiscard]] bool Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options = {});
+    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    [[nodiscard]] bool Create(const Parent& parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options = {}) {
+        return Create(parent.GetHwnd(), id, text, bounds, options);
+    }
+    [[nodiscard]] bool IsChecked() const noexcept;
+    void SetChecked(bool checked) noexcept;
+};
+
+struct GroupBoxOptions {
+    DWORD style = WS_CHILD | WS_VISIBLE | BS_GROUPBOX;
+    DWORD extended_style = 0;
+};
+
+class GroupBox final : public NativeControl {
+public:
+    [[nodiscard]] bool Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options = {});
+    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    [[nodiscard]] bool Create(const Parent& parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options = {}) {
+        return Create(parent.GetHwnd(), id, text, bounds, options);
+    }
+};
+
+struct ListBoxOptions {
+    DWORD style = WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | LBS_NOTIFY;
+    DWORD extended_style = WS_EX_CLIENTEDGE;
+};
+
+class ListBox final : public NativeControl {
+public:
+    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ListBoxOptions options = {});
+    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ListBoxOptions options = {}) {
+        return Create(parent.GetHwnd(), id, bounds, options);
+    }
+    [[nodiscard]] int AddItem(std::wstring_view text);
+    [[nodiscard]] int GetSelection() const noexcept;
+    [[nodiscard]] bool SetSelection(int index) noexcept;
+};
+
 struct ComboBoxOptions {
     DWORD style = WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL |
         CBS_DROPDOWNLIST;
@@ -216,6 +263,23 @@ public:
         ControlId id,
         RectDip bounds,
         ProgressBarOptions options = {}) {
+        return Create(parent.GetHwnd(), id, bounds, options);
+    }
+    void SetRange(int minimum, int maximum) noexcept;
+    void SetValue(int value) noexcept;
+    [[nodiscard]] int GetValue() const noexcept;
+};
+
+struct SliderOptions {
+    DWORD style = WS_CHILD | WS_VISIBLE | WS_TABSTOP | TBS_AUTOTICKS;
+    DWORD extended_style = 0;
+};
+
+class Slider final : public NativeControl {
+public:
+    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, SliderOptions options = {});
+    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, SliderOptions options = {}) {
         return Create(parent.GetHwnd(), id, bounds, options);
     }
     void SetRange(int minimum, int maximum) noexcept;

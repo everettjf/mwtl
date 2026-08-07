@@ -87,13 +87,19 @@ mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
     enabled_.Create(*this, {104}, L"Button enabled", check_bounds);
     accent_.Create(*this, {105}, combo_bounds);
     progress_.Create(*this, {106}, progress_bounds);
+    group_.Create(*this, {107}, L"Choices", group_bounds);
+    radio_.Create(*this, {108}, L"Sky blue", radio_bounds);
+    list_.Create(*this, {109}, list_bounds);
+    slider_.Create(*this, {110}, slider_bounds);
     heartbeat_.Start(*this, {1}, 1s);
 }
 
-void OnCommand(const mwtl::CommandEvent&amp; event) {
+mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
     if (event.IsClicked(greet_)) {
         status_.SetText(L"Hello, " + name_.GetText());
+        return mwtl::EventResult::Handled();
     }
+    return mwtl::EventResult::Propagate();
 }</code></pre><a href="examples/controls/main.cpp">Open the complete controls source &rarr;</a></td>
     <td valign="top"><a href="examples/controls/main.cpp"><img width="100%" src="docs/images/examples/controls.png" alt="Native controls form with text box, buttons, combo box and progress bar"></a></td>
   </tr>
@@ -118,7 +124,8 @@ The current library provides:
 - macro-free C++20 convention handlers discovered with `requires`;
 - typed keyboard, mouse, resize, DPI, command, timer, paint, min/max, and raw-message events;
 - RAII `UiTimer` with `std::chrono` intervals;
-- native Label, Button, TextBox, CheckBox, ComboBox, and ProgressBar wrappers;
+- ten native wrappers: Label, Button, TextBox, CheckBox, RadioButton, GroupBox,
+  ComboBox, ListBox, ProgressBar, and Slider;
 - one-line `RunApplication<MainWindow>()` process startup;
 - DIP geometry conversion and per-window `DpiContext`;
 - configurable class traits, styles, icons/cursor/background, and initial bounds;
@@ -233,7 +240,7 @@ The repository contains **20 independently buildable GUI examples**. They are al
 | Wait-aware pump | [`examples/wait_aware`](examples/wait_aware/main.cpp) | `mwtl_wait_aware_demo` | Non-busy message/timer waiting |
 | Safe wake-up | [`examples/wakeup`](examples/wakeup/main.cpp) | `mwtl_wakeup_demo` | Worker-to-HWND lifetime-safe wake notification |
 | COM STA | [`examples/com_sta`](examples/com_sta/main.cpp) | `mwtl_com_sta_demo` | Optional COM apartment lifecycle |
-| Native controls | [`examples/controls`](examples/controls/main.cpp) | `mwtl_controls_demo` | Label, Button, TextBox, CheckBox, ComboBox, ProgressBar, commands, and timer |
+| Native controls | [`examples/controls`](examples/controls/main.cpp) | `mwtl_controls_demo` | Every supported control: text, buttons, choices, lists, progress, slider, commands, and timer |
 | Self-drawn host | [`examples/self_drawn_host`](examples/self_drawn_host/main.cpp) | `mwtl_self_drawn_host_demo` | Dirty-frame wake-up, native GDI and wait-aware pumping |
 | System lifecycle | [`examples/system_lifecycle`](examples/system_lifecycle/main.cpp) | `mwtl_system_lifecycle_demo` | Power/display/settings/IME/end-session/accessibility messages |
 
@@ -340,8 +347,10 @@ mwtl::TextBox name_;
 mwtl::Button greet_;
 ```
 
-The wrappers own real child HWNDs. Label, Button, TextBox, CheckBox, ComboBox,
-and ProgressBar expose `GetHwnd()` whenever direct Win32 access is useful.
+The wrappers own real child HWNDs. The controls gallery creates every supported
+wrapper: Label, Button, TextBox, CheckBox, RadioButton, GroupBox, ComboBox,
+ListBox, ProgressBar, and Slider. Each exposes `GetHwnd()` whenever direct
+Win32 access is useful.
 
 ### RAII timer with chrono
 

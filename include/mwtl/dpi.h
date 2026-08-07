@@ -77,16 +77,16 @@ public:
         return DpiContext(dpi);
     }
 
-    [[nodiscard]] constexpr UINT GetDpi() const noexcept { return dpi_; }
-    [[nodiscard]] constexpr float GetScale() const noexcept {
+    constexpr UINT GetDpi() const noexcept { return dpi_; }
+    constexpr float GetScale() const noexcept {
         return static_cast<float>(dpi_) / static_cast<float>(kDefaultDpi);
     }
 
-    [[nodiscard]] int ToPixels(Dip value) const noexcept;
-    [[nodiscard]] Dip FromPixels(int value) const noexcept;
-    [[nodiscard]] POINT ToPixels(PointDip value) const noexcept;
-    [[nodiscard]] SIZE ToPixels(SizeDip value) const noexcept;
-    [[nodiscard]] RECT ToPixels(RectDip value) const noexcept;
+    int ToPixels(Dip value) const noexcept;
+    Dip FromPixels(int value) const noexcept;
+    POINT ToPixels(PointDip value) const noexcept;
+    SIZE ToPixels(SizeDip value) const noexcept;
+    RECT ToPixels(RectDip value) const noexcept;
 
 private:
     UINT dpi_ = kDefaultDpi;

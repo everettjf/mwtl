@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include <concepts>
+#include <functional>
 
 #include <mwtl/concepts.h>
 #include <mwtl/dpi.h>
@@ -45,17 +46,17 @@ struct LayoutLength {
     Dip maximum{(std::numeric_limits<float>::infinity)()};
     float weight = 1.0f;
 
-    [[nodiscard]] static constexpr LayoutLength Auto(
+    static constexpr LayoutLength Auto(
         Dip minimum = {},
         Dip maximum = Dip{(std::numeric_limits<float>::infinity)()}) noexcept {
         return {LayoutLengthKind::auto_size, {}, minimum, maximum, 0.0f};
     }
 
-    [[nodiscard]] static constexpr LayoutLength Fixed(Dip value) noexcept {
+    static constexpr LayoutLength Fixed(Dip value) noexcept {
         return {LayoutLengthKind::fixed, value, value, value, 0.0f};
     }
 
-    [[nodiscard]] static constexpr LayoutLength Stretch(
+    static constexpr LayoutLength Stretch(
         float weight = 1.0f,
         Dip minimum = {},
         Dip maximum = Dip{(std::numeric_limits<float>::infinity)()}) noexcept {
@@ -63,17 +64,17 @@ struct LayoutLength {
     }
 };
 
-[[nodiscard]] constexpr LayoutLength Auto(
+constexpr LayoutLength Auto(
     Dip minimum = {},
     Dip maximum = Dip{(std::numeric_limits<float>::infinity)()}) noexcept {
     return LayoutLength::Auto(minimum, maximum);
 }
 
-[[nodiscard]] constexpr LayoutLength Fixed(Dip value) noexcept {
+constexpr LayoutLength Fixed(Dip value) noexcept {
     return LayoutLength::Fixed(value);
 }
 
-[[nodiscard]] constexpr LayoutLength Stretch(
+constexpr LayoutLength Stretch(
     float weight = 1.0f,
     Dip minimum = {},
     Dip maximum = Dip{(std::numeric_limits<float>::infinity)()}) noexcept {
@@ -135,12 +136,15 @@ public:
         LayoutLength length = LayoutLength::Auto(),
         LayoutItemOptions options = {}) & {
         if constexpr (IntrinsicallyMeasurable<Control>) {
-            if (!options.preferred_size) {
-                options.preferred_size = control.GetPreferredSize(
-                    DpiContext::FromWindow(control.GetHwnd()));
-            }
+            return AddMeasured(
+                control.GetHwnd(),
+                [&control](DpiContext dpi) {
+                    return control.GetPreferredSize(dpi);
+                },
+                length, std::move(options));
+        } else {
+            return Add(control.GetHwnd(), length, std::move(options));
         }
-        return Add(control.GetHwnd(), length, std::move(options));
     }
     template <WindowLike Control>
     LayoutNode&& Add(
@@ -148,12 +152,15 @@ public:
         LayoutLength length = LayoutLength::Auto(),
         LayoutItemOptions options = {}) && {
         if constexpr (IntrinsicallyMeasurable<Control>) {
-            if (!options.preferred_size) {
-                options.preferred_size = control.GetPreferredSize(
-                    DpiContext::FromWindow(control.GetHwnd()));
-            }
+            AddMeasured(
+                control.GetHwnd(),
+                [&control](DpiContext dpi) {
+                    return control.GetPreferredSize(dpi);
+                },
+                length, std::move(options));
+        } else {
+            Add(control.GetHwnd(), length, std::move(options));
         }
-        Add(control.GetHwnd(), length, std::move(options));
         return std::move(*this);
     }
 
@@ -181,19 +188,24 @@ public:
         return std::move(*this);
     }
 
-    [[nodiscard]] LayoutDirection GetDirection() const noexcept;
-    [[nodiscard]] std::size_t GetCount() const noexcept;
+    LayoutDirection GetDirection() const noexcept;
+    std::size_t GetCount() const noexcept;
 
 private:
     struct Child;
     struct Placement;
 
-    [[nodiscard]] SizeDip Measure(DpiContext dpi) const noexcept;
+    LayoutNode& AddMeasured(
+        HWND window,
+        std::function<SizeDip(DpiContext)> measure,
+        LayoutLength length,
+        LayoutItemOptions options);
+    SizeDip Measure(DpiContext dpi) const;
     void CollectPlacements(
         RectDip bounds,
         DpiContext dpi,
-        std::vector<Placement>& output) const noexcept;
-    [[nodiscard]] std::size_t CountWindows() const noexcept;
+        std::vector<Placement>& output) const;
+    std::size_t CountWindows() const noexcept;
 
     LayoutDirection direction_ = LayoutDirection::column;
     Dip gap_{};
@@ -203,9 +215,9 @@ private:
     friend class LayoutHost;
 };
 
-[[nodiscard]] LayoutNode Row() noexcept;
-[[nodiscard]] LayoutNode Column() noexcept;
-[[nodiscard]] LayoutNode Overlay() noexcept;
+LayoutNode Row() noexcept;
+LayoutNode Column() noexcept;
+LayoutNode Overlay() noexcept;
 
 class LayoutHost final {
 public:
@@ -218,9 +230,9 @@ public:
     LayoutHost& operator=(LayoutHost&&) = delete;
 
     void SetRoot(LayoutNode root) noexcept;
-    [[nodiscard]] bool HasRoot() const noexcept;
-    [[nodiscard]] SizeDip GetPreferredSize(HWND parent) const noexcept;
-    [[nodiscard]] bool Arrange(HWND parent) const noexcept;
+    bool HasRoot() const noexcept;
+    SizeDip GetPreferredSize(HWND parent) const;
+    bool Arrange(HWND parent) const;
 
 private:
     std::optional<LayoutNode> root_;

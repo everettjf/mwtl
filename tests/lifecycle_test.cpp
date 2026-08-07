@@ -4,12 +4,14 @@
 
 #include <cstdio>
 #include <cstring>
+#include <new>
 #include <stdexcept>
 
 namespace {
 
 enum class TestMode {
     create_failure,
+    allocation_failure,
     normal_close,
     message_failure,
     destruction_failure,
@@ -22,6 +24,9 @@ public:
     void BuildUI() {
         if (current_mode == TestMode::create_failure) {
             throw std::runtime_error("injected BuildUI failure");
+        }
+        if (current_mode == TestMode::allocation_failure) {
+            throw std::bad_alloc{};
         }
 
         const UINT message = current_mode == TestMode::message_failure
@@ -81,6 +86,8 @@ int main(int argc, char** argv) {
         expected = {1, 0, 0, 1};
     } else if (std::strcmp(argv[1], "create_failure") == 0) {
         current_mode = TestMode::create_failure;
+    } else if (std::strcmp(argv[1], "allocation_failure") == 0) {
+        current_mode = TestMode::allocation_failure;
     } else if (std::strcmp(argv[1], "message_failure") == 0) {
         current_mode = TestMode::message_failure;
     } else if (std::strcmp(argv[1], "destruction_failure") == 0) {

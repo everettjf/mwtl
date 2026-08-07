@@ -14,12 +14,12 @@ struct EventResult {
     bool handled = false;
     LRESULT result = 0;
 
-    [[nodiscard]] static constexpr EventResult Handled(
+    static constexpr EventResult Handled(
         LRESULT value = 0) noexcept {
         return {true, value};
     }
 
-    [[nodiscard]] static constexpr EventResult Propagate() noexcept {
+    static constexpr EventResult Propagate() noexcept {
         return {};
     }
 };
@@ -34,7 +34,7 @@ struct TimerId {
     UINT_PTR value = 0;
 
     constexpr auto operator<=>(const TimerId&) const noexcept = default;
-    [[nodiscard]] constexpr explicit operator bool() const noexcept {
+    constexpr explicit operator bool() const noexcept {
         return value != 0;
     }
 };
@@ -66,6 +66,18 @@ struct ResizeEvent {
     WindowSizeState state = WindowSizeState::unknown;
 };
 
+struct ScrollEvent {
+    HWND control = nullptr;
+    int request = 0;
+    int position = 0;
+    bool horizontal = true;
+
+    template <WindowLike Control>
+    bool IsFrom(const Control& expected) const noexcept {
+        return control != nullptr && control == expected.GetHwnd();
+    }
+};
+
 struct DpiChangedEvent {
     UINT dpi_x = 96;
     UINT dpi_y = 96;
@@ -77,26 +89,26 @@ struct CommandEvent {
     UINT notification = 0;
     HWND control = nullptr;  // Non-owning.
 
-    [[nodiscard]] constexpr bool Is(
+    constexpr bool Is(
         ControlId expected_id,
         UINT expected_notification) const noexcept {
         return id == expected_id && notification == expected_notification;
     }
 
     template <WindowLike Control>
-    [[nodiscard]] bool IsFrom(const Control& expected) const noexcept {
+    bool IsFrom(const Control& expected) const noexcept {
         return control != nullptr && control == expected.GetHwnd();
     }
 
     template <WindowLike Control>
-    [[nodiscard]] bool Is(
+    bool Is(
         const Control& expected,
         UINT expected_notification) const noexcept {
         return notification == expected_notification && IsFrom(expected);
     }
 
     template <WindowLike Control>
-    [[nodiscard]] bool IsClicked(const Control& expected) const noexcept {
+    bool IsClicked(const Control& expected) const noexcept {
         return notification == BN_CLICKED && IsFrom(expected);
     }
 };
@@ -104,27 +116,27 @@ struct CommandEvent {
 struct NotifyEvent {
     const NMHDR& header;
 
-    [[nodiscard]] constexpr ControlId GetId() const noexcept {
+    constexpr ControlId GetId() const noexcept {
         return ControlId{static_cast<int>(header.idFrom)};
     }
-    [[nodiscard]] constexpr UINT GetCode() const noexcept { return header.code; }
-    [[nodiscard]] constexpr HWND GetControl() const noexcept { return header.hwndFrom; }
+    constexpr UINT GetCode() const noexcept { return header.code; }
+    constexpr HWND GetControl() const noexcept { return header.hwndFrom; }
 
     template <WindowLike Control>
-    [[nodiscard]] bool IsFrom(const Control& expected) const noexcept {
+    bool IsFrom(const Control& expected) const noexcept {
         return header.hwndFrom != nullptr &&
                header.hwndFrom == expected.GetHwnd();
     }
 
     template <WindowLike Control>
-    [[nodiscard]] bool Is(
+    bool Is(
         const Control& expected,
         UINT expected_code) const noexcept {
         return header.code == expected_code && IsFrom(expected);
     }
 
     template <typename Notification>
-    [[nodiscard]] const Notification* As(UINT expected_code) const noexcept {
+    const Notification* As(UINT expected_code) const noexcept {
         return header.code == expected_code
             ? reinterpret_cast<const Notification*>(&header)
             : nullptr;
@@ -150,11 +162,11 @@ public:
     PaintEvent(PaintEvent&&) = delete;
     PaintEvent& operator=(PaintEvent&&) = delete;
 
-    [[nodiscard]] HDC GetDC() const noexcept { return dc_; }
-    [[nodiscard]] const RECT& GetPaintBounds() const noexcept {
+    HDC GetDC() const noexcept { return dc_; }
+    const RECT& GetPaintBounds() const noexcept {
         return paint_.rcPaint;
     }
-    [[nodiscard]] explicit operator bool() const noexcept {
+    explicit operator bool() const noexcept {
         return dc_ != nullptr;
     }
 
@@ -172,7 +184,7 @@ struct WindowMessage {
 
 namespace detail {
 
-[[nodiscard]] constexpr WindowSizeState DecodeWindowSizeState(
+constexpr WindowSizeState DecodeWindowSizeState(
     WPARAM value) noexcept {
     switch (value) {
     case SIZE_RESTORED: return WindowSizeState::restored;

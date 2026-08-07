@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/everettjf/mwtl/actions/workflows/ci.yml"><img src="https://github.com/everettjf/mwtl/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/API-0.4-6278f5.svg" alt="API 0.4">
+  <img src="https://img.shields.io/badge/API-0.5-6278f5.svg" alt="API 0.5">
   <a href="https://github.com/everettjf/mwtl/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-17a589.svg" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/C%2B%2B-20-146c94.svg" alt="C++20">
   <img src="https://img.shields.io/badge/platform-Windows-ff9f43.svg" alt="Windows">
@@ -21,10 +21,11 @@
   <a href="#visual-quick-start">Examples</a> &middot;
   <a href="#build-and-run">Build</a> &middot;
   <a href="https://everettjf.github.io/mwtl/">Documentation</a> &middot;
-  <a href="docs/api-0.4.md">API 0.4</a>
+  <a href="docs/api-0.5.md">API 0.5</a>
 </p>
 
-Start with the [0.4 concise API and responsive layout guide](docs/api-0.4.md).
+Start with the [0.5 production API direction](docs/api-0.5.md), followed by
+the [0.4 concise API and responsive layout guide](docs/api-0.4.md).
 The [0.3 desktop and packaging APIs](docs/api-0.3.md) and the original
 [ownership guide](docs/api-0.2.md) remain available as focused references.
 
@@ -273,7 +274,7 @@ cmake --install build/x64 --config Release --prefix C:/deps/mwtl
 An installed consumer uses the exported package target:
 
 ```cmake
-find_package(mwtl 0.4 CONFIG REQUIRED)
+find_package(mwtl 0.5 CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE mwtl::mwtl)
 ```
 

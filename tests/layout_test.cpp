@@ -5,7 +5,9 @@
 #include <wil/resource.h>
 
 #include <cstdlib>
+#include <atomic>
 #include <stdexcept>
+#include <thread>
 
 namespace {
 
@@ -185,6 +187,27 @@ int main() {
     static_assert(IntrinsicallyMeasurable<Label>);
     Label measured_label;
     if (!measured_label.Create(parent, {501}, L"intrinsic label", {})) return 20;
+    if (!measured_label.IsOwnerThread()) return 28;
+    std::atomic<bool> worker_rejected{false};
+    std::thread ownership_probe([&] {
+        worker_rejected.store(
+            !measured_label.IsOwnerThread(), std::memory_order_release);
+    });
+    ownership_probe.join();
+    if (!worker_rejected.load(std::memory_order_acquire)) return 29;
+    Label move_source;
+    if (!move_source.Create(parent, {502}, L"move ownership", {})) return 30;
+    Label move_target(std::move(move_source));
+    if (!move_target.IsOwnerThread() || move_source.IsWindow() ||
+        !move_target.IsWindow()) {
+        return 31;
+    }
+    std::thread moved_ownership_probe([&] {
+        worker_rejected.store(
+            !move_target.IsOwnerThread(), std::memory_order_release);
+    });
+    moved_ownership_probe.join();
+    if (!worker_rejected.load(std::memory_order_acquire)) return 32;
     const SizeDip intrinsic = measured_label.GetPreferredSize(dpi);
     if (intrinsic.width.value <= 0.0f || intrinsic.height.value <= 0.0f)
         return 21;
@@ -192,8 +215,30 @@ int main() {
     const SizeDip preferred = intrinsic_layout.GetPreferredSize(parent);
     if (preferred.width.value <= 0.0f || preferred.height.value <= 0.0f)
         return 22;
+    if (!measured_label.SetText(
+            L"intrinsic label whose text changed after joining layout"))
+        return 23;
+    const SizeDip updated_preferred = intrinsic_layout.GetPreferredSize(parent);
+    if (updated_preferred.width.value <= preferred.width.value) return 24;
+
+    const HFONT large_font = ::CreateFontW(
+        -32, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
+        DEFAULT_PITCH, L"Segoe UI");
+    if (large_font == nullptr) return 26;
+    const auto delete_large_font = wil::scope_exit([&] {
+        ::SendMessageW(
+            measured_label.GetHwnd(), WM_SETFONT,
+            reinterpret_cast<WPARAM>(::GetStockObject(DEFAULT_GUI_FONT)), FALSE);
+        ::DeleteObject(large_font);
+    });
+    ::SendMessageW(
+        measured_label.GetHwnd(), WM_SETFONT,
+        reinterpret_cast<WPARAM>(large_font), FALSE);
+    const SizeDip font_preferred = intrinsic_layout.GetPreferredSize(parent);
+    if (font_preferred.height.value <= updated_preferred.height.value) return 27;
 
     LayoutHost dip_length_layout(Row().Add(measured_label, 80_dip));
-    if (!dip_length_layout.Arrange(parent)) return 23;
+    if (!dip_length_layout.Arrange(parent)) return 25;
     return EXIT_SUCCESS;
 }

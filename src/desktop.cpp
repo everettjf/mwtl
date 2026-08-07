@@ -14,19 +14,28 @@ std::wstring Terminate(std::wstring_view value) {
 FileDialogResult ShowFileDialog(const FileDialogOptions& options, bool save) {
     constexpr DWORD kBufferCharacters = 32768;
     std::vector<wchar_t> path(kBufferCharacters, L'\0');
-    if (!options.initial_path.empty()) {
-        const auto count = (std::min)(options.initial_path.size(), path.size() - 1);
-        std::copy_n(options.initial_path.data(), count, path.data());
+    const std::wstring initial_path = options.initial_path.native();
+    if (!initial_path.empty()) {
+        const auto count = (std::min)(initial_path.size(), path.size() - 1);
+        std::copy_n(initial_path.data(), count, path.data());
     }
+
+    std::wstring filters;
+    for (const auto& filter : options.filters) {
+        filters.append(filter.name).push_back(L'\0');
+        filters.append(filter.pattern).push_back(L'\0');
+    }
+    if (!filters.empty()) filters.push_back(L'\0');
 
     OPENFILENAMEW dialog{};
     dialog.lStructSize = sizeof(dialog);
     dialog.hwndOwner = options.owner;
-    dialog.lpstrFilter = options.filter;
+    dialog.lpstrFilter = filters.empty() ? nullptr : filters.c_str();
     dialog.lpstrFile = path.data();
     dialog.nMaxFile = static_cast<DWORD>(path.size());
-    dialog.lpstrTitle = options.title;
-    dialog.lpstrDefExt = options.default_extension;
+    dialog.lpstrTitle = options.title.empty() ? nullptr : options.title.c_str();
+    dialog.lpstrDefExt = options.default_extension.empty()
+        ? nullptr : options.default_extension.c_str();
     dialog.Flags = options.flags | (save ? OFN_OVERWRITEPROMPT : OFN_FILEMUSTEXIST) |
         (options.hook != nullptr ? OFN_ENABLEHOOK : 0);
     dialog.lpfnHook = options.hook;
@@ -34,7 +43,7 @@ FileDialogResult ShowFileDialog(const FileDialogOptions& options, bool save) {
 
     const BOOL accepted = save ? ::GetSaveFileNameW(&dialog) : ::GetOpenFileNameW(&dialog);
     if (accepted != FALSE) {
-        return {std::wstring(path.data()), 0, true};
+        return {std::filesystem::path(path.data()), 0, true};
     }
     return {{}, ::CommDlgExtendedError(), false};
 }
@@ -108,7 +117,7 @@ FileDialogResult ShowSaveFileDialog(const FileDialogOptions& options) { return S
 FileDialogResult ShowFolderDialog(const FolderDialogOptions& options) {
     BROWSEINFOW browse{};
     browse.hwndOwner = options.owner;
-    browse.lpszTitle = options.title;
+    browse.lpszTitle = options.title.empty() ? nullptr : options.title.c_str();
     browse.ulFlags = options.flags;
     browse.lpfn = options.callback;
     browse.lParam = options.custom_data;
@@ -120,7 +129,7 @@ FileDialogResult ShowFolderDialog(const FolderDialogOptions& options) {
         return {{}, ERROR_PATH_NOT_FOUND, false};
     }
     path.resize(std::char_traits<wchar_t>::length(path.c_str()));
-    return {std::move(path), 0, true};
+    return {std::filesystem::path(std::move(path)), 0, true};
 }
 
 bool SetClipboardText(HWND owner, std::wstring_view text) noexcept {
@@ -179,7 +188,7 @@ bool RestoreWindowPlacement(HWND window, const SavedWindowPlacement& saved, bool
     if (clamp) placement.rcNormalPosition = ClampRectToWorkArea(placement.rcNormalPosition);
     return ::SetWindowPlacement(window, &placement) != FALSE;
 }
-bool SaveWindowPlacementToRegistry(HKEY root, std::wstring_view subkey, std::wstring_view value_name, const SavedWindowPlacement& placement) noexcept {
+bool SaveWindowPlacementToRegistry(HKEY root, std::wstring_view subkey, std::wstring_view value_name, const SavedWindowPlacement& placement) {
     const std::wstring key_name = Terminate(subkey), name = Terminate(value_name);
     HKEY key = nullptr;
     if (::RegCreateKeyExW(root, key_name.c_str(), 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key, nullptr) != ERROR_SUCCESS) return false;
@@ -188,7 +197,7 @@ bool SaveWindowPlacementToRegistry(HKEY root, std::wstring_view subkey, std::wst
     ::RegCloseKey(key);
     return status == ERROR_SUCCESS;
 }
-bool LoadWindowPlacementFromRegistry(HKEY root, std::wstring_view subkey, std::wstring_view value_name, SavedWindowPlacement& placement) noexcept {
+bool LoadWindowPlacementFromRegistry(HKEY root, std::wstring_view subkey, std::wstring_view value_name, SavedWindowPlacement& placement) {
     const std::wstring key_name = Terminate(subkey), name = Terminate(value_name);
     HKEY key = nullptr;
     if (::RegOpenKeyExW(root, key_name.c_str(), 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) return false;

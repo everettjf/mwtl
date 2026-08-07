@@ -96,9 +96,9 @@ public:
         return info;
     }
 
-    [[nodiscard]] HWND GetHwnd() const noexcept { return this->m_hWnd; }
+    HWND GetHwnd() const noexcept { return this->m_hWnd; }
 
-    [[nodiscard]] bool IsWindow() const noexcept {
+    bool IsWindow() const noexcept {
         return this->m_hWnd != nullptr && ::IsWindow(this->m_hWnd) != FALSE;
     }
 
@@ -111,17 +111,17 @@ public:
         return SetTitle(terminated.c_str());
     }
 
-    [[nodiscard]] LRESULT Close() noexcept {
+    LRESULT Close() noexcept {
         return this->m_hWnd != nullptr
             ? ::SendMessageW(this->m_hWnd, WM_CLOSE, 0, 0)
             : 0;
     }
 
-    [[nodiscard]] DpiContext GetDpiContext() const noexcept {
+    DpiContext GetDpiContext() const noexcept {
         return DpiContext::FromWindow(GetHwnd());
     }
 
-    [[nodiscard]] WindowWakeup GetWakeup() const noexcept { return WindowWakeup(wake_state_); }
+    WindowWakeup GetWakeup() const noexcept { return WindowWakeup(wake_state_); }
 
     void SetAccelerators(HACCEL accelerators) noexcept {
         this->m_hAccel = accelerators;  // Non-owning; the table must outlive the window.
@@ -136,7 +136,7 @@ public:
         }
     }
 
-    [[nodiscard]] bool SetLayout(LayoutHost& layout) noexcept {
+    bool SetLayout(LayoutHost& layout) {
         owned_layout_.reset();
         layout_ = &layout;  // Non-owning; the layout must outlive the HWND.
         return !IsWindow() || layout.Arrange(GetHwnd());
@@ -277,6 +277,21 @@ private:
                         },
                         result);
                 }
+            }
+        }
+        if (message == WM_HSCROLL || message == WM_VSCROLL) {
+            if constexpr (requires(T& value, const ScrollEvent& event) {
+                              value.OnScroll(event);
+                          }) {
+                const ScrollEvent event{
+                    .control = reinterpret_cast<HWND>(lparam),
+                    .request = LOWORD(wparam),
+                    .position = HIWORD(wparam),
+                    .horizontal = message == WM_HSCROLL,
+                };
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnScroll(event); },
+                    result);
             }
         }
         if (message == WM_SIZE) {
@@ -524,6 +539,7 @@ public:
     virtual EventResult OnKeyDown(const KeyEvent&) { return EventResult::Propagate(); }
     virtual EventResult OnMouseMove(const MouseEvent&) { return EventResult::Propagate(); }
     virtual EventResult OnLeftButtonDown(const MouseEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnScroll(const ScrollEvent&) { return EventResult::Propagate(); }
     virtual EventResult OnResize(const ResizeEvent&) { return EventResult::Propagate(); }
     virtual EventResult OnTimer(TimerId) { return EventResult::Propagate(); }
     virtual EventResult OnDpiChanged(const DpiChangedEvent&) { return EventResult::Propagate(); }

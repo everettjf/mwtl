@@ -19,12 +19,12 @@ public:
     UiTimer(UiTimer&& other) noexcept;
     UiTimer& operator=(UiTimer&& other) noexcept;
 
-    [[nodiscard]] bool Start(
+    bool Start(
         HWND window,
         TimerId id,
         std::chrono::milliseconds interval) noexcept;
     template <WindowLike Window>
-    [[nodiscard]] bool Start(
+    bool Start(
         const Window& window,
         TimerId id,
         std::chrono::milliseconds interval) noexcept {
@@ -32,8 +32,8 @@ public:
     }
     void Stop() noexcept;
 
-    [[nodiscard]] bool IsRunning() const noexcept;
-    [[nodiscard]] TimerId GetId() const noexcept { return id_; }
+    bool IsRunning() const noexcept;
+    TimerId GetId() const noexcept { return id_; }
 
 private:
     HWND window_ = nullptr;  // Non-owning; valid while the timer is running.

@@ -6,7 +6,7 @@
 namespace {
 
 struct FakeControl {
-    [[nodiscard]] HWND GetHwnd() const noexcept { return window; }
+    HWND GetHwnd() const noexcept { return window; }
     HWND window = nullptr;
 };
 

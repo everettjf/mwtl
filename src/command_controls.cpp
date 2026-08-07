@@ -3,7 +3,7 @@
 #include <string>
 
 namespace mwtl {
-namespace { [[nodiscard]] bool Initialize(DWORD classes) noexcept { INITCOMMONCONTROLSEX value{sizeof(value), classes}; return ::InitCommonControlsEx(&value) != FALSE; } }
+namespace { bool Initialize(DWORD classes) noexcept { INITCOMMONCONTROLSEX value{sizeof(value), classes}; return ::InitCommonControlsEx(&value) != FALSE; } }
 
 bool Toolbar::Create(HWND parent, ControlId id, RectDip bounds, ToolbarOptions options) {
     if (!Initialize(ICC_BAR_CLASSES) || !CreateNative(TOOLBARCLASSNAMEW, parent, id, L"", bounds, options.style, options.extended_style)) return false;

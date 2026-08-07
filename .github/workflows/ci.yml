@@ -32,3 +32,23 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build/x64 -C ${{ matrix.configuration }} --output-on-failure
+
+  static-analysis:
+    name: MSVC static analysis
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Configure library
+        run: >-
+          cmake -S . -B build/analyze
+          -G "Visual Studio 17 2022" -A x64
+          -DMWTL_BUILD_EXAMPLES=OFF
+          -DMWTL_BUILD_TESTS=OFF
+          -DMWTL_WARNINGS_AS_ERRORS=ON
+      - name: Analyze
+        run: >-
+          msbuild build/analyze/mwtl.vcxproj
+          /p:Configuration=Debug
+          /p:RunCodeAnalysis=true
+          /p:CodeAnalysisRuleSet=NativeRecommendedRules.ruleset

@@ -3,12 +3,13 @@
 
 #include <utility>
 #include <array>
+#include <cassert>
 #include <cwchar>
 
 namespace mwtl {
 namespace {
 
-[[nodiscard]] RECT ResolveControlBounds(HWND parent, RectDip bounds) noexcept {
+RECT ResolveControlBounds(HWND parent, RectDip bounds) noexcept {
     return DpiContext::FromWindow(parent).ToPixels(bounds);
 }
 
@@ -26,7 +27,8 @@ NativeControl::~NativeControl() noexcept {
 NativeControl::NativeControl(NativeControl&& other) noexcept
     : window_(std::exchange(other.window_, nullptr)),
       parent_(std::exchange(other.parent_, nullptr)),
-      id_(std::exchange(other.id_, {})) {}
+      id_(std::exchange(other.id_, {})),
+      owner_thread_id_(std::exchange(other.owner_thread_id_, 0)) {}
 
 NativeControl& NativeControl::operator=(NativeControl&& other) noexcept {
     if (this != &other) {
@@ -34,17 +36,24 @@ NativeControl& NativeControl::operator=(NativeControl&& other) noexcept {
         window_ = std::exchange(other.window_, nullptr);
         parent_ = std::exchange(other.parent_, nullptr);
         id_ = std::exchange(other.id_, {});
+        owner_thread_id_ = std::exchange(other.owner_thread_id_, 0);
     }
     return *this;
 }
 
 bool NativeControl::IsWindow() const noexcept {
+    assert(IsOwnerThread());
     return window_ != nullptr && parent_ != nullptr && id_.value > 0 &&
         ::IsWindow(window_) != FALSE && ::IsWindow(parent_) != FALSE &&
         ::GetParent(window_) == parent_ && ::GetDlgCtrlID(window_) == id_.value;
 }
 
-SizeDip NativeControl::GetPreferredSize(DpiContext dpi) const noexcept {
+bool NativeControl::IsOwnerThread() const noexcept {
+    return owner_thread_id_ == 0 ||
+        owner_thread_id_ == ::GetCurrentThreadId();
+}
+
+SizeDip NativeControl::GetPreferredSize(DpiContext dpi) const {
     if (!IsWindow()) return {};
 
     SIZE ideal{};
@@ -184,6 +193,7 @@ void NativeControl::Destroy() noexcept {
     window_ = nullptr;
     parent_ = nullptr;
     id_ = {};
+    owner_thread_id_ = 0;
 }
 
 bool NativeControl::CreateNative(
@@ -220,6 +230,7 @@ bool NativeControl::CreateNative(
     }
     parent_ = parent;
     id_ = id;
+    owner_thread_id_ = ::GetCurrentThreadId();
     ApplyDefaultFont(window_);
     return true;
 }

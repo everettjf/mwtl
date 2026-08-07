@@ -14,6 +14,13 @@ if(NOT EXISTS "${PROJECT_ROOT}/cmake/mwtlConfig.cmake.in" OR
    NOT EXISTS "${PROJECT_ROOT}/.github/workflows/release.yml")
     message(FATAL_ERROR "Release package metadata is incomplete")
 endif()
+foreach(package_document IN ITEMS
+        README.md CHANGELOG.md SECURITY.md docs/api-0.5.md)
+    if(NOT cmake_text MATCHES "install\\([^)]*${package_document}")
+        message(FATAL_ERROR
+            "Release package does not install ${package_document}")
+    endif()
+endforeach()
 if(NOT release_workflow_text MATCHES [["artifacts/\$\(\$_.Name\)"]])
     message(FATAL_ERROR "Release assets must use a portable forward-slash path")
 endif()

@@ -1,6 +1,26 @@
 # Changelog
 
-## 0.4.0 - Unreleased
+## 0.5.0 - Unreleased
+
+- Removed public `[[nodiscard]]` annotations so concise application code can
+  intentionally ignore native results without casts or warning suppression.
+- Made intrinsic control measurement dynamic: `Auto()` now remeasures after
+  text, font, content, theme, or DPI changes instead of caching at layout-add
+  time.
+- Corrected layout and preferred-size exception specifications so allocation
+  failure cannot silently terminate the process through an invalid `noexcept`.
+- Added debug-time UI-thread ownership checks to native child controls.
+- Added constructor forwarding to `RunApplication` for direct main-window
+  dependency injection without globals or service locators.
+- Replaced the wait-aware pump delegate hierarchy with owned handle storage,
+  `std::chrono` intervals, and direct callable hooks for dispatch, idle, and
+  signals.
+- Replaced raw double-NUL file filters and string paths with structured filters
+  and `std::filesystem::path` dialog values.
+- Added typed scroll events, optional selected indexes, typed hot keys and IP
+  addresses, plus range inputs for accelerators and status-bar parts.
+- Added warning-as-error builds, MSVC static-analysis CI, release checksums,
+  dependency automation, a security policy, and a 0.5 release checklist.
 
 - Unified concise `ControlHost` creation across all 27 native child-control
   wrappers while retaining every direct non-throwing `Create` overload.

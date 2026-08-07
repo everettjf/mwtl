@@ -6,6 +6,9 @@
 #include <shlobj.h>
 
 #include <span>
+#include <concepts>
+#include <filesystem>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -21,17 +24,17 @@ public:
     Menu(Menu&& other) noexcept;
     Menu& operator=(Menu&& other) noexcept;
 
-    [[nodiscard]] bool Create() noexcept;
-    [[nodiscard]] bool CreatePopup() noexcept;
-    [[nodiscard]] bool AppendCommand(UINT id, std::wstring_view text,
+    bool Create() noexcept;
+    bool CreatePopup() noexcept;
+    bool AppendCommand(UINT id, std::wstring_view text,
                                      bool enabled = true);
-    [[nodiscard]] bool AppendSeparator() noexcept;
-    [[nodiscard]] bool AppendSubmenu(Menu&& submenu, std::wstring_view text,
+    bool AppendSeparator() noexcept;
+    bool AppendSubmenu(Menu&& submenu, std::wstring_view text,
                                      bool enabled = true);
-    [[nodiscard]] bool AttachToWindow(HWND window) noexcept;
-    [[nodiscard]] UINT Track(HWND owner, POINT screen_position,
+    bool AttachToWindow(HWND window) noexcept;
+    UINT Track(HWND owner, POINT screen_position,
                              UINT flags = TPM_RIGHTBUTTON | TPM_RETURNCMD) const noexcept;
-    [[nodiscard]] HMENU GetHandle() const noexcept { return menu_; }
+    HMENU GetHandle() const noexcept { return menu_; }
     void Reset() noexcept;
 
 private:
@@ -47,8 +50,18 @@ public:
     AcceleratorTable(AcceleratorTable&& other) noexcept;
     AcceleratorTable& operator=(AcceleratorTable&& other) noexcept;
 
-    [[nodiscard]] bool Create(std::span<const ACCEL> entries) noexcept;
-    [[nodiscard]] HACCEL GetHandle() const noexcept { return table_; }
+    bool Create(std::span<const ACCEL> entries) noexcept;
+    template <std::ranges::input_range Range>
+        requires std::convertible_to<std::ranges::range_reference_t<Range>, ACCEL>
+    bool Create(Range&& entries) {
+        std::vector<ACCEL> values;
+        if constexpr (std::ranges::sized_range<Range>) {
+            values.reserve(std::ranges::size(entries));
+        }
+        for (auto&& entry : entries) values.push_back(entry);
+        return Create(std::span<const ACCEL>{values});
+    }
+    HACCEL GetHandle() const noexcept { return table_; }
     void Reset() noexcept;
 
 private:
@@ -57,60 +70,64 @@ private:
 
 struct FileDialogOptions {
     HWND owner = nullptr;
-    const wchar_t* title = nullptr;
-    const wchar_t* filter = nullptr;  // Double-NUL terminated Win32 filter.
-    const wchar_t* default_extension = nullptr;
-    std::wstring initial_path;
+    std::wstring title;
+    struct Filter {
+        std::wstring name;
+        std::wstring pattern;
+    };
+    std::vector<Filter> filters;
+    std::wstring default_extension;
+    std::filesystem::path initial_path;
     DWORD flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
     LPOFNHOOKPROC hook = nullptr;
     LPARAM custom_data = 0;
 };
 
 struct FileDialogResult {
-    std::wstring path;
+    std::filesystem::path path;
     DWORD extended_error = 0;
     bool accepted = false;
 
-    [[nodiscard]] bool Cancelled() const noexcept {
+    bool Cancelled() const noexcept {
         return !accepted && extended_error == 0;
     }
 };
 
-[[nodiscard]] FileDialogResult ShowOpenFileDialog(const FileDialogOptions& options);
-[[nodiscard]] FileDialogResult ShowSaveFileDialog(const FileDialogOptions& options);
+FileDialogResult ShowOpenFileDialog(const FileDialogOptions& options);
+FileDialogResult ShowSaveFileDialog(const FileDialogOptions& options);
 
 struct FolderDialogOptions {
     HWND owner = nullptr;
-    const wchar_t* title = nullptr;
+    std::wstring title;
     UINT flags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE | BIF_USENEWUI;
     BFFCALLBACK callback = nullptr;
     LPARAM custom_data = 0;
 };
 
-[[nodiscard]] FileDialogResult ShowFolderDialog(
+FileDialogResult ShowFolderDialog(
     const FolderDialogOptions& options = {});
 
-[[nodiscard]] bool SetClipboardText(HWND owner, std::wstring_view text) noexcept;
-[[nodiscard]] std::wstring GetClipboardText(HWND owner = nullptr);
+bool SetClipboardText(HWND owner, std::wstring_view text) noexcept;
+std::wstring GetClipboardText(HWND owner = nullptr);
 
 void EnableFileDrop(HWND window, bool enabled = true) noexcept;
-[[nodiscard]] std::vector<std::wstring> ReadDroppedFiles(HDROP drop);
+std::vector<std::wstring> ReadDroppedFiles(HDROP drop);
 
 struct SavedWindowPlacement {
     WINDOWPLACEMENT placement{sizeof(WINDOWPLACEMENT)};
 };
 
-[[nodiscard]] bool CaptureWindowPlacement(HWND window,
+bool CaptureWindowPlacement(HWND window,
                                           SavedWindowPlacement& output) noexcept;
-[[nodiscard]] bool RestoreWindowPlacement(HWND window,
+bool RestoreWindowPlacement(HWND window,
                                           const SavedWindowPlacement& saved,
                                           bool clamp_to_visible_work_area = true) noexcept;
-[[nodiscard]] bool SaveWindowPlacementToRegistry(
+bool SaveWindowPlacementToRegistry(
     HKEY root, std::wstring_view subkey, std::wstring_view value_name,
-    const SavedWindowPlacement& placement) noexcept;
-[[nodiscard]] bool LoadWindowPlacementFromRegistry(
+    const SavedWindowPlacement& placement);
+bool LoadWindowPlacementFromRegistry(
     HKEY root, std::wstring_view subkey, std::wstring_view value_name,
-    SavedWindowPlacement& placement) noexcept;
+    SavedWindowPlacement& placement);
 
 class UiFont final {
 public:
@@ -121,8 +138,8 @@ public:
     UiFont(UiFont&& other) noexcept;
     UiFont& operator=(UiFont&& other) noexcept;
 
-    [[nodiscard]] bool CreateMessageFont(UINT dpi) noexcept;
-    [[nodiscard]] HFONT GetHandle() const noexcept { return font_; }
+    bool CreateMessageFont(UINT dpi) noexcept;
+    HFONT GetHandle() const noexcept { return font_; }
     void Reset() noexcept;
 
 private:
@@ -130,7 +147,7 @@ private:
 };
 
 void SetControlFont(HWND control, HFONT font, bool redraw = true) noexcept;
-[[nodiscard]] HWND FocusNextControl(HWND parent, HWND current,
+HWND FocusNextControl(HWND parent, HWND current,
                                     bool previous = false) noexcept;
 
 }  // namespace mwtl

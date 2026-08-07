@@ -5,6 +5,7 @@
 
 #include <concepts>
 #include <string_view>
+#include <optional>
 
 #include <mwtl/concepts.h>
 #include <mwtl/controls.h>
@@ -19,11 +20,11 @@ struct TreeViewOptions {
 
 class TreeView final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, TreeViewOptions options = {});
+    bool Create(HWND parent, ControlId id, RectDip bounds, TreeViewOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, TreeViewOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
-    [[nodiscard]] HTREEITEM AddItem(std::wstring_view text, HTREEITEM parent = TVI_ROOT, HTREEITEM after = TVI_LAST);
-    [[nodiscard]] bool Expand(HTREEITEM item, bool expanded = true) noexcept;
+    bool Create(const Parent& parent, ControlId id, RectDip bounds, TreeViewOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
+    HTREEITEM AddItem(std::wstring_view text, HTREEITEM parent = TVI_ROOT, HTREEITEM after = TVI_LAST);
+    bool Expand(HTREEITEM item, bool expanded = true) noexcept;
 };
 
 struct ListViewOptions {
@@ -33,12 +34,12 @@ struct ListViewOptions {
 
 class ListView final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ListViewOptions options = {});
+    bool Create(HWND parent, ControlId id, RectDip bounds, ListViewOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ListViewOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
-    [[nodiscard]] int AddColumn(std::wstring_view text, int width_pixels, int index = -1);
-    [[nodiscard]] int AddItem(std::wstring_view text, int index = -1);
-    [[nodiscard]] bool SetSubItem(int item, int sub_item, std::wstring_view text);
+    bool Create(const Parent& parent, ControlId id, RectDip bounds, ListViewOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
+    int AddColumn(std::wstring_view text, int width_pixels, int index = -1);
+    int AddItem(std::wstring_view text, int index = -1);
+    bool SetSubItem(int item, int sub_item, std::wstring_view text);
     ListView& SetExtendedListStyle(DWORD style) noexcept;
 };
 
@@ -49,10 +50,10 @@ struct HeaderOptions {
 
 class Header final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, HeaderOptions options = {});
+    bool Create(HWND parent, ControlId id, RectDip bounds, HeaderOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, HeaderOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
-    [[nodiscard]] int AddColumn(std::wstring_view text, int width_pixels, int index = -1);
+    bool Create(const Parent& parent, ControlId id, RectDip bounds, HeaderOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
+    int AddColumn(std::wstring_view text, int width_pixels, int index = -1);
 };
 
 struct TabControlOptions {
@@ -62,12 +63,16 @@ struct TabControlOptions {
 
 class TabControl final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, TabControlOptions options = {});
+    bool Create(HWND parent, ControlId id, RectDip bounds, TabControlOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, TabControlOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
-    [[nodiscard]] int AddTab(std::wstring_view text, int index = -1);
-    [[nodiscard]] int GetSelection() const noexcept;
-    [[nodiscard]] bool SetSelection(int index) noexcept;
+    bool Create(const Parent& parent, ControlId id, RectDip bounds, TabControlOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
+    int AddTab(std::wstring_view text, int index = -1);
+    int GetSelection() const noexcept;
+    std::optional<int> GetSelectedIndex() const noexcept {
+        const int index = GetSelection();
+        return index < 0 ? std::nullopt : std::optional<int>{index};
+    }
+    bool SetSelection(int index) noexcept;
 };
 
 struct ComboBoxExOptions {
@@ -77,12 +82,16 @@ struct ComboBoxExOptions {
 
 class ComboBoxEx final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ComboBoxExOptions options = {});
+    bool Create(HWND parent, ControlId id, RectDip bounds, ComboBoxExOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ComboBoxExOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
-    [[nodiscard]] int AddItem(std::wstring_view text, int index = -1);
-    [[nodiscard]] int GetSelection() const noexcept;
-    [[nodiscard]] bool SetSelection(int index) noexcept;
+    bool Create(const Parent& parent, ControlId id, RectDip bounds, ComboBoxExOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
+    int AddItem(std::wstring_view text, int index = -1);
+    int GetSelection() const noexcept;
+    std::optional<int> GetSelectedIndex() const noexcept {
+        const int index = GetSelection();
+        return index == CB_ERR ? std::nullopt : std::optional<int>{index};
+    }
+    bool SetSelection(int index) noexcept;
 };
 
 }  // namespace mwtl

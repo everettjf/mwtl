@@ -33,12 +33,23 @@ jobs:
           ctest --test-dir build/release -C Release --output-on-failure
       - name: Package
         run: cpack --config build/release/CPackConfig.cmake -C Release -B artifacts
+      - name: Create checksums
+        shell: pwsh
+        run: |
+          $packages = @(Get-ChildItem artifacts -Filter *.zip -File)
+          if ($packages.Count -ne 1) {
+            throw "Expected exactly one ZIP package, found $($packages.Count)"
+          }
+          $packages | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)"
+          } | Set-Content artifacts/SHA256SUMS.txt
       - name: Upload dry-run package
         if: github.event_name == 'workflow_dispatch' && !inputs.publish
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: mwtl-${{ github.sha }}-x64
-          path: artifacts/*.zip
+          path: artifacts/*
           if-no-files-found: error
       - name: Publish GitHub release
         if: github.event_name == 'push' || inputs.publish
@@ -46,6 +57,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $files = Get-ChildItem artifacts -Filter *.zip | ForEach-Object { "artifacts/$($_.Name)" }
+          $files = Get-ChildItem artifacts -File | ForEach-Object { "artifacts/$($_.Name)" }
           if (-not $files) { throw "No release package found" }
           gh release create "${{ github.ref_name }}" @files --generate-notes --verify-tag

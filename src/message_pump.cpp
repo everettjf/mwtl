@@ -3,12 +3,29 @@
 #include "detail/diagnostics.h"
 
 #include <cstdlib>
+#include <algorithm>
 #include <exception>
+#include <limits>
 
 namespace mwtl {
 
-WaitAwareMessagePump::WaitAwareMessagePump(WaitAwarePumpOptions options) noexcept
-    : options_(options) {}
+namespace {
+
+DWORD ToNativeTimeout(std::chrono::milliseconds value) noexcept {
+    if (value == (std::chrono::milliseconds::max)()) return INFINITE;
+    const auto count = (std::max)(std::int64_t{0}, value.count());
+    return count >= static_cast<std::int64_t>(INFINITE)
+        ? INFINITE - 1
+        : static_cast<DWORD>(count);
+}
+
+}  // namespace
+
+WaitAwareMessagePump::WaitAwareMessagePump(WaitAwarePumpOptions options)
+    : options_(std::move(options)),
+      handles_(options_.handles.begin(), options_.handles.end()) {
+    options_.handles = handles_;
+}
 
 int WaitAwareMessagePump::Run(WTL::CMessageLoop& wtl_loop) noexcept {
     if (options_.handles.size() > MAXIMUM_WAIT_OBJECTS - 1) {
@@ -27,19 +44,14 @@ int WaitAwareMessagePump::Run(WTL::CMessageLoop& wtl_loop) noexcept {
                     ::TranslateMessage(&message);
                     ::DispatchMessageW(&message);
                 }
-                if (options_.delegate != nullptr) {
-                    options_.delegate->AfterDispatch(message);
-                }
+                if (options_.after_dispatch) options_.after_dispatch(message);
             }
 
-            DWORD timeout = options_.idle_timeout_ms;
-            if (options_.delegate != nullptr) {
-                const DWORD delegate_timeout = options_.delegate->GetWaitTimeout();
-                if (timeout == INFINITE || delegate_timeout < timeout) {
-                    timeout = delegate_timeout;
-                }
+            DWORD timeout = ToNativeTimeout(options_.idle_interval);
+            if (options_.next_interval) {
+                timeout = (std::min)(
+                    timeout, ToNativeTimeout(options_.next_interval()));
             }
-
             const DWORD result = ::MsgWaitForMultipleObjectsEx(
                 static_cast<DWORD>(options_.handles.size()),
                 options_.handles.data(),
@@ -52,17 +64,15 @@ int WaitAwareMessagePump::Run(WTL::CMessageLoop& wtl_loop) noexcept {
                 return EXIT_FAILURE;
             }
             if (result == WAIT_TIMEOUT) {
-                if (options_.delegate != nullptr) {
-                    options_.delegate->OnIdle();
-                }
+                if (options_.on_idle) options_.on_idle();
                 continue;
             }
             const DWORD first_handle = WAIT_OBJECT_0;
             const DWORD after_handles = first_handle +
                 static_cast<DWORD>(options_.handles.size());
             if (result >= first_handle && result < after_handles) {
-                if (options_.delegate != nullptr) {
-                    options_.delegate->OnHandleSignaled(
+                if (options_.on_signal) {
+                    options_.on_signal(
                         static_cast<std::size_t>(result - first_handle));
                 }
                 continue;

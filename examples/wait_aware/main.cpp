@@ -1,8 +1,12 @@
 #include <mwtl/mwtl.h>
 
 #include <cstdlib>
+#include <chrono>
 
-namespace { HWND demo_window = nullptr; }
+namespace {
+HWND demo_window = nullptr;
+unsigned idle_ticks = 0;
+}
 
 class WaitWindow final : public mwtl::Window<WaitWindow> {
 public:
@@ -12,24 +16,16 @@ public:
     }
 };
 
-class IdleDelegate final : public mwtl::WaitAwarePumpDelegate {
-public:
-    void OnIdle() override {
-        ++ticks_;
-        wchar_t title[96]{};
-        ::swprintf_s(title, L"Wait-aware pump - idle tick %u", ticks_);
-        ::SetWindowTextW(demo_window, title);
-    }
-    DWORD GetWaitTimeout() const noexcept override { return 500; }
-private:
-    unsigned ticks_ = 0;
-};
-
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    IdleDelegate delegate;
+    using namespace std::chrono_literals;
     mwtl::WaitAwareMessagePump pump({
-        .idle_timeout_ms = 500,
-        .delegate = &delegate,
+        .idle_interval = 500ms,
+        .on_idle = [] {
+        ++idle_ticks;
+        wchar_t title[96]{};
+        ::swprintf_s(title, L"Wait-aware pump - idle tick %u", idle_ticks);
+        ::SetWindowTextW(demo_window, title);
+        },
     });
     return mwtl::RunApplication<WaitWindow>(instance, show_command, pump);
 }

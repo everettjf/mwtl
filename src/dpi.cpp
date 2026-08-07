@@ -7,8 +7,10 @@ namespace mwtl {
 namespace {
 
 int RoundAndClamp(double value) noexcept {
-    const double minimum = static_cast<double>((std::numeric_limits<int>::min)());
-    const double maximum = static_cast<double>((std::numeric_limits<int>::max)());
+    constexpr double minimum =
+        static_cast<double>((std::numeric_limits<int>::min)());
+    constexpr double maximum =
+        static_cast<double>((std::numeric_limits<int>::max)());
     if (std::isnan(value)) {
         return 0;
     }

@@ -5,7 +5,7 @@
 namespace mwtl {
 namespace {
 
-[[nodiscard]] bool Initialize(DWORD classes) noexcept {
+bool Initialize(DWORD classes) noexcept {
     INITCOMMONCONTROLSEX controls{sizeof(controls), classes};
     return ::InitCommonControlsEx(&controls) != FALSE;
 }

@@ -91,7 +91,7 @@ public:
         return control;
     }
 
-    [[nodiscard]] HWND GetParent() const noexcept { return parent_; }
+    HWND GetParent() const noexcept { return parent_; }
 
 private:
     HWND parent_ = nullptr;

@@ -6,6 +6,7 @@
 #include <concepts>
 #include <string>
 #include <string_view>
+#include <optional>
 
 #include <mwtl/concepts.h>
 #include <mwtl/dpi.h>
@@ -23,23 +24,24 @@ public:
     NativeControl(NativeControl&& other) noexcept;
     NativeControl& operator=(NativeControl&& other) noexcept;
 
-    [[nodiscard]] HWND GetHwnd() const noexcept {
+    HWND GetHwnd() const noexcept {
         return IsWindow() ? window_ : nullptr;
     }
-    [[nodiscard]] bool IsWindow() const noexcept;
-    [[nodiscard]] ControlId GetId() const noexcept { return id_; }
-    [[nodiscard]] SizeDip GetPreferredSize(DpiContext dpi) const noexcept;
+    bool IsWindow() const noexcept;
+    bool IsOwnerThread() const noexcept;
+    ControlId GetId() const noexcept { return id_; }
+    SizeDip GetPreferredSize(DpiContext dpi) const;
 
-    [[nodiscard]] bool SetText(std::wstring_view text);
-    [[nodiscard]] std::wstring GetText() const;
-    [[nodiscard]] bool SetBounds(RectDip bounds) noexcept;
+    bool SetText(std::wstring_view text);
+    std::wstring GetText() const;
+    bool SetBounds(RectDip bounds) noexcept;
     NativeControl& SetEnabled(bool enabled) noexcept;
     NativeControl& SetVisible(bool visible) noexcept;
     NativeControl& Focus() noexcept;
     void Destroy() noexcept;
 
 protected:
-    [[nodiscard]] bool CreateNative(
+    bool CreateNative(
         const wchar_t* class_name,
         HWND parent,
         ControlId id,
@@ -52,6 +54,7 @@ private:
     HWND window_ = nullptr;  // Owned child HWND while valid.
     HWND parent_ = nullptr;  // Non-owning identity check.
     ControlId id_{};
+    DWORD owner_thread_id_ = 0;
 };
 
 struct LabelOptions {
@@ -61,7 +64,7 @@ struct LabelOptions {
 
 class Label final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(
+    bool Create(
         HWND parent,
         ControlId id,
         std::wstring_view text,
@@ -69,7 +72,7 @@ public:
         LabelOptions options = {});
 
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(
+    bool Create(
         const Parent& parent,
         ControlId id,
         std::wstring_view text,
@@ -86,14 +89,14 @@ struct ButtonOptions {
 
 class Button final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(
+    bool Create(
         HWND parent,
         ControlId id,
         std::wstring_view text,
         RectDip bounds,
         ButtonOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(
+    bool Create(
         const Parent& parent,
         ControlId id,
         std::wstring_view text,
@@ -111,14 +114,14 @@ struct TextBoxOptions {
 
 class TextBox final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(
+    bool Create(
         HWND parent,
         ControlId id,
         std::wstring_view text,
         RectDip bounds,
         TextBoxOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(
+    bool Create(
         const Parent& parent,
         ControlId id,
         std::wstring_view text,
@@ -137,14 +140,14 @@ struct CheckBoxOptions {
 
 class CheckBox final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(
+    bool Create(
         HWND parent,
         ControlId id,
         std::wstring_view text,
         RectDip bounds,
         CheckBoxOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(
+    bool Create(
         const Parent& parent,
         ControlId id,
         std::wstring_view text,
@@ -152,7 +155,7 @@ public:
         CheckBoxOptions options = {}) {
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
-    [[nodiscard]] bool IsChecked() const noexcept;
+    bool IsChecked() const noexcept;
     CheckBox& SetChecked(bool checked) noexcept;
 };
 
@@ -163,12 +166,12 @@ struct RadioButtonOptions {
 
 class RadioButton final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options = {});
+    bool Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options = {}) {
+    bool Create(const Parent& parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options = {}) {
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
-    [[nodiscard]] bool IsChecked() const noexcept;
+    bool IsChecked() const noexcept;
     RadioButton& SetChecked(bool checked) noexcept;
 };
 
@@ -179,9 +182,9 @@ struct GroupBoxOptions {
 
 class GroupBox final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options = {});
+    bool Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options = {}) {
+    bool Create(const Parent& parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options = {}) {
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
 };
@@ -193,14 +196,18 @@ struct ListBoxOptions {
 
 class ListBox final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ListBoxOptions options = {});
+    bool Create(HWND parent, ControlId id, RectDip bounds, ListBoxOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ListBoxOptions options = {}) {
+    bool Create(const Parent& parent, ControlId id, RectDip bounds, ListBoxOptions options = {}) {
         return Create(parent.GetHwnd(), id, bounds, options);
     }
-    [[nodiscard]] int AddItem(std::wstring_view text);
-    [[nodiscard]] int GetSelection() const noexcept;
-    [[nodiscard]] bool SetSelection(int index) noexcept;
+    int AddItem(std::wstring_view text);
+    int GetSelection() const noexcept;
+    std::optional<int> GetSelectedIndex() const noexcept {
+        const int index = GetSelection();
+        return index == LB_ERR ? std::nullopt : std::optional<int>{index};
+    }
+    bool SetSelection(int index) noexcept;
 };
 
 struct ComboBoxOptions {
@@ -211,22 +218,26 @@ struct ComboBoxOptions {
 
 class ComboBox final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(
+    bool Create(
         HWND parent,
         ControlId id,
         RectDip bounds,
         ComboBoxOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(
+    bool Create(
         const Parent& parent,
         ControlId id,
         RectDip bounds,
         ComboBoxOptions options = {}) {
         return Create(parent.GetHwnd(), id, bounds, options);
     }
-    [[nodiscard]] int AddItem(std::wstring_view text);
-    [[nodiscard]] int GetSelection() const noexcept;
-    [[nodiscard]] bool SetSelection(int index) noexcept;
+    int AddItem(std::wstring_view text);
+    int GetSelection() const noexcept;
+    std::optional<int> GetSelectedIndex() const noexcept {
+        const int index = GetSelection();
+        return index == CB_ERR ? std::nullopt : std::optional<int>{index};
+    }
+    bool SetSelection(int index) noexcept;
 };
 
 struct ProgressBarOptions {
@@ -236,13 +247,13 @@ struct ProgressBarOptions {
 
 class ProgressBar final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(
+    bool Create(
         HWND parent,
         ControlId id,
         RectDip bounds,
         ProgressBarOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(
+    bool Create(
         const Parent& parent,
         ControlId id,
         RectDip bounds,
@@ -251,7 +262,7 @@ public:
     }
     ProgressBar& SetRange(int minimum, int maximum) noexcept;
     ProgressBar& SetValue(int value) noexcept;
-    [[nodiscard]] int GetValue() const noexcept;
+    int GetValue() const noexcept;
 };
 
 struct SliderOptions {
@@ -261,14 +272,14 @@ struct SliderOptions {
 
 class Slider final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, SliderOptions options = {});
+    bool Create(HWND parent, ControlId id, RectDip bounds, SliderOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, SliderOptions options = {}) {
+    bool Create(const Parent& parent, ControlId id, RectDip bounds, SliderOptions options = {}) {
         return Create(parent.GetHwnd(), id, bounds, options);
     }
     Slider& SetRange(int minimum, int maximum) noexcept;
     Slider& SetValue(int value) noexcept;
-    [[nodiscard]] int GetValue() const noexcept;
+    int GetValue() const noexcept;
 };
 
 struct ScrollBarOptions {
@@ -278,12 +289,12 @@ struct ScrollBarOptions {
 
 class ScrollBar final : public NativeControl {
 public:
-    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ScrollBarOptions options = {});
+    bool Create(HWND parent, ControlId id, RectDip bounds, ScrollBarOptions options = {});
     template <WindowLike Parent>
-    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ScrollBarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
+    bool Create(const Parent& parent, ControlId id, RectDip bounds, ScrollBarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     ScrollBar& SetRange(int minimum, int maximum) noexcept;
     ScrollBar& SetValue(int value) noexcept;
-    [[nodiscard]] int GetValue() const noexcept;
+    int GetValue() const noexcept;
 };
 
 }  // namespace mwtl

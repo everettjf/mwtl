@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(mwtl VERSION 0.4.0 LANGUAGES CXX)
+project(mwtl VERSION 0.5.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -30,9 +30,11 @@ endif()
 if(PROJECT_IS_TOP_LEVEL)
     option(MWTL_BUILD_EXAMPLES "Build mwtl examples" ON)
     option(MWTL_BUILD_TESTS "Build mwtl tests" ON)
+    option(MWTL_WARNINGS_AS_ERRORS "Treat mwtl warnings as errors" ON)
 else()
     option(MWTL_BUILD_EXAMPLES "Build mwtl examples" OFF)
     option(MWTL_BUILD_TESTS "Build mwtl tests" OFF)
+    option(MWTL_WARNINGS_AS_ERRORS "Treat mwtl warnings as errors" OFF)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -72,6 +74,9 @@ target_compile_options(mwtl
         /permissive-
         /EHsc
         /utf-8)
+if(MWTL_WARNINGS_AS_ERRORS)
+    target_compile_options(mwtl PRIVATE /WX)
+endif()
 target_include_directories(mwtl
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -93,7 +98,13 @@ install(TARGETS mwtl
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(FILES LICENSE THIRD_PARTY_NOTICES.md
+install(FILES
+    LICENSE
+    THIRD_PARTY_NOTICES.md
+    README.md
+    CHANGELOG.md
+    SECURITY.md
+    docs/api-0.5.md
     DESTINATION ${CMAKE_INSTALL_DATADIR}/mwtl)
 install(FILES cmake/Dependencies.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mwtl)

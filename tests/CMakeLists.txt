@@ -10,6 +10,7 @@ foreach(mode IN ITEMS
         module_init_failure
         loop_registration_failure
         create_failure
+        allocation_failure
         message_failure
         destruction_failure)
     add_test(NAME mwtl.lifecycle.${mode} COMMAND mwtl_lifecycle_test ${mode})

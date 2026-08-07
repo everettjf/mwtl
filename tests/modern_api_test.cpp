@@ -43,6 +43,8 @@ bool key_seen = false;
 bool custom_seen = false;
 bool timer_seen = false;
 bool notify_seen = false;
+bool scroll_seen = false;
+int scroll_failure = 0;
 int notify_failure = 0;
 
 class ModernApiWindow final : public mwtl::WindowBase {
@@ -81,6 +83,27 @@ public:
         ui.Add(animation_, {235});
         ui.Add(scroll_, {236});
         ui.Add(status_bar_, {237});
+
+        const auto has_intrinsic_size = [&](const auto& control) {
+            const auto size = control.GetPreferredSize(GetDpiContext());
+            return size.width.value > 0.0f && size.height.value > 0.0f;
+        };
+        if (!(has_intrinsic_size(label_) && has_intrinsic_size(text_) &&
+              has_intrinsic_size(button_) && has_intrinsic_size(check_) &&
+              has_intrinsic_size(radio_) && has_intrinsic_size(group_) &&
+              has_intrinsic_size(list_) && has_intrinsic_size(combo_) &&
+              has_intrinsic_size(progress_) && has_intrinsic_size(slider_) &&
+              has_intrinsic_size(scroll_) && has_intrinsic_size(tree_) &&
+              has_intrinsic_size(list_view_) && has_intrinsic_size(header_) &&
+              has_intrinsic_size(tabs_) && has_intrinsic_size(combo_ex_) &&
+              has_intrinsic_size(date_) && has_intrinsic_size(calendar_) &&
+              has_intrinsic_size(hot_key_) && has_intrinsic_size(ip_) &&
+              has_intrinsic_size(spin_) && has_intrinsic_size(link_) &&
+              has_intrinsic_size(toolbar_) && has_intrinsic_size(status_bar_) &&
+              has_intrinsic_size(rebar_) && has_intrinsic_size(pager_) &&
+              has_intrinsic_size(animation_))) {
+            throw std::runtime_error("missing intrinsic control size");
+        }
         mwtl::Must(tooltip_.Create(rebar_.GetHwnd()), "create tooltip");
         mwtl::Must(images_.Create(16, 16), "create image list");
         mwtl::Must(timer_.Start(*this, kTimer, 1ms), "start timer");
@@ -109,8 +132,8 @@ public:
         mwtl::Must(mwtl::AddItems(combo_ex_, {L"combo"}),
                    "populate ComboBoxEx");
         static_cast<void>(combo_ex_.SetSelection(0));
-        hot_key_.SetValue('K', HOTKEYF_CONTROL);
-        ip_.SetValue(127, 0, 0, 1);
+        hot_key_.SetValue(mwtl::HotKeyValue{'K', HOTKEYF_CONTROL});
+        ip_.SetValue(mwtl::IpAddressValue{{127, 0, 0, 1}});
         spin_.SetBuddy(spin_text_).SetRange(0, 100).SetValue(42);
         const std::array toolbar_buttons{
             mwtl::ToolbarButtonSpec{{600}, L"Tool"}};
@@ -130,7 +153,8 @@ public:
         if (!combo_.SetSelection(1) || combo_.GetSelection() != 1 ||
             !check_.IsChecked() || progress_.GetValue() != 64 ||
             !radio_.IsChecked() || !list_.SetSelection(1) ||
-            list_.GetSelection() != 1 || slider_.GetValue() != 73) {
+            list_.GetSelectedIndex() != 1 || slider_.GetValue() != 73 ||
+            !hot_key_.GetHotKey() || !ip_.GetAddress()) {
             throw std::runtime_error("modern controls state verification failed");
         }
 
@@ -150,6 +174,8 @@ public:
         NMHDR notification{button_.GetHwnd(), static_cast<UINT_PTR>(kButton.value), NM_CLICK};
         ::SendMessageW(GetHwnd(), WM_NOTIFY, notification.idFrom,
                        reinterpret_cast<LPARAM>(&notification));
+        ::SendMessageW(GetHwnd(), WM_HSCROLL, SB_THUMBPOSITION,
+                       reinterpret_cast<LPARAM>(slider_.GetHwnd()));
     }
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {
@@ -171,6 +197,14 @@ public:
         if (event.GetId() != kButton) notify_failure |= 1;
         if (event.GetControl() != button_.GetHwnd()) notify_failure |= 4;
         return mwtl::EventResult::Handled(1);
+    }
+
+    mwtl::EventResult OnScroll(const mwtl::ScrollEvent& event) override {
+        scroll_seen = true;
+        if (!event.IsFrom(slider_)) scroll_failure |= 1;
+        if (!event.horizontal) scroll_failure |= 2;
+        if (event.request != SB_THUMBPOSITION) scroll_failure |= 4;
+        return mwtl::EventResult::Handled();
     }
 
     mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) override {
@@ -237,6 +271,8 @@ int main() {
     if (!custom_seen) return 13;
     if (!timer_seen) return 14;
     if (!notify_seen) return 15;
+    if (!scroll_seen) return 16;
+    if (scroll_failure != 0) return 30 + scroll_failure;
     if (notify_failure != 0) return 20 + notify_failure;
     return EXIT_SUCCESS;
 }

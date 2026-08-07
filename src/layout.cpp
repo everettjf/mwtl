@@ -62,12 +62,15 @@ struct LayoutNode::Child {
     std::unique_ptr<LayoutNode> node;
     LayoutLength length{};
     LayoutItemOptions options{};
+    std::function<SizeDip(DpiContext)> measure;
 
     Child(HWND input_window, LayoutLength input_length,
-          LayoutItemOptions input_options)
+          LayoutItemOptions input_options,
+          std::function<SizeDip(DpiContext)> input_measure = {})
         : window(input_window),
           length(input_length),
-          options(std::move(input_options)) {}
+          options(std::move(input_options)),
+          measure(std::move(input_measure)) {}
 
     Child(LayoutNode input_node, LayoutLength input_length,
           LayoutItemOptions input_options)
@@ -118,6 +121,19 @@ LayoutNode& LayoutNode::Add(
     return *this;
 }
 
+LayoutNode& LayoutNode::AddMeasured(
+    HWND window,
+    std::function<SizeDip(DpiContext)> measure,
+    LayoutLength length,
+    LayoutItemOptions options) {
+    if (window == nullptr) {
+        throw std::invalid_argument("mwtl layout window is null");
+    }
+    children_.emplace_back(
+        window, length, std::move(options), std::move(measure));
+    return *this;
+}
+
 LayoutNode& LayoutNode::Add(
     LayoutNode child,
     LayoutLength length,
@@ -130,14 +146,15 @@ LayoutNode& LayoutNode::Add(
 LayoutDirection LayoutNode::GetDirection() const noexcept { return direction_; }
 std::size_t LayoutNode::GetCount() const noexcept { return children_.size(); }
 
-SizeDip LayoutNode::Measure(DpiContext dpi) const noexcept {
+SizeDip LayoutNode::Measure(DpiContext dpi) const {
     if (direction_ == LayoutDirection::overlay) {
         float width = 0.0f;
         float height = 0.0f;
         for (const Child& child : children_) {
             const SizeDip desired = child.options.preferred_size.value_or(
                 child.node ? child.node->Measure(dpi)
-                           : MeasureWindow(child.window, dpi));
+                           : child.measure ? child.measure(dpi)
+                                           : MeasureWindow(child.window, dpi));
             width = (std::max)(width, desired.width.value);
             height = (std::max)(height, desired.height.value);
         }
@@ -158,7 +175,8 @@ SizeDip LayoutNode::Measure(DpiContext dpi) const noexcept {
     for (const Child& child : children_) {
         SizeDip desired = child.options.preferred_size.value_or(
             child.node ? child.node->Measure(dpi)
-                       : MeasureWindow(child.window, dpi));
+                       : child.measure ? child.measure(dpi)
+                                       : MeasureWindow(child.window, dpi));
         float child_main = Main(desired, direction_);
         if (child.length.kind == LayoutLengthKind::fixed) {
             child_main = child.length.value.value;
@@ -185,7 +203,7 @@ SizeDip LayoutNode::Measure(DpiContext dpi) const noexcept {
 void LayoutNode::CollectPlacements(
     RectDip bounds,
     DpiContext dpi,
-    std::vector<Placement>& output) const noexcept {
+    std::vector<Placement>& output) const {
     const float left = bounds.origin.x.value + margin_.left.value;
     const float top = bounds.origin.y.value + margin_.top.value;
     const float inner_width = (std::max)(
@@ -219,7 +237,8 @@ void LayoutNode::CollectPlacements(
     for (const Child& child : children_) {
         const SizeDip measured = child.options.preferred_size.value_or(
             child.node ? child.node->Measure(dpi)
-                       : MeasureWindow(child.window, dpi));
+                       : child.measure ? child.measure(dpi)
+                                       : MeasureWindow(child.window, dpi));
         const float measured_main = Main(measured, direction_);
         float value = measured_main;
         if (child.length.kind == LayoutLengthKind::fixed) {
@@ -286,7 +305,8 @@ void LayoutNode::CollectPlacements(
         const Child& child = children_[i];
         const SizeDip measured = child.options.preferred_size.value_or(
             child.node ? child.node->Measure(dpi)
-                       : MeasureWindow(child.window, dpi));
+                       : child.measure ? child.measure(dpi)
+                                       : MeasureWindow(child.window, dpi));
         float cross_size = child.options.alignment == CrossAlignment::stretch
             ? available_cross
             : Cross(measured, direction_);
@@ -352,12 +372,12 @@ void LayoutHost::SetRoot(LayoutNode root) noexcept {
 
 bool LayoutHost::HasRoot() const noexcept { return root_.has_value(); }
 
-SizeDip LayoutHost::GetPreferredSize(HWND parent) const noexcept {
+SizeDip LayoutHost::GetPreferredSize(HWND parent) const {
     if (!root_) return {};
     return root_->Measure(DpiContext::FromWindow(parent));
 }
 
-bool LayoutHost::Arrange(HWND parent) const noexcept {
+bool LayoutHost::Arrange(HWND parent) const {
     if (!root_ || parent == nullptr || ::IsWindow(parent) == FALSE) return false;
     RECT client{};
     if (::GetClientRect(parent, &client) == FALSE) return false;

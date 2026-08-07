@@ -33,13 +33,13 @@ struct Hit {
     constexpr bool operator==(const Hit&) const noexcept = default;
 };
 
-[[nodiscard]] std::optional<Hit> Detect(
+std::optional<Hit> Detect(
     POINT cursor, std::span<const RECT> monitors, LONG tolerance) noexcept;
-[[nodiscard]] Action ResolveAction(const Settings& settings, Hit hit) noexcept;
+Action ResolveAction(const Settings& settings, Hit hit) noexcept;
 
 class DwellTracker final {
 public:
-    [[nodiscard]] std::optional<Hit> Update(
+    std::optional<Hit> Update(
         std::optional<Hit> hit, std::uint64_t now_ms,
         std::uint64_t dwell_ms) noexcept;
     void Reset() noexcept;

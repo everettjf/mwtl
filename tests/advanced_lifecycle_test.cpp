@@ -70,11 +70,16 @@ class AdvancedWindow final
     : public mwtl::Window<AdvancedWindow, TestClassTraits> {
 public:
     using BaseWindow = mwtl::Window<AdvancedWindow, TestClassTraits>;
+    explicit AdvancedWindow(int injected_value) noexcept
+        : injected_value_(injected_value) {}
+
     void BuildUI() {
         test_window = GetHwnd();
         const ULONG_PTR style = static_cast<ULONG_PTR>(
             ::GetClassLongPtrW(GetHwnd(), GCL_STYLE));
-        custom_verified.store((style & CS_DBLCLKS) != 0, std::memory_order_release);
+        custom_verified.store(
+            (style & CS_DBLCLKS) != 0 && injected_value_ == 42,
+            std::memory_order_release);
 
         if (mode == Mode::custom_window) {
             ::PostMessageW(GetHwnd(), WM_APP + 8, 0, 0);
@@ -132,6 +137,8 @@ public:
     END_MSG_MAP()
 
 private:
+    int injected_value_ = 0;
+
     LRESULT OnVerifyResources(UINT, WPARAM, LPARAM, BOOL&) noexcept {
         const HICON expected = ::LoadIconW(nullptr, IDI_APPLICATION);
         const HICON actual = reinterpret_cast<HICON>(
@@ -177,46 +184,43 @@ private:
     }
 };
 
-class TestPumpDelegate final : public mwtl::WaitAwarePumpDelegate {
-public:
-    void AfterDispatch(const MSG& message) override {
-        if (mode == Mode::after_dispatch_exception && message.message == WM_APP + 9) {
-            throw std::runtime_error("injected AfterDispatch failure");
-        }
-        if (mode == Mode::wakeup &&
-            message.message == mwtl::WindowWakeup::Message()) {
-            ::PostMessageW(test_window, WM_CLOSE, 0, 0);
-        }
+void AfterDispatch(const MSG& message) {
+    if (mode == Mode::after_dispatch_exception && message.message == WM_APP + 9) {
+        throw std::runtime_error("injected AfterDispatch failure");
     }
+    if (mode == Mode::wakeup &&
+        message.message == mwtl::WindowWakeup::Message()) {
+        ::PostMessageW(test_window, WM_CLOSE, 0, 0);
+    }
+}
 
-    void OnIdle() override {
-        if (mode == Mode::pump_exception) {
-            throw std::runtime_error("injected wait-aware idle failure");
-        }
-        if (mode == Mode::idle_efficiency && ++idle_count == 10) {
-            ::PostMessageW(test_window, WM_CLOSE, 0, 0);
-        }
-        if (mode == Mode::wait_failure && !wait_handle_closed) {
-            ::CloseHandle(wait_event);
-            wait_handle_closed = true;
-        }
+void OnIdle() {
+    if (mode == Mode::pump_exception) {
+        throw std::runtime_error("injected wait-aware idle failure");
     }
+    if (mode == Mode::idle_efficiency && ++idle_count == 10) {
+        ::PostMessageW(test_window, WM_CLOSE, 0, 0);
+    }
+    if (mode == Mode::wait_failure && !wait_handle_closed) {
+        ::CloseHandle(wait_event);
+        wait_handle_closed = true;
+    }
+}
 
-    void OnHandleSignaled(std::size_t index) override {
-        if (mode == Mode::wait_callback_exception) {
-            throw std::runtime_error("injected wait-handle callback failure");
-        }
-        if (mode == Mode::wait_handle && index == 0) {
-            ::PostMessageW(test_window, WM_CLOSE, 0, 0);
-        }
+void OnHandleSignaled(std::size_t index) {
+    if (mode == Mode::wait_callback_exception) {
+        throw std::runtime_error("injected wait-handle callback failure");
     }
+    if (mode == Mode::wait_handle && index == 0) {
+        ::PostMessageW(test_window, WM_CLOSE, 0, 0);
+    }
+}
 
-    DWORD GetWaitTimeout() const noexcept override {
-        if (mode == Mode::pump_exception) return 1;
-        if (mode == Mode::idle_efficiency) return 20;
-        return 5000;
-    }
-};
+std::chrono::milliseconds NextInterval() noexcept {
+    if (mode == Mode::pump_exception) return std::chrono::milliseconds{1};
+    if (mode == Mode::idle_efficiency) return std::chrono::milliseconds{20};
+    return std::chrono::milliseconds{5000};
+}
 
 bool LifecycleWasBalanced() {
     const mwtl::detail::LifecycleSnapshot value =
@@ -246,7 +250,6 @@ int main(int argc, char** argv) {
     else return 21;
 
     mwtl::detail::ResetLifecycleSnapshotForTesting();
-    TestPumpDelegate delegate;
     if (mode == Mode::wait_handle || mode == Mode::wait_callback_exception ||
         mode == Mode::wait_failure) {
         wait_event = ::CreateEventW(
@@ -264,10 +267,13 @@ int main(int argc, char** argv) {
         : std::span<const HANDLE>{};
     mwtl::WaitAwareMessagePump pump({
         .handles = wait_handles,
-        .idle_timeout_ms =
-            (mode == Mode::pump_exception || mode == Mode::wait_failure) ? 1u :
-            (mode == Mode::idle_efficiency ? 20u : 5000u),
-        .delegate = &delegate,
+        .idle_interval = std::chrono::milliseconds{
+            (mode == Mode::pump_exception || mode == Mode::wait_failure) ? 1 :
+            (mode == Mode::idle_efficiency ? 20 : 5000)},
+        .after_dispatch = AfterDispatch,
+        .on_idle = OnIdle,
+        .on_signal = OnHandleSignaled,
+        .next_interval = NextInterval,
     });
 
     mwtl::WindowOptions window_options;
@@ -290,7 +296,8 @@ int main(int argc, char** argv) {
     FILETIME created{}, exited{}, kernel_before{}, user_before{};
     ::GetProcessTimes(::GetCurrentProcess(), &created, &exited, &kernel_before, &user_before);
     const auto wall_start = std::chrono::steady_clock::now();
-    const int result = application.Run<AdvancedWindow>(SW_HIDE, window_options, pump);
+    const int result = application.Run<AdvancedWindow>(
+        SW_HIDE, window_options, pump, 42);
     const auto wall_elapsed = std::chrono::steady_clock::now() - wall_start;
     FILETIME kernel_after{}, user_after{};
     ::GetProcessTimes(::GetCurrentProcess(), &created, &exited, &kernel_after, &user_after);

@@ -18,18 +18,18 @@ struct BatchResult {
     std::ptrdiff_t failed_at = -1;
     std::intptr_t native_result = 0;
 
-    [[nodiscard]] constexpr bool Succeeded() const noexcept {
+    constexpr bool Succeeded() const noexcept {
         return failed_at < 0;
     }
-    [[nodiscard]] constexpr explicit operator bool() const noexcept {
+    constexpr explicit operator bool() const noexcept {
         return Succeeded();
     }
 
-    [[nodiscard]] static constexpr BatchResult Success(
+    static constexpr BatchResult Success(
         std::size_t count) noexcept {
         return {count, -1, 0};
     }
-    [[nodiscard]] static constexpr BatchResult Failure(
+    static constexpr BatchResult Failure(
         std::size_t count,
         std::intptr_t result) noexcept {
         return {count, static_cast<std::ptrdiff_t>(count), result};
@@ -42,7 +42,7 @@ concept TextItemControl = requires(Control& control, std::wstring_view text) {
 };
 
 template <TextItemControl Control>
-[[nodiscard]] BatchResult AddItems(
+BatchResult AddItems(
     Control& control,
     std::span<const std::wstring_view> items) {
     std::size_t completed = 0;
@@ -64,7 +64,7 @@ template <TextItemControl Control, std::ranges::input_range Range>
              requires(std::ranges::range_reference_t<Range> item) {
                  std::wstring_view{item};
              }
-[[nodiscard]] BatchResult AddItems(Control& control, Range&& items) {
+BatchResult AddItems(Control& control, Range&& items) {
     std::size_t completed = 0;
     for (auto&& item : items) {
         const auto result = control.AddItem(std::wstring_view{item});
@@ -78,7 +78,7 @@ template <TextItemControl Control, std::ranges::input_range Range>
 }
 
 template <TextItemControl Control>
-[[nodiscard]] BatchResult AddItems(
+BatchResult AddItems(
     Control& control,
     std::initializer_list<std::wstring_view> items) {
     return AddItems(control, std::span(items.begin(), items.size()));
@@ -97,7 +97,7 @@ concept ColumnControl = requires(Control& control, const ColumnSpec& column) {
 };
 
 template <ColumnControl Control>
-[[nodiscard]] BatchResult AddColumns(
+BatchResult AddColumns(
     Control& control,
     std::span<const ColumnSpec> columns) {
     std::size_t completed = 0;
@@ -119,7 +119,7 @@ template <ColumnControl Control, std::ranges::input_range Range>
                   std::span<const ColumnSpec>>) &&
              std::convertible_to<
                  std::ranges::range_reference_t<Range>, ColumnSpec>
-[[nodiscard]] BatchResult AddColumns(Control& control, Range&& columns) {
+BatchResult AddColumns(Control& control, Range&& columns) {
     std::size_t completed = 0;
     for (auto&& value : columns) {
         const ColumnSpec column = value;
@@ -135,13 +135,13 @@ template <ColumnControl Control, std::ranges::input_range Range>
 }
 
 template <ColumnControl Control>
-[[nodiscard]] BatchResult AddColumns(
+BatchResult AddColumns(
     Control& control,
     std::initializer_list<ColumnSpec> columns) {
     return AddColumns(control, std::span(columns.begin(), columns.size()));
 }
 
-[[nodiscard]] inline BatchResult AddTabs(
+inline BatchResult AddTabs(
     TabControl& control,
     std::span<const std::wstring_view> tabs) {
     std::size_t completed = 0;
@@ -160,7 +160,7 @@ template <std::ranges::input_range Range>
              requires(std::ranges::range_reference_t<Range> item) {
                  std::wstring_view{item};
              }
-[[nodiscard]] BatchResult AddTabs(TabControl& control, Range&& tabs) {
+BatchResult AddTabs(TabControl& control, Range&& tabs) {
     std::size_t completed = 0;
     for (auto&& item : tabs) {
         const int result = control.AddTab(std::wstring_view{item});
@@ -170,7 +170,7 @@ template <std::ranges::input_range Range>
     return BatchResult::Success(completed);
 }
 
-[[nodiscard]] inline BatchResult AddTabs(
+inline BatchResult AddTabs(
     TabControl& control,
     std::initializer_list<std::wstring_view> tabs) {
     return AddTabs(control, std::span(tabs.begin(), tabs.size()));
@@ -181,7 +181,7 @@ struct ToolbarButtonSpec {
     std::wstring_view text;
 };
 
-[[nodiscard]] inline BatchResult AddButtons(
+inline BatchResult AddButtons(
     Toolbar& toolbar,
     std::span<const ToolbarButtonSpec> buttons) {
     std::size_t completed = 0;
@@ -205,7 +205,7 @@ template <std::ranges::input_range Range>
                   std::span<const ToolbarButtonSpec>>) &&
              std::convertible_to<
                  std::ranges::range_reference_t<Range>, ToolbarButtonSpec>
-[[nodiscard]] BatchResult AddButtons(Toolbar& toolbar, Range&& buttons) {
+BatchResult AddButtons(Toolbar& toolbar, Range&& buttons) {
     std::size_t completed = 0;
     for (auto&& value : buttons) {
         const ToolbarButtonSpec button = value;
@@ -222,7 +222,7 @@ template <std::ranges::input_range Range>
     return BatchResult::Success(completed);
 }
 
-[[nodiscard]] inline BatchResult AddButtons(
+inline BatchResult AddButtons(
     Toolbar& toolbar,
     std::initializer_list<ToolbarButtonSpec> buttons) {
     return AddButtons(toolbar, std::span(buttons.begin(), buttons.size()));
@@ -233,7 +233,7 @@ struct StatusPartText {
     std::wstring_view text;
 };
 
-[[nodiscard]] inline BatchResult SetPartTexts(
+inline BatchResult SetPartTexts(
     StatusBar& status,
     std::span<const StatusPartText> parts) {
     std::size_t completed = 0;
@@ -257,7 +257,7 @@ template <std::ranges::input_range Range>
                   std::span<const StatusPartText>>) &&
              std::convertible_to<
                  std::ranges::range_reference_t<Range>, StatusPartText>
-[[nodiscard]] BatchResult SetPartTexts(StatusBar& status, Range&& parts) {
+BatchResult SetPartTexts(StatusBar& status, Range&& parts) {
     std::size_t completed = 0;
     for (auto&& value : parts) {
         const StatusPartText part = value;
@@ -274,7 +274,7 @@ template <std::ranges::input_range Range>
     return BatchResult::Success(completed);
 }
 
-[[nodiscard]] inline BatchResult SetPartTexts(
+inline BatchResult SetPartTexts(
     StatusBar& status,
     std::initializer_list<StatusPartText> parts) {
     return SetPartTexts(status, std::span(parts.begin(), parts.size()));

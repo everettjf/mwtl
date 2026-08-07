@@ -18,7 +18,7 @@ namespace mwtl {
 
 template <typename T>
 concept MainWindow = std::derived_from<T, detail::WindowMarker> &&
-    std::default_initializable<T> && requires(T& window) {
+    requires(T& window) {
         { window.BuildUI() } -> std::same_as<void>;
     };
 
@@ -44,16 +44,19 @@ public:
     Application& operator=(Application&&) = delete;
 
     template <MainWindow MainWindowType>
+        requires std::default_initializable<MainWindowType>
     int Run(int show_command) noexcept {
         return RunImpl<MainWindowType>(show_command, WindowOptions{}, nullptr);
     }
 
     template <MainWindow MainWindowType>
+        requires std::default_initializable<MainWindowType>
     int Run(int show_command, const WindowOptions& options) noexcept {
         return RunImpl<MainWindowType>(show_command, options, nullptr);
     }
 
     template <MainWindow MainWindowType>
+        requires std::default_initializable<MainWindowType>
     int Run(
         int show_command,
         const WindowOptions& options,
@@ -61,14 +64,41 @@ public:
         return RunImpl<MainWindowType>(show_command, options, &message_pump);
     }
 
-    [[nodiscard]] HINSTANCE GetInstance() const noexcept { return instance_; }
+    template <MainWindow MainWindowType, typename... Arguments>
+        requires (sizeof...(Arguments) > 0) &&
+            std::constructible_from<MainWindowType, Arguments...>
+    int Run(
+        int show_command,
+        const WindowOptions& options,
+        Arguments&&... arguments) noexcept {
+        return RunImpl<MainWindowType>(
+            show_command, options, nullptr,
+            std::forward<Arguments>(arguments)...);
+    }
+
+    template <MainWindow MainWindowType, typename... Arguments>
+        requires (sizeof...(Arguments) > 0) &&
+            std::constructible_from<MainWindowType, Arguments...>
+    int Run(
+        int show_command,
+        const WindowOptions& options,
+        MessagePump& message_pump,
+        Arguments&&... arguments) noexcept {
+        return RunImpl<MainWindowType>(
+            show_command, options, &message_pump,
+            std::forward<Arguments>(arguments)...);
+    }
+
+    HINSTANCE GetInstance() const noexcept { return instance_; }
 
 private:
-    template <MainWindow MainWindowType>
+    template <MainWindow MainWindowType, typename... Arguments>
+        requires std::constructible_from<MainWindowType, Arguments...>
     int RunImpl(
         int show_command,
         const WindowOptions& options,
-        MessagePump* message_pump) noexcept {
+        MessagePump* message_pump,
+        Arguments&&... arguments) noexcept {
         if (!BeginRun()) {
             return EXIT_FAILURE;
         }
@@ -76,7 +106,8 @@ private:
         auto cleanup = wil::scope_exit([this]() noexcept { EndRun(); });
 
         try {
-            MainWindowType main_window;
+            MainWindowType main_window(
+                std::forward<Arguments>(arguments)...);
             main_window.ConfigureWindowOptions(options);
             RECT bounds = options.use_default_bounds
                 ? ATL::CWindow::rcDefault
@@ -144,25 +175,38 @@ private:
     bool running_ = false;
 };
 
-template <MainWindow MainWindowType>
-[[nodiscard]] int RunApplication(
+template <MainWindow MainWindowType, typename... Arguments>
+    requires std::constructible_from<MainWindowType, Arguments...>
+int RunApplication(
     HINSTANCE instance,
     int show_command,
     const WindowOptions& window_options = {},
-    ApplicationOptions application_options = {}) noexcept {
-    return Application(instance, application_options)
-        .Run<MainWindowType>(show_command, window_options);
+    ApplicationOptions application_options = {},
+    Arguments&&... arguments) noexcept {
+    Application application(instance, application_options);
+    return application.Run<MainWindowType>(
+        show_command, window_options,
+        std::forward<Arguments>(arguments)...);
 }
 
-template <MainWindow MainWindowType>
-[[nodiscard]] int RunApplication(
+template <MainWindow MainWindowType, typename... Arguments>
+    requires std::constructible_from<MainWindowType, Arguments...>
+int RunApplication(
     HINSTANCE instance,
     int show_command,
     MessagePump& message_pump,
     const WindowOptions& window_options = {},
-    ApplicationOptions application_options = {}) noexcept {
-    return Application(instance, application_options)
-        .Run<MainWindowType>(show_command, window_options, message_pump);
+    ApplicationOptions application_options = {},
+    Arguments&&... arguments) noexcept {
+    Application application(instance, application_options);
+    if constexpr (sizeof...(Arguments) == 0) {
+        return application.Run<MainWindowType>(
+            show_command, window_options, message_pump);
+    } else {
+        return application.Run<MainWindowType>(
+            show_command, window_options, message_pump,
+            std::forward<Arguments>(arguments)...);
+    }
 }
 
 }  // namespace mwtl

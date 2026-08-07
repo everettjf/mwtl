@@ -67,8 +67,9 @@ bool ListView::SetSubItem(int item, int sub_item, std::wstring_view text) {
         reinterpret_cast<LPARAM>(&value_item)) != FALSE;
 }
 
-void ListView::SetExtendedListStyle(DWORD style) noexcept {
+ListView& ListView::SetExtendedListStyle(DWORD style) noexcept {
     if (IsWindow()) ListView_SetExtendedListViewStyle(GetHwnd(), style);
+    return *this;
 }
 
 bool Header::Create(HWND parent, ControlId id, RectDip bounds, HeaderOptions options) {

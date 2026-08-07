@@ -1,6 +1,9 @@
 #include <mwtl/controls.h>
+#include <wil/resource.h>
 
 #include <utility>
+#include <array>
+#include <cwchar>
 
 namespace mwtl {
 namespace {
@@ -41,6 +44,81 @@ bool NativeControl::IsWindow() const noexcept {
         ::GetParent(window_) == parent_ && ::GetDlgCtrlID(window_) == id_.value;
 }
 
+SizeDip NativeControl::GetPreferredSize(DpiContext dpi) const noexcept {
+    if (!IsWindow()) return {};
+
+    SIZE ideal{};
+    wchar_t class_name[64]{};
+    ::GetClassNameW(window_, class_name, static_cast<int>(std::size(class_name)));
+    if (_wcsicmp(class_name, L"Button") == 0 &&
+        ::SendMessageW(window_, BCM_GETIDEALSIZE, 0,
+                       reinterpret_cast<LPARAM>(&ideal)) != FALSE &&
+        ideal.cx > 0 && ideal.cy > 0) {
+        return {dpi.FromPixels(ideal.cx), dpi.FromPixels(ideal.cy)};
+    }
+    if (_wcsicmp(class_name, TOOLBARCLASSNAMEW) == 0 &&
+        ::SendMessageW(window_, TB_GETMAXSIZE, 0,
+                       reinterpret_cast<LPARAM>(&ideal)) != FALSE &&
+        ideal.cx > 0 && ideal.cy > 0) {
+        return {dpi.FromPixels(ideal.cx), dpi.FromPixels(ideal.cy)};
+    }
+    RECT ideal_rect{};
+    if (_wcsicmp(class_name, MONTHCAL_CLASSW) == 0 &&
+        ::SendMessageW(window_, MCM_GETMINREQRECT, 0,
+                       reinterpret_cast<LPARAM>(&ideal_rect)) != FALSE) {
+        return {dpi.FromPixels(ideal_rect.right - ideal_rect.left),
+                dpi.FromPixels(ideal_rect.bottom - ideal_rect.top)};
+    }
+
+    HDC dc = ::GetDC(window_);
+    if (dc == nullptr) return {80.0_dip, 24.0_dip};
+    const auto release_dc = wil::scope_exit([&] { ::ReleaseDC(window_, dc); });
+    const HFONT font = reinterpret_cast<HFONT>(
+        ::SendMessageW(window_, WM_GETFONT, 0, 0));
+    const HGDIOBJ old_font = font ? ::SelectObject(dc, font) : nullptr;
+    const auto restore_font = wil::scope_exit([&] {
+        if (old_font) ::SelectObject(dc, old_font);
+    });
+    const std::wstring text = GetText();
+    RECT text_bounds{0, 0, 0, 0};
+    if (!text.empty()) {
+        ::DrawTextW(dc, text.c_str(), static_cast<int>(text.size()),
+                    &text_bounds, DT_CALCRECT | DT_SINGLELINE | DT_NOPREFIX);
+    }
+    TEXTMETRICW metrics{};
+    ::GetTextMetricsW(dc, &metrics);
+    int width = text_bounds.right - text_bounds.left;
+    int height = (std::max)(static_cast<int>(text_bounds.bottom - text_bounds.top),
+                            static_cast<int>(metrics.tmHeight));
+
+    const DWORD style = static_cast<DWORD>(::GetWindowLongPtrW(window_, GWL_STYLE));
+    if (_wcsicmp(class_name, L"Static") == 0) {
+        width += 2; height += 2;
+    } else if (_wcsicmp(class_name, L"Edit") == 0) {
+        width = (std::max)(width + 12, dpi.ToPixels(120.0_dip));
+        height += 10;
+    } else if (_wcsicmp(class_name, L"ComboBox") == 0 ||
+               _wcsicmp(class_name, WC_COMBOBOXEXW) == 0) {
+        width = (std::max)(width + 32, dpi.ToPixels(120.0_dip));
+        height += 10;
+    } else if (_wcsicmp(class_name, L"ListBox") == 0 ||
+               _wcsicmp(class_name, WC_LISTVIEWW) == 0 ||
+               _wcsicmp(class_name, WC_TREEVIEWW) == 0) {
+        width = (std::max)(width + 24, dpi.ToPixels(160.0_dip));
+        height = dpi.ToPixels(96.0_dip);
+    } else if (_wcsicmp(class_name, PROGRESS_CLASSW) == 0 ||
+               _wcsicmp(class_name, TRACKBAR_CLASSW) == 0 ||
+               _wcsicmp(class_name, L"ScrollBar") == 0) {
+        width = dpi.ToPixels(120.0_dip);
+        height = dpi.ToPixels(24.0_dip);
+    } else {
+        width = (std::max)(width + 16, dpi.ToPixels(24.0_dip));
+        height = (std::max)(height + 10, dpi.ToPixels(24.0_dip));
+    }
+    if ((style & WS_BORDER) != 0) { width += 2; height += 2; }
+    return {dpi.FromPixels(width), dpi.FromPixels(height)};
+}
+
 bool NativeControl::SetText(std::wstring_view text) {
     if (!IsWindow()) {
         ::SetLastError(ERROR_INVALID_WINDOW_HANDLE);
@@ -78,22 +156,25 @@ bool NativeControl::SetBounds(RectDip bounds) noexcept {
                SWP_NOZORDER | SWP_NOACTIVATE) != FALSE;
 }
 
-void NativeControl::SetEnabled(bool enabled) noexcept {
+NativeControl& NativeControl::SetEnabled(bool enabled) noexcept {
     if (IsWindow()) {
         ::EnableWindow(window_, enabled ? TRUE : FALSE);
     }
+    return *this;
 }
 
-void NativeControl::SetVisible(bool visible) noexcept {
+NativeControl& NativeControl::SetVisible(bool visible) noexcept {
     if (IsWindow()) {
         ::ShowWindow(window_, visible ? SW_SHOW : SW_HIDE);
     }
+    return *this;
 }
 
-void NativeControl::Focus() noexcept {
+NativeControl& NativeControl::Focus() noexcept {
     if (IsWindow()) {
         ::SetFocus(window_);
     }
+    return *this;
 }
 
 void NativeControl::Destroy() noexcept {
@@ -165,10 +246,11 @@ bool Button::Create(
         options.extended_style);
 }
 
-void Button::Click() noexcept {
+Button& Button::Click() noexcept {
     if (IsWindow()) {
         ::SendMessageW(GetHwnd(), BM_CLICK, 0, 0);
     }
+    return *this;
 }
 
 bool TextBox::Create(
@@ -182,16 +264,18 @@ bool TextBox::Create(
         options.extended_style);
 }
 
-void TextBox::SelectAll() noexcept {
+TextBox& TextBox::SelectAll() noexcept {
     if (IsWindow()) {
         ::SendMessageW(GetHwnd(), EM_SETSEL, 0, -1);
     }
+    return *this;
 }
 
-void TextBox::SetReadOnly(bool read_only) noexcept {
+TextBox& TextBox::SetReadOnly(bool read_only) noexcept {
     if (IsWindow()) {
         ::SendMessageW(GetHwnd(), EM_SETREADONLY, read_only ? TRUE : FALSE, 0);
     }
+    return *this;
 }
 
 bool CheckBox::Create(
@@ -210,11 +294,12 @@ bool CheckBox::IsChecked() const noexcept {
         ::SendMessageW(GetHwnd(), BM_GETCHECK, 0, 0) == BST_CHECKED;
 }
 
-void CheckBox::SetChecked(bool checked) noexcept {
+CheckBox& CheckBox::SetChecked(bool checked) noexcept {
     if (IsWindow()) {
         ::SendMessageW(
             GetHwnd(), BM_SETCHECK, checked ? BST_CHECKED : BST_UNCHECKED, 0);
     }
+    return *this;
 }
 
 bool RadioButton::Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options) {
@@ -225,10 +310,11 @@ bool RadioButton::IsChecked() const noexcept {
     return IsWindow() && ::SendMessageW(GetHwnd(), BM_GETCHECK, 0, 0) == BST_CHECKED;
 }
 
-void RadioButton::SetChecked(bool checked) noexcept {
+RadioButton& RadioButton::SetChecked(bool checked) noexcept {
     if (IsWindow()) {
         ::SendMessageW(GetHwnd(), BM_SETCHECK, checked ? BST_CHECKED : BST_UNCHECKED, 0);
     }
+    return *this;
 }
 
 bool GroupBox::Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options) {
@@ -301,16 +387,18 @@ bool ProgressBar::Create(
         options.extended_style);
 }
 
-void ProgressBar::SetRange(int minimum, int maximum) noexcept {
+ProgressBar& ProgressBar::SetRange(int minimum, int maximum) noexcept {
     if (IsWindow()) {
         ::SendMessageW(GetHwnd(), PBM_SETRANGE32, minimum, maximum);
     }
+    return *this;
 }
 
-void ProgressBar::SetValue(int value) noexcept {
+ProgressBar& ProgressBar::SetValue(int value) noexcept {
     if (IsWindow()) {
         ::SendMessageW(GetHwnd(), PBM_SETPOS, value, 0);
     }
+    return *this;
 }
 
 int ProgressBar::GetValue() const noexcept {
@@ -327,17 +415,19 @@ bool Slider::Create(HWND parent, ControlId id, RectDip bounds, SliderOptions opt
     return CreateNative(TRACKBAR_CLASSW, parent, id, L"", bounds, options.style, options.extended_style);
 }
 
-void Slider::SetRange(int minimum, int maximum) noexcept {
+Slider& Slider::SetRange(int minimum, int maximum) noexcept {
     if (IsWindow()) {
         ::SendMessageW(GetHwnd(), TBM_SETRANGEMIN, FALSE, minimum);
         ::SendMessageW(GetHwnd(), TBM_SETRANGEMAX, TRUE, maximum);
     }
+    return *this;
 }
 
-void Slider::SetValue(int value) noexcept {
+Slider& Slider::SetValue(int value) noexcept {
     if (IsWindow()) {
         ::SendMessageW(GetHwnd(), TBM_SETPOS, TRUE, value);
     }
+    return *this;
 }
 
 int Slider::GetValue() const noexcept {
@@ -347,8 +437,8 @@ int Slider::GetValue() const noexcept {
 bool ScrollBar::Create(HWND parent, ControlId id, RectDip bounds, ScrollBarOptions options) {
     return CreateNative(L"SCROLLBAR", parent, id, L"", bounds, options.style, options.extended_style);
 }
-void ScrollBar::SetRange(int minimum, int maximum) noexcept { if (IsWindow()) ::SetScrollRange(GetHwnd(), SB_CTL, minimum, maximum, TRUE); }
-void ScrollBar::SetValue(int value) noexcept { if (IsWindow()) ::SetScrollPos(GetHwnd(), SB_CTL, value, TRUE); }
+ScrollBar& ScrollBar::SetRange(int minimum, int maximum) noexcept { if (IsWindow()) ::SetScrollRange(GetHwnd(), SB_CTL, minimum, maximum, TRUE); return *this; }
+ScrollBar& ScrollBar::SetValue(int value) noexcept { if (IsWindow()) ::SetScrollPos(GetHwnd(), SB_CTL, value, TRUE); return *this; }
 int ScrollBar::GetValue() const noexcept { return IsWindow() ? ::GetScrollPos(GetHwnd(), SB_CTL) : 0; }
 
 }  // namespace mwtl

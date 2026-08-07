@@ -28,13 +28,14 @@ public:
     }
     [[nodiscard]] bool IsWindow() const noexcept;
     [[nodiscard]] ControlId GetId() const noexcept { return id_; }
+    [[nodiscard]] SizeDip GetPreferredSize(DpiContext dpi) const noexcept;
 
     [[nodiscard]] bool SetText(std::wstring_view text);
     [[nodiscard]] std::wstring GetText() const;
     [[nodiscard]] bool SetBounds(RectDip bounds) noexcept;
-    void SetEnabled(bool enabled) noexcept;
-    void SetVisible(bool visible) noexcept;
-    void Focus() noexcept;
+    NativeControl& SetEnabled(bool enabled) noexcept;
+    NativeControl& SetVisible(bool visible) noexcept;
+    NativeControl& Focus() noexcept;
     void Destroy() noexcept;
 
 protected:
@@ -100,7 +101,7 @@ public:
         ButtonOptions options = {}) {
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
-    void Click() noexcept;
+    Button& Click() noexcept;
 };
 
 struct TextBoxOptions {
@@ -125,8 +126,8 @@ public:
         TextBoxOptions options = {}) {
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
-    void SelectAll() noexcept;
-    void SetReadOnly(bool read_only) noexcept;
+    TextBox& SelectAll() noexcept;
+    TextBox& SetReadOnly(bool read_only) noexcept;
 };
 
 struct CheckBoxOptions {
@@ -152,7 +153,7 @@ public:
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
     [[nodiscard]] bool IsChecked() const noexcept;
-    void SetChecked(bool checked) noexcept;
+    CheckBox& SetChecked(bool checked) noexcept;
 };
 
 struct RadioButtonOptions {
@@ -168,7 +169,7 @@ public:
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
     [[nodiscard]] bool IsChecked() const noexcept;
-    void SetChecked(bool checked) noexcept;
+    RadioButton& SetChecked(bool checked) noexcept;
 };
 
 struct GroupBoxOptions {
@@ -248,8 +249,8 @@ public:
         ProgressBarOptions options = {}) {
         return Create(parent.GetHwnd(), id, bounds, options);
     }
-    void SetRange(int minimum, int maximum) noexcept;
-    void SetValue(int value) noexcept;
+    ProgressBar& SetRange(int minimum, int maximum) noexcept;
+    ProgressBar& SetValue(int value) noexcept;
     [[nodiscard]] int GetValue() const noexcept;
 };
 
@@ -265,8 +266,8 @@ public:
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, SliderOptions options = {}) {
         return Create(parent.GetHwnd(), id, bounds, options);
     }
-    void SetRange(int minimum, int maximum) noexcept;
-    void SetValue(int value) noexcept;
+    Slider& SetRange(int minimum, int maximum) noexcept;
+    Slider& SetValue(int value) noexcept;
     [[nodiscard]] int GetValue() const noexcept;
 };
 
@@ -280,8 +281,8 @@ public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ScrollBarOptions options = {});
     template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ScrollBarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
-    void SetRange(int minimum, int maximum) noexcept;
-    void SetValue(int value) noexcept;
+    ScrollBar& SetRange(int minimum, int maximum) noexcept;
+    ScrollBar& SetValue(int value) noexcept;
     [[nodiscard]] int GetValue() const noexcept;
 };
 

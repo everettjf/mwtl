@@ -48,6 +48,13 @@ target_link_libraries(mwtl_dpi_test PRIVATE mwtl::mwtl)
 add_test(NAME mwtl.dpi COMMAND mwtl_dpi_test)
 set_tests_properties(mwtl.dpi PROPERTIES TIMEOUT 20)
 
+add_executable(mwtl_must_test must_test.cpp)
+target_compile_features(mwtl_must_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_must_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_must_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.must COMMAND mwtl_must_test)
+set_tests_properties(mwtl.must PROPERTIES TIMEOUT 20)
+
 add_executable(mwtl_control_batch_test control_batch_test.cpp)
 target_compile_features(mwtl_control_batch_test PRIVATE cxx_std_20)
 target_compile_options(mwtl_control_batch_test PRIVATE /W4 /permissive- /EHsc /utf-8)

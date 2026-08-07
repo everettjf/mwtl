@@ -7,11 +7,17 @@
 #include <optional>
 #include <utility>
 #include <vector>
+#include <concepts>
 
 #include <mwtl/concepts.h>
 #include <mwtl/dpi.h>
 
 namespace mwtl {
+
+template <typename T>
+concept IntrinsicallyMeasurable = requires(const T& value, DpiContext dpi) {
+    { value.GetPreferredSize(dpi) } -> std::same_as<SizeDip>;
+};
 
 enum class LayoutDirection {
     row,
@@ -128,6 +134,12 @@ public:
         const Control& control,
         LayoutLength length = LayoutLength::Auto(),
         LayoutItemOptions options = {}) & {
+        if constexpr (IntrinsicallyMeasurable<Control>) {
+            if (!options.preferred_size) {
+                options.preferred_size = control.GetPreferredSize(
+                    DpiContext::FromWindow(control.GetHwnd()));
+            }
+        }
         return Add(control.GetHwnd(), length, std::move(options));
     }
     template <WindowLike Control>
@@ -135,7 +147,25 @@ public:
         const Control& control,
         LayoutLength length = LayoutLength::Auto(),
         LayoutItemOptions options = {}) && {
+        if constexpr (IntrinsicallyMeasurable<Control>) {
+            if (!options.preferred_size) {
+                options.preferred_size = control.GetPreferredSize(
+                    DpiContext::FromWindow(control.GetHwnd()));
+            }
+        }
         Add(control.GetHwnd(), length, std::move(options));
+        return std::move(*this);
+    }
+
+    template <WindowLike Control>
+    LayoutNode& Add(const Control& control, Dip length,
+                    LayoutItemOptions options = {}) & {
+        return Add(control, Fixed(length), std::move(options));
+    }
+    template <WindowLike Control>
+    LayoutNode&& Add(const Control& control, Dip length,
+                     LayoutItemOptions options = {}) && {
+        Add(control, Fixed(length), std::move(options));
         return std::move(*this);
     }
 

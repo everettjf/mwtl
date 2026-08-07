@@ -68,6 +68,7 @@ using mwtl::operator""_dip;
 mwtl::ControlHost ui{*this};
 ui.Add(name_, {100}, L"Developer");
 ui.Add(save_, {101}, L"Save");
+ui.Add(progress_, {102}).SetRange(0, 100).SetValue(64);
 mwtl::Must(mwtl::AddItems(
     theme_, {L"System", L"Light", L"Dark"}));
 
@@ -75,8 +76,13 @@ UseLayout(
     mwtl::Row()
         .Gap(8_dip)
         .Add(name_, mwtl::Stretch(1.0f, 160_dip))
-        .Add(save_, mwtl::Fixed(96_dip)));
+        .Add(save_, 96_dip));
 ```
+
+Typed controls expose intrinsic DPI-aware measurement, so `Auto()` works with
+zero provisional creation bounds. Infallible setters are chainable. For a
+Win32 call whose last-error value matters, use `MustInvoke([&] { return ...; })`;
+plain `Must(bool)` never reports a stale thread-local error code.
 
 Direct `Create(...)`, `GetHwnd()`, native messages, styles, and return values
 remain available when application code needs lower-level control.

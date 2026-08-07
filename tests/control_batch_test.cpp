@@ -61,10 +61,9 @@ int main() {
 
     bool win32_failure = false;
     try {
-        ::SetLastError(ERROR_ACCESS_DENIED);
         mwtl::Must(false, "expected Win32 failure");
     } catch (const std::system_error& error) {
-        win32_failure = error.code().value() == ERROR_ACCESS_DENIED &&
+        win32_failure = error.code().value() == ERROR_GEN_FAILURE &&
                         std::string_view(error.what()).find(
                             "expected Win32 failure") != std::string_view::npos;
     }

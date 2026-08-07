@@ -10,6 +10,34 @@ using mwtl::operator""_dip;
 
 namespace {
 
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::Label>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::Button>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::TextBox>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::CheckBox>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::RadioButton>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::GroupBox>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::ListBox>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::ComboBox>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::ProgressBar>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::Slider>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::ScrollBar>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::TreeView>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::ListView>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::Header>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::TabControl>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::ComboBoxEx>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::DateTimePicker>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::MonthCalendar>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::HotKey>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::IpAddress>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::UpDown>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::SysLink>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::Toolbar>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::StatusBar>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::Rebar>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::Pager>);
+static_assert(mwtl::IntrinsicallyMeasurable<mwtl::Animation>);
+
 bool command_seen = false;
 bool key_seen = false;
 bool custom_seen = false;
@@ -57,17 +85,15 @@ public:
         mwtl::Must(images_.Create(16, 16), "create image list");
         mwtl::Must(timer_.Start(*this, kTimer, 1ms), "start timer");
 
-        check_.SetChecked(true);
+        check_.SetChecked(true).SetEnabled(true);
         const std::array combo_items{L"first", L"second"};
         mwtl::Must(mwtl::AddItems(combo_, combo_items),
                    "populate ComboBox");
-        progress_.SetRange(0, 100);
-        progress_.SetValue(64);
+        progress_.SetRange(0, 100).SetValue(64);
         radio_.SetChecked(true);
         mwtl::Must(mwtl::AddItems(list_, {L"first", L"second"}),
                    "populate ListBox");
-        slider_.SetRange(0, 100);
-        slider_.SetValue(73);
+        slider_.SetRange(0, 100).SetValue(73);
         const HTREEITEM root = tree_.AddItem(L"root");
         static_cast<void>(tree_.AddItem(L"child", root));
         static_cast<void>(tree_.Expand(root));
@@ -85,7 +111,7 @@ public:
         static_cast<void>(combo_ex_.SetSelection(0));
         hot_key_.SetValue('K', HOTKEYF_CONTROL);
         ip_.SetValue(127, 0, 0, 1);
-        spin_.SetBuddy(spin_text_); spin_.SetRange(0, 100); spin_.SetValue(42);
+        spin_.SetBuddy(spin_text_).SetRange(0, 100).SetValue(42);
         const std::array toolbar_buttons{
             mwtl::ToolbarButtonSpec{{600}, L"Tool"}};
         mwtl::Must(mwtl::AddButtons(toolbar_, toolbar_buttons),
@@ -93,7 +119,7 @@ public:
         toolbar_.AutoSize();
         static_cast<void>(rebar_.AddBand(toolbar_, L"Band", 120));
         pager_.SetChild(pager_label_);
-        scroll_.SetRange(0, 100); scroll_.SetValue(31);
+        scroll_.SetRange(0, 100).SetValue(31);
         static_cast<void>(mwtl::InitializeFlatScrollBars(scroll_.GetHwnd()));
         const std::array status_parts{120, -1};
         static_cast<void>(status_bar_.SetParts(status_parts));

@@ -39,7 +39,7 @@ public:
     [[nodiscard]] int AddColumn(std::wstring_view text, int width_pixels, int index = -1);
     [[nodiscard]] int AddItem(std::wstring_view text, int index = -1);
     [[nodiscard]] bool SetSubItem(int item, int sub_item, std::wstring_view text);
-    void SetExtendedListStyle(DWORD style) noexcept;
+    ListView& SetExtendedListStyle(DWORD style) noexcept;
 };
 
 struct HeaderOptions {

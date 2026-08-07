@@ -1,4 +1,5 @@
 #include <mwtl/layout.h>
+#include <mwtl/controls.h>
 
 #include <windows.h>
 #include <wil/resource.h>
@@ -180,5 +181,19 @@ int main() {
             .Add(top, Fixed(20_dip))
             .Add(bottom, Stretch()));
     if (!fluent_layout.HasRoot() || !fluent_layout.Arrange(parent)) return 19;
+
+    static_assert(IntrinsicallyMeasurable<Label>);
+    Label measured_label;
+    if (!measured_label.Create(parent, {501}, L"intrinsic label", {})) return 20;
+    const SizeDip intrinsic = measured_label.GetPreferredSize(dpi);
+    if (intrinsic.width.value <= 0.0f || intrinsic.height.value <= 0.0f)
+        return 21;
+    LayoutHost intrinsic_layout(Column().Add(measured_label, Auto()));
+    const SizeDip preferred = intrinsic_layout.GetPreferredSize(parent);
+    if (preferred.width.value <= 0.0f || preferred.height.value <= 0.0f)
+        return 22;
+
+    LayoutHost dip_length_layout(Row().Add(measured_label, 80_dip));
+    if (!dip_length_layout.Arrange(parent)) return 23;
     return EXIT_SUCCESS;
 }

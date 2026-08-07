@@ -19,7 +19,7 @@ public:
     template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ToolbarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] bool AddTextButton(ControlId command, std::wstring_view text);
-    void AutoSize() noexcept;
+    Toolbar& AutoSize() noexcept;
 };
 
 struct StatusBarOptions { DWORD style = WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP; DWORD extended_style = 0; };
@@ -47,8 +47,8 @@ public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, PagerOptions options = {});
     template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, PagerOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
-    void SetChild(const NativeControl& child) noexcept;
-    void SetButtonSize(int pixels) noexcept;
+    Pager& SetChild(const NativeControl& child) noexcept;
+    Pager& SetButtonSize(int pixels) noexcept;
 };
 
 struct AnimationOptions { DWORD style = WS_CHILD | WS_VISIBLE | ACS_CENTER | ACS_TRANSPARENT; DWORD extended_style = 0; };
@@ -59,7 +59,7 @@ public:
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, AnimationOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] bool Open(HINSTANCE module, UINT resource_id) noexcept;
     [[nodiscard]] bool Play(UINT repeat_count = UINT_MAX, UINT from = 0, UINT to = UINT_MAX) noexcept;
-    void Stop() noexcept;
+    Animation& Stop() noexcept;
 };
 
 }  // namespace mwtl

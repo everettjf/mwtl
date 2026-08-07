@@ -63,7 +63,15 @@ auto visible = names | std::views::filter(IsVisible);
 mwtl::Must(mwtl::AddItems(list_, visible), "populate visible names");
 ```
 
-`Must(bool)` converts a checked Win32-style failure to `std::system_error`.
+`Must(bool)` converts a checked failure to a generic `std::system_error`; it
+deliberately does not read a potentially stale thread-local last-error value.
+Use `MustInvoke` when the native error code matters. It clears last error,
+invokes the callable, and captures the error immediately:
+
+```cpp
+mwtl::MustInvoke([&] { return control.Create(...); }, "create control");
+```
+
 `Must(BatchResult)` reports the failure index, completed count, and native
 result. Both include the C++20 `std::source_location` of the call site.
 
@@ -93,9 +101,12 @@ and `LayoutHost::Arrange` remain public for externally owned or unusual hosts.
 
 ### Tracks and containers
 
-- `Auto(min, max)` uses the current native or explicit preferred size and can
-  shrink to its minimum.
+- `Auto(min, max)` automatically uses `GetPreferredSize(DpiContext)` when a
+  typed control is added. All 27 built-in controls inherit intrinsic native
+  measurement and can shrink to the requested minimum.
 - `Fixed(size)` reserves an exact main-axis size.
+- Passing a `Dip` directly, such as `.Add(button, 32_dip)`, is shorthand for
+  `Fixed(32_dip)`.
 - `Stretch(weight, min, max)` distributes remaining main-axis space by weight.
 - `Row`, `Column`, and `Overlay` can be nested.
 - `Margin`, `Gap`, and `CrossAlignment` use DIP units.
@@ -105,6 +116,20 @@ and `LayoutHost::Arrange` remain public for externally owned or unusual hosts.
 
 All final HWND positions are converted using the parent's current DPI and
 applied with deferred positioning when available.
+
+## Fluent configuration
+
+Infallible control commands return the concrete control and can be chained:
+
+```cpp
+ui.Add(progress_, kProgress).SetRange(0, 100).SetValue(64);
+ui.Add(spin_, kSpin).SetBuddy(value_).SetRange(0, 100).SetValue(42);
+ui.Add(check_, kCheck, L"Enabled").SetChecked(true).SetEnabled(true);
+```
+
+Checked native operations retain their `bool` or native result so callers do
+not lose failure information. Compose those with `MustInvoke` or the existing
+range batch helpers rather than silently converting them to fluent commands.
 
 ## Ownership boundary
 

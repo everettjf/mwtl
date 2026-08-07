@@ -17,7 +17,7 @@
 - [x] CPack creates the expected x64 ZIP with headers, library, licenses, and config files.
 - [x] Multi-monitor corner tests cover negative origins, mixed resolutions,
   seams, half-open bounds, tolerance, dwell, and one-shot firing.
-- [ ] GitHub x64 Debug and Release CI is green for the release commit.
+- [x] GitHub x64 Debug and Release CI is green for the release commit.
 - [ ] Release workflow dry-run artifact is downloaded and inspected.
 
 ## Runtime verification
@@ -26,7 +26,7 @@
 - [x] Menus, accelerator ownership, DPI font creation, placement persistence,
   notifications, and monitor refresh paths are covered by tests or the reference app.
 - [x] File/folder dialog cancellation is runtime verified without user input.
-- [ ] Clipboard text round-trip is verified without destroying pre-existing data.
+- [x] Clipboard text round-trip is verified without destroying pre-existing data.
 - [x] Synthetic `HDROP` parsing and accelerator dispatch tests pass.
 - [x] Hot Corners test mode proves actions without injecting shell shortcuts.
 

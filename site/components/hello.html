@@ -5,20 +5,30 @@
   <header class="shell nav"><a class="brand" href="../index.html">mwtl</a><nav class="nav-links"><a href="application.html">Application</a><a href="window.html">Window</a></nav></header>
   <main class="shell prose">
     <div class="eyebrow">Quick start</div><h1>Hello, native window.</h1>
-    <p>The shortest example needs only a CRTP window class and an Application entry point.</p>
+    <p>The shortest example uses a CRTP window class, native controls, and a one-line application entry point. Common messages are ordinary C++20 member functions—no message-map macros are required.</p>
     <pre><code>#include &lt;mwtl/mwtl.h&gt;
 
 class MainWindow final : public mwtl::Window&lt;MainWindow&gt; {
 public:
-    void BuildUI() { SetTitle(L"mwtl hello"); }
+    void BuildUI() {
+        SetTitle(L"mwtl hello");
+        label_.Create(*this, mwtl::ControlId{100}, L"Hello from modern WTL", {24, 24, 260, 28});
+        close_.Create(*this, mwtl::ControlId{101}, L"Close", {24, 64, 100, 32});
+    }
+
+    void OnCommand(const mwtl::CommandEvent&amp; event) {
+        if (event.IsClicked(mwtl::ControlId{101})) {
+            Close();
+        }
+    }
+
+private:
+    mwtl::Label label_;
+    mwtl::Button close_;
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
-    try {
-        return mwtl::Application(instance).Run&lt;MainWindow&gt;(show);
-    } catch (...) {
-        return EXIT_FAILURE;
-    }
+    return mwtl::RunApplication&lt;MainWindow&gt;(instance, show);
 }</code></pre>
     <p>Target: <code>mwtl_hello</code>. The final executable embeds the Unicode/Common Controls v6 and Per-Monitor V2 manifest declarations.</p>
     <p>Repository source: <a href="https://github.com/everettjf/mwtl/tree/main/examples/hello">examples/hello</a></p>

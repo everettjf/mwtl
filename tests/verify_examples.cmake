@@ -16,6 +16,7 @@ set(example_names
     wait_aware
     wakeup
     com_sta
+    controls
     self_drawn_host
     system_lifecycle)
 
@@ -60,6 +61,6 @@ if(NOT root_readme MATCHES "docs/images/mwtl-mark.svg")
 endif()
 
 list(LENGTH example_names example_count)
-if(example_count LESS 19)
-    message(FATAL_ERROR "fewer than 19 examples are cataloged")
+if(example_count LESS 20)
+    message(FATAL_ERROR "fewer than 20 examples are cataloged")
 endif()

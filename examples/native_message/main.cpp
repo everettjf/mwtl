@@ -20,26 +20,20 @@ public:
         }
     }
 
-    BEGIN_MSG_MAP(NativeMessageWindow)
-        MESSAGE_HANDLER(kGreetingMessage, OnGreeting)
-        CHAIN_MSG_MAP(mwtl::Window<NativeMessageWindow>)
-    END_MSG_MAP()
-
-private:
-    LRESULT OnGreeting(UINT, WPARAM year, LPARAM, BOOL&) {
+    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) {
+        if (message.id != kGreetingMessage) {
+            return mwtl::EventResult::Propagate();
+        }
         wchar_t title[128]{};
         _snwprintf_s(title, _countof(title), _TRUNCATE,
                      L"Native WM_APP received (payload: %llu)",
-                     static_cast<unsigned long long>(year));
+                     static_cast<unsigned long long>(message.wparam));
         SetTitle(title);
-        return 0;
+        return mwtl::EventResult::Handled();
     }
 };
 }
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try { return mwtl::Application(instance).Run<NativeMessageWindow>(show_command); }
-    catch (const std::exception& error) { ::OutputDebugStringA(error.what()); }
-    catch (...) { ::OutputDebugStringW(L"Unknown exception at wWinMain.\r\n"); }
-    return EXIT_FAILURE;
+    return mwtl::RunApplication<NativeMessageWindow>(instance, show_command);
 }

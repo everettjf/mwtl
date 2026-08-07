@@ -1,17 +1,17 @@
 # mwtl examples
 
-The repository includes 19 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path.
+The repository includes 20 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path. Common messages use C++20 convention handlers rather than message-map macros.
 
 | Directory | Target | Focus |
 |---|---|---|
 | `hello` | `mwtl_hello` | Smallest complete mwtl program |
 | `application` | `mwtl_application_demo` | `mwtl::Application`, process entry, run result, and instance observation |
-| `window` | `mwtl_window_demo` | `mwtl::Window<T>`, HWND access, WTL message maps, and native messages |
+| `window` | `mwtl_window_demo` | `mwtl::Window<T>`, HWND access, typed convention handlers, and native messages |
 | `native_message` | `mwtl_native_message_demo` | Post and receive an application-defined `WM_APP` message |
 | `keyboard` | `mwtl_keyboard_demo` | Handle keyboard input and close with Escape |
 | `mouse` | `mwtl_mouse_demo` | Read native mouse client coordinates |
 | `resize` | `mwtl_resize_demo` | Observe native pixel dimensions and size state |
-| `timer` | `mwtl_timer_demo` | Start, receive, and clean up a Win32 timer |
+| `timer` | `mwtl_timer_demo` | Own a window timer with `UiTimer` and `std::chrono` |
 | `paint` | `mwtl_paint_demo` | Draw directly in a native `WM_PAINT` handler |
 | `minmax` | `mwtl_minmax_demo` | Apply a minimum tracking size with `WM_GETMINMAXINFO` |
 | `close_policy` | `mwtl_close_policy_demo` | Intercept close once, then delegate to the base policy |
@@ -21,13 +21,14 @@ The repository includes 19 focused executables. Each example is intentionally sm
 | `wait_aware` | `mwtl_wait_aware_demo` | A non-busy wait-aware pump with idle callbacks |
 | `wakeup` | `mwtl_wakeup_demo` | A lifetime-safe worker-to-window wake token |
 | `com_sta` | `mwtl_com_sta_demo` | Application-owned COM STA initialization and cleanup |
+| `controls` | `mwtl_controls_demo` | Label, Button, TextBox, CheckBox, ComboBox, ProgressBar, commands, and timer |
 | `self_drawn_host` | `mwtl_self_drawn_host_demo` | Worker-driven dirty frames, GDI paint, wake token, and wait-aware pump |
 | `system_lifecycle` | `mwtl_system_lifecycle_demo` | Power, display, settings, IME, end-session, and accessibility hand-off messages |
 
 Configure with `MWTL_BUILD_EXAMPLES=ON`, then build one target or all targets:
 
 ```powershell
-cmake -S . -B build/x64 -G "Visual Studio 17 2022" -A x64 -DMWTL_BUILD_EXAMPLES=ON
+cmake -S . -B build/x64 -G "Visual Studio 18 2026" -A x64 -DMWTL_BUILD_EXAMPLES=ON
 cmake --build build/x64 --config Debug --target mwtl_application_demo
 cmake --build build/x64 --config Debug --target mwtl_window_demo
 cmake --build build/x64 --config Debug --target mwtl_timer_demo
@@ -50,4 +51,4 @@ Run a target from its configuration directory, for example:
 ./build/x64/examples/timer/Debug/mwtl_timer_demo.exe
 ```
 
-The examples remain native: messages and GDI calls demonstrate HWND interoperability, not a new layout, control, theme, or rendering abstraction.
+The examples remain native: every component is a real child HWND and direct Win32/WTL interoperability remains available. The wrappers provide ownership and typed ergonomics, not a closed rendering framework.

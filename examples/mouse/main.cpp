@@ -1,7 +1,5 @@
 #include <mwtl/mwtl.h>
 
-#include <windowsx.h>
-
 #include <cstdlib>
 #include <exception>
 #include <stdexcept>
@@ -14,36 +12,24 @@ public:
         }
     }
 
-    BEGIN_MSG_MAP(MouseWindow)
-        MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
-        MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLeftButtonDown)
-        CHAIN_MSG_MAP(mwtl::Window<MouseWindow>)
-    END_MSG_MAP()
+    void OnMouseMove(const mwtl::MouseEvent& event) {
+        ShowPoint(L"WM_MOUSEMOVE", event.position);
+    }
+
+    void OnLeftButtonDown(const mwtl::MouseEvent& event) {
+        ShowPoint(L"WM_LBUTTONDOWN", event.position);
+    }
 
 private:
-    void ShowPoint(const wchar_t* event_name, LPARAM position) {
-        const int x = GET_X_LPARAM(position);
-        const int y = GET_Y_LPARAM(position);
+    void ShowPoint(const wchar_t* event_name, POINT position) {
         wchar_t title[128]{};
         _snwprintf_s(title, _countof(title), _TRUNCATE,
-                     L"%s at client point (%d, %d)", event_name, x, y);
+                     L"%s at client point (%ld, %ld)",
+                     event_name, position.x, position.y);
         SetTitle(title);
-    }
-
-    LRESULT OnMouseMove(UINT, WPARAM, LPARAM position, BOOL&) {
-        ShowPoint(L"WM_MOUSEMOVE", position);
-        return 0;
-    }
-
-    LRESULT OnLeftButtonDown(UINT, WPARAM, LPARAM position, BOOL&) {
-        ShowPoint(L"WM_LBUTTONDOWN", position);
-        return 0;
     }
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try { return mwtl::Application(instance).Run<MouseWindow>(show_command); }
-    catch (const std::exception& error) { ::OutputDebugStringA(error.what()); }
-    catch (...) { ::OutputDebugStringW(L"Unknown exception at wWinMain.\r\n"); }
-    return EXIT_FAILURE;
+    return mwtl::RunApplication<MouseWindow>(instance, show_command);
 }

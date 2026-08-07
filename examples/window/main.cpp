@@ -16,43 +16,29 @@ public:
         }
     }
 
-    BEGIN_MSG_MAP(WindowDemo)
-        MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLeftButtonDown)
-        MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
-        MESSAGE_HANDLER(kShowNativeMessage, OnNativeMessage)
-        CHAIN_MSG_MAP(mwtl::Window<WindowDemo>)
-    END_MSG_MAP()
-
-private:
-    LRESULT OnLeftButtonDown(UINT, WPARAM, LPARAM, BOOL&) {
+    void OnLeftButtonDown(const mwtl::MouseEvent&) {
         ::SendMessageW(GetHwnd(), kShowNativeMessage, 0, 0);
-        return 0;
     }
 
-    LRESULT OnKeyDown(UINT, WPARAM key, LPARAM, BOOL& handled) {
-        if (key == VK_ESCAPE) {
+    mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) {
+        if (event.virtual_key == VK_ESCAPE) {
             ::SendMessageW(GetHwnd(), WM_CLOSE, 0, 0);
-        } else {
-            handled = FALSE;
+            return mwtl::EventResult::Handled();
         }
-        return 0;
+        return mwtl::EventResult::Propagate();
     }
 
-    LRESULT OnNativeMessage(UINT, WPARAM, LPARAM, BOOL&) {
-        SetTitle(L"Native WM_APP message received — press Esc to close");
-        return 0;
+    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) {
+        if (message.id == kShowNativeMessage) {
+            SetTitle(L"Native WM_APP message received — press Esc to close");
+            return mwtl::EventResult::Handled();
+        }
+        return mwtl::EventResult::Propagate();
     }
 };
 
 }  // namespace
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try {
-        return mwtl::Application(instance).Run<WindowDemo>(show_command);
-    } catch (const std::exception& error) {
-        ::OutputDebugStringA(error.what());
-    } catch (...) {
-        ::OutputDebugStringW(L"Unknown exception at the wWinMain boundary.\r\n");
-    }
-    return EXIT_FAILURE;
+    return mwtl::RunApplication<WindowDemo>(instance, show_command);
 }

@@ -24,7 +24,7 @@ foreach(mode IN ITEMS
         TIMEOUT 20)
 endforeach()
 
-foreach(header IN ITEMS application dpi message_pump window window_options wakeup umbrella)
+foreach(header IN ITEMS application controls dpi events message_pump timer window window_options wakeup umbrella)
     add_library(mwtl_header_${header} OBJECT header_${header}.cpp)
     target_compile_features(mwtl_header_${header} PRIVATE cxx_std_20)
     target_compile_options(mwtl_header_${header} PRIVATE /W4 /permissive- /EHsc /utf-8)
@@ -68,6 +68,15 @@ set_tests_properties(mwtl.liney_host_compat PROPERTIES
     ENVIRONMENT "MWTL_TEST_NO_DIALOGS=1"
     TIMEOUT 20)
 
+add_executable(mwtl_modern_api_test modern_api_test.cpp)
+target_compile_features(mwtl_modern_api_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_modern_api_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_modern_api_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.modern_api COMMAND mwtl_modern_api_test)
+set_tests_properties(mwtl.modern_api PROPERTIES
+    ENVIRONMENT "MWTL_TEST_NO_DIALOGS=1"
+    TIMEOUT 20)
+
 if(TARGET mwtl_hello)
     set(mwtl_mt_tool "${CMAKE_MT}")
     if(NOT EXISTS "${mwtl_mt_tool}" AND CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
@@ -95,6 +104,7 @@ if(TARGET mwtl_hello)
             mwtl_wait_aware_demo
             mwtl_wakeup_demo
             mwtl_com_sta_demo
+            mwtl_controls_demo
             mwtl_self_drawn_host_demo
             mwtl_system_lifecycle_demo)
         add_test(

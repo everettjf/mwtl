@@ -12,28 +12,18 @@ public:
         }
     }
 
-    BEGIN_MSG_MAP(WindowStateWindow)
-        MESSAGE_HANDLER(WM_SIZE, OnSize)
-        CHAIN_MSG_MAP(mwtl::Window<WindowStateWindow>)
-    END_MSG_MAP()
-
-private:
-    LRESULT OnSize(UINT, WPARAM state, LPARAM, BOOL& handled) {
+    mwtl::EventResult OnResize(const mwtl::ResizeEvent& event) {
         const wchar_t* label = L"restored";
-        if (state == SIZE_MINIMIZED) label = L"minimized";
-        if (state == SIZE_MAXIMIZED) label = L"maximized";
+        if (event.state == mwtl::WindowSizeState::minimized) label = L"minimized";
+        if (event.state == mwtl::WindowSizeState::maximized) label = L"maximized";
         wchar_t title[96]{};
         _snwprintf_s(title, _countof(title), _TRUNCATE,
                      L"Window state: %s", label);
         SetTitle(title);
-        handled = FALSE;
-        return 0;
+        return mwtl::EventResult::Propagate();
     }
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try { return mwtl::Application(instance).Run<WindowStateWindow>(show_command); }
-    catch (const std::exception& error) { ::OutputDebugStringA(error.what()); }
-    catch (...) { ::OutputDebugStringW(L"Unknown exception at wWinMain.\r\n"); }
-    return EXIT_FAILURE;
+    return mwtl::RunApplication<WindowStateWindow>(instance, show_command);
 }

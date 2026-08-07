@@ -171,16 +171,16 @@ Requirements:
 
 ### 4.3 Native message access
 
-WTL message maps remain the primary dispatch mechanism. mwtl will not replace
-WPARAM/LPARAM/LRESULT with a closed event model.
+Typed C++20 convention handlers are the primary dispatch mechanism. mwtl does
+not replace WPARAM/LPARAM/LRESULT with a closed event model.
 
 Every consumer handler must be reached through the existing exception-safe WTL
 WindowProc boundary. 0.2 should add documented patterns for:
 
-- individual `MESSAGE_HANDLER` entries;
-- message ranges or a single native-message adapter for large existing WndProcs;
-- chaining to `mwtl::Window<T>`;
-- preserving `handled = FALSE` and the native LRESULT;
+- typed convention handlers for common messages;
+- `OnMessage(const WindowMessage&)` for uncommon or application-defined messages;
+- optional legacy WTL maps, message ranges, alternate map IDs, and chaining;
+- preserving propagation and the native LRESULT with `EventResult`;
 - creation, normal dispatch, and destruction-stage failures.
 
 ### 4.4 Message-pump policies

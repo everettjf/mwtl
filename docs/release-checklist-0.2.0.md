@@ -4,7 +4,7 @@
 - [x] x64 Release configure/build/link and 43 CTest cases pass locally.
 - [x] C++20 library, public headers, examples, and consumer fixture compile.
 - [x] All public headers independently compile without a PCH.
-- [x] All 19 example manifests are extracted from the EXE and checked for PMv2.
+- [x] Every example manifest is extracted from the EXE and checked for PMv2.
 - [x] Seven 0.2 GUI examples created a visible HWND, accepted `WM_CLOSE`, and exited 0.
 - [x] `add_subdirectory`, pre-provided target, and FetchContent consumers build.
 - [x] DPI conversion, suggested rectangle, class/resource, COM, pump, wake,

@@ -144,4 +144,25 @@ private:
     bool running_ = false;
 };
 
+template <MainWindow MainWindowType>
+[[nodiscard]] int RunApplication(
+    HINSTANCE instance,
+    int show_command,
+    const WindowOptions& window_options = {},
+    ApplicationOptions application_options = {}) noexcept {
+    return Application(instance, application_options)
+        .Run<MainWindowType>(show_command, window_options);
+}
+
+template <MainWindow MainWindowType>
+[[nodiscard]] int RunApplication(
+    HINSTANCE instance,
+    int show_command,
+    MessagePump& message_pump,
+    const WindowOptions& window_options = {},
+    ApplicationOptions application_options = {}) noexcept {
+    return Application(instance, application_options)
+        .Run<MainWindowType>(show_command, window_options, message_pump);
+}
+
 }  // namespace mwtl

@@ -20,20 +20,14 @@ public:
         });
     }
 
-    BEGIN_MSG_MAP(WakeWindow)
-        MESSAGE_HANDLER(mwtl::WindowWakeup::Message(), OnWake)
-        CHAIN_MSG_MAP(mwtl::Window<WakeWindow>)
-    END_MSG_MAP()
+    void OnWakeup() noexcept {
+        SetTitle(L"Safe cross-thread wake-up received");
+    }
 
 private:
-    LRESULT OnWake(UINT, WPARAM, LPARAM, BOOL&) noexcept {
-        SetTitle(L"Safe cross-thread wake-up received");
-        return 0;
-    }
     std::jthread worker_;
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try { return mwtl::Application(instance).Run<WakeWindow>(show_command); }
-    catch (...) { return EXIT_FAILURE; }
+    return mwtl::RunApplication<WakeWindow>(instance, show_command);
 }

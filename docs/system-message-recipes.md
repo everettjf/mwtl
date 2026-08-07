@@ -1,18 +1,24 @@
 # Native system-message recipes
 
-mwtl intentionally leaves system semantics with the application. Add handlers
-to the derived WTL map and chain to the exact `Window` specialization:
+mwtl intentionally leaves system semantics with the application. Rare messages
+can share the typed raw-message fallback without introducing a macro map:
 
 ```cpp
-BEGIN_MSG_MAP(MainWindow)
-    MESSAGE_HANDLER(WM_POWERBROADCAST, OnPower)
-    MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettings)
-    MESSAGE_HANDLER(WM_GETOBJECT, OnGetObject)
-    CHAIN_MSG_MAP(mwtl::Window<MainWindow>)
-END_MSG_MAP()
+mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) {
+    switch (message.id) {
+    case WM_QUERYENDSESSION:
+        return mwtl::EventResult::Handled(TRUE);
+    case WM_POWERBROADCAST:
+    case WM_SETTINGCHANGE:
+        RefreshSystemState();
+        return mwtl::EventResult::Propagate();
+    default:
+        return mwtl::EventResult::Propagate();
+    }
+}
 ```
 
-Use `handled = FALSE` when `DefWindowProcW` must retain its native behavior.
+Use `EventResult::Propagate()` when `DefWindowProcW` must retain its behavior.
 Preserve the documented LRESULT for messages such as `WM_QUERYENDSESSION` and
 `WM_GETOBJECT` rather than reducing handlers to notifications.
 
@@ -31,4 +37,5 @@ Preserve the documented LRESULT for messages such as `WM_QUERYENDSESSION` and
 
 See `examples/system_lifecycle`, `examples/self_drawn_host`, and the C++20
 `mwtl_liney_host_compat_test`. All handlers run inside the same exception-safe
-WTL WindowProc boundary as other user message handlers.
+WTL WindowProc boundary as other user message handlers. Existing WTL message
+maps remain supported for alternate map IDs and specialized chaining.

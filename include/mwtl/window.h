@@ -7,10 +7,17 @@
 #include <atlframe.h>
 
 #include <cstdlib>
+#include <concepts>
 #include <exception>
+#include <functional>
 #include <memory>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
 
 #include <mwtl/dpi.h>
+#include <mwtl/events.h>
 #include <mwtl/wakeup.h>
 #include <mwtl/window_options.h>
 
@@ -78,6 +85,11 @@ public:
         return this->m_hWnd != nullptr && ::SetWindowTextW(this->m_hWnd, title) != FALSE;
     }
 
+    bool SetTitle(std::wstring_view title) {
+        const std::wstring terminated{title};
+        return SetTitle(terminated.c_str());
+    }
+
     [[nodiscard]] DpiContext GetDpiContext() const noexcept {
         return DpiContext::FromWindow(GetHwnd());
     }
@@ -112,10 +124,192 @@ public:
         }
     }
 
+    BOOL ProcessWindowMessage(
+        HWND window,
+        UINT message,
+        WPARAM wparam,
+        LPARAM lparam,
+        LRESULT& result,
+        DWORD message_map_id = 0) override {
+        if (message_map_id == 0 &&
+            DispatchModernMessage(message, wparam, lparam, result)) {
+            return TRUE;
+        }
+        return Base::ProcessWindowMessage(
+            window, message, wparam, lparam, result, message_map_id);
+    }
+
 protected:
     WNDPROC GetWindowProc() override { return &SafeWindowProc; }
 
 private:
+    template <typename Callback>
+    static bool InvokeModernHandler(Callback&& callback, LRESULT& result) {
+        using Return = std::invoke_result_t<Callback>;
+        if constexpr (std::same_as<Return, void>) {
+            std::invoke(std::forward<Callback>(callback));
+            result = 0;
+            return true;
+        } else {
+            static_assert(
+                std::same_as<Return, EventResult>,
+                "mwtl convention handlers must return void or mwtl::EventResult");
+            const EventResult reply =
+                std::invoke(std::forward<Callback>(callback));
+            result = reply.result;
+            return reply.handled;
+        }
+    }
+
+    bool DispatchModernMessage(
+        UINT message,
+        WPARAM wparam,
+        LPARAM lparam,
+        LRESULT& result) {
+        T& target = *static_cast<T*>(this);
+
+        if (message == WM_CLOSE) {
+            if constexpr (requires(T& value) { value.OnClose(); }) {
+                return InvokeModernHandler(
+                    [&target] { return target.OnClose(); }, result);
+            }
+        }
+        if (message == WM_KEYDOWN) {
+            if constexpr (requires(T& value, const KeyEvent& event) {
+                              value.OnKeyDown(event);
+                          }) {
+                const KeyEvent event{
+                    .virtual_key = static_cast<UINT>(wparam),
+                    .repeat_count = static_cast<std::uint16_t>(lparam & 0xFFFF),
+                    .scan_code = static_cast<std::uint8_t>((lparam >> 16) & 0xFF),
+                    .extended = (lparam & (1LL << 24)) != 0,
+                    .was_down = (lparam & (1LL << 30)) != 0,
+                };
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnKeyDown(event); }, result);
+            }
+        }
+        if (message == WM_MOUSEMOVE || message == WM_LBUTTONDOWN) {
+            const MouseEvent event{
+                .position = POINT{
+                    static_cast<short>(LOWORD(lparam)),
+                    static_cast<short>(HIWORD(lparam)),
+                },
+                .key_state = wparam,
+            };
+            if (message == WM_MOUSEMOVE) {
+                if constexpr (requires(T& value, const MouseEvent& input) {
+                                  value.OnMouseMove(input);
+                              }) {
+                    return InvokeModernHandler(
+                        [&target, &event] { return target.OnMouseMove(event); },
+                        result);
+                }
+            } else {
+                if constexpr (requires(T& value, const MouseEvent& input) {
+                                  value.OnLeftButtonDown(input);
+                              }) {
+                    return InvokeModernHandler(
+                        [&target, &event] {
+                            return target.OnLeftButtonDown(event);
+                        },
+                        result);
+                }
+            }
+        }
+        if (message == WM_SIZE) {
+            if constexpr (requires(T& value, const ResizeEvent& event) {
+                              value.OnResize(event);
+                          }) {
+                const ResizeEvent event{
+                    .client_size = SIZE{
+                        static_cast<LONG>(LOWORD(lparam)),
+                        static_cast<LONG>(HIWORD(lparam)),
+                    },
+                    .state = detail::DecodeWindowSizeState(wparam),
+                };
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnResize(event); }, result);
+            }
+        }
+        if (message == WM_TIMER) {
+            if constexpr (requires(T& value, TimerId id) { value.OnTimer(id); }) {
+                return InvokeModernHandler(
+                    [&target, wparam] { return target.OnTimer(TimerId{wparam}); },
+                    result);
+            }
+        }
+        if (message == WM_DPICHANGED) {
+            if constexpr (requires(T& value, const DpiChangedEvent& event) {
+                              value.OnDpiChanged(event);
+                          }) {
+                const RECT empty{};
+                const RECT& suggested = lparam != 0
+                    ? *reinterpret_cast<const RECT*>(lparam)
+                    : empty;
+                const DpiChangedEvent event{
+                    .dpi_x = LOWORD(wparam),
+                    .dpi_y = HIWORD(wparam),
+                    .suggested_bounds = suggested,
+                };
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnDpiChanged(event); },
+                    result);
+            }
+        }
+        if (message == WM_COMMAND) {
+            if constexpr (requires(T& value, const CommandEvent& event) {
+                              value.OnCommand(event);
+                          }) {
+                const CommandEvent event{
+                    .id = ControlId{LOWORD(wparam)},
+                    .notification = HIWORD(wparam),
+                    .control = reinterpret_cast<HWND>(lparam),
+                };
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnCommand(event); }, result);
+            }
+        }
+        if (message == WM_GETMINMAXINFO && lparam != 0) {
+            if constexpr (requires(T& value, MinMaxInfoEvent event) {
+                              value.OnMinMaxInfo(event);
+                          }) {
+                MinMaxInfoEvent event{
+                    *reinterpret_cast<MINMAXINFO*>(lparam)};
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnMinMaxInfo(event); },
+                    result);
+            }
+        }
+        if (message == WM_PAINT) {
+            if constexpr (requires(T& value, PaintEvent& event) {
+                              value.OnPaint(event);
+                          }) {
+                PaintEvent event{GetHwnd()};
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnPaint(event); }, result);
+            }
+        }
+        if (message == WindowWakeup::Message()) {
+            if constexpr (requires(T& value) { value.OnWakeup(); }) {
+                return InvokeModernHandler(
+                    [&target] { return target.OnWakeup(); }, result);
+            }
+        }
+        if (message != WM_CREATE && message != WM_DESTROY &&
+            message != WM_NCDESTROY) {
+            if constexpr (requires(T& value, const WindowMessage& event) {
+                              value.OnMessage(event);
+                          }) {
+                const WindowMessage event{message, wparam, lparam};
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnMessage(event); },
+                    result);
+            }
+        }
+        return false;
+    }
+
     static const wchar_t* StageFor(UINT message, bool creation_complete) noexcept {
         if (!creation_complete) {
             return L"window creation";

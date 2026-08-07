@@ -12,6 +12,8 @@
 | `WaitAwarePumpOptions::handles` | non-owning `std::span` and handles; valid until `Run` returns |
 | `WaitAwarePumpOptions::delegate` | non-owning; valid until `Run` returns |
 | `WindowWakeup` | copyable weak token; does not own the C++ object or HWND |
+| `NativeControl` wrappers | move-only owners of child HWNDs; destruction is idempotent when the parent already destroyed the child |
+| `UiTimer` | move-only owner of one HWND/timer-ID pair; destruction calls `KillTimer` while the window remains valid |
 | COM apartment | owned by `Application` only when explicitly requested and initialization succeeds |
 
 ## DPI values
@@ -23,19 +25,42 @@ overflow/infinity, and maps NaN to zero. Rectangle edge addition is saturating.
 
 ## Window creation
 
-The one-argument `Run<Window>(show_command)` remains the 0.1-compatible form.
+The one-argument `Run<Window>(show_command)` remains the explicit lifetime form.
+`RunApplication<Window>(instance, show_command)` is the concise process-entry
+helper and retains the same cleanup and exception boundary.
 Pass `WindowOptions` for title, window style, extended style, DIP bounds,
 client-versus-outer sizing, centering, resources, and the suggested-DPI-rect
 policy. Pass class identity and `CS_*` flags at compile time:
 
 ```cpp
 class MainWindow final : public mwtl::Window<MainWindow, MyClassTraits> {
-    // BuildUI and WTL message map
+    // BuildUI and optional convention handlers
 };
 ```
 
 Class traits are part of the WTL specialization so runtime options cannot
 silently mutate class identity after registration.
+
+## Convention dispatch
+
+`Window<T>` uses C++20 `requires` expressions to discover public handlers such
+as `OnKeyDown(const KeyEvent&)`, `OnCommand(const CommandEvent&)`,
+`OnTimer(TimerId)`, `OnPaint(PaintEvent&)`, and
+`OnMessage(const WindowMessage&)`. A `void` handler consumes the message.
+`EventResult::Propagate()` delegates to WTL/default processing and
+`EventResult::Handled(value)` preserves an explicit native result.
+
+The convention dispatcher is an override of WTL's real
+`CMessageMap::ProcessWindowMessage`, so it remains inside `SafeWindowProc`.
+Existing WTL maps may override it and chain to `Window<T>`.
+
+## Native controls and timer
+
+Label, Button, TextBox, CheckBox, ComboBox, and ProgressBar wrap standard
+system child windows. They accept DIP bounds, own their HWND while valid, and
+expose it through `GetHwnd()`. `CommandEvent` retains the native control ID,
+notification code, and child HWND. `UiTimer::Start` accepts `TimerId` and
+`std::chrono::milliseconds`; `Stop` is idempotent and automatic at destruction.
 
 ## Message pumps
 
@@ -48,7 +73,8 @@ still-live main HWND is destroyed before its stack C++ object leaves scope.
 
 ## Wake-up
 
-Copy `GetWakeup()` to a producer thread and call `TryWake()`. Handle
-`WindowWakeup::Message()` in the WTL message map or observe it after dispatch.
+Copy `GetWakeup()` to a producer thread and call `TryWake()`. Implement
+`OnWakeup()` for convention dispatch, or handle `WindowWakeup::Message()` in a
+legacy WTL map.
 Do not interpret its parameters: WPARAM is a private state cookie used to reject
 stale HWND reuse. `TryWake()` returns false after native destruction.

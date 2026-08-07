@@ -12,27 +12,16 @@ public:
         }
     }
 
-    BEGIN_MSG_MAP(ResizeWindow)
-        MESSAGE_HANDLER(WM_SIZE, OnSize)
-        CHAIN_MSG_MAP(mwtl::Window<ResizeWindow>)
-    END_MSG_MAP()
-
-private:
-    LRESULT OnSize(UINT, WPARAM state, LPARAM size, BOOL& handled) {
+    mwtl::EventResult OnResize(const mwtl::ResizeEvent& event) {
         wchar_t title[128]{};
         _snwprintf_s(title, _countof(title), _TRUNCATE,
-                     L"WM_SIZE: %u × %u (state %llu)",
-                     LOWORD(size), HIWORD(size),
-                     static_cast<unsigned long long>(state));
+                     L"WM_SIZE: %ld × %ld",
+                     event.client_size.cx, event.client_size.cy);
         SetTitle(title);
-        handled = FALSE;
-        return 0;
+        return mwtl::EventResult::Propagate();
     }
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try { return mwtl::Application(instance).Run<ResizeWindow>(show_command); }
-    catch (const std::exception& error) { ::OutputDebugStringA(error.what()); }
-    catch (...) { ::OutputDebugStringW(L"Unknown exception at wWinMain.\r\n"); }
-    return EXIT_FAILURE;
+    return mwtl::RunApplication<ResizeWindow>(instance, show_command);
 }

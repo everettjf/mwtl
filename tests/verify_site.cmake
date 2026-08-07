@@ -2,6 +2,7 @@ foreach(required IN ITEMS
         index.html
         building.html
         components/application.html
+        components/controls.html
         components/window.html
         components/hello.html
         styles.css

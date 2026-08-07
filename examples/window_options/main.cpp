@@ -19,13 +19,14 @@ public:
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try {
-        mwtl::WindowOptions options;
-        options.title = L"Window options demo";
-        options.use_default_bounds = false;
-        options.initial_bounds = {{0.0_dip, 0.0_dip}, {800.0_dip, 500.0_dip}};
-        options.bounds_are_client_size = true;
-        options.center_in_work_area = true;
-        return mwtl::Application(instance).Run<OptionsWindow>(show_command, options);
-    } catch (...) { return EXIT_FAILURE; }
+    return mwtl::RunApplication<OptionsWindow>(
+        instance,
+        show_command,
+        {
+            .title = L"Window options demo",
+            .initial_bounds = {{0.0_dip, 0.0_dip}, {800.0_dip, 500.0_dip}},
+            .use_default_bounds = false,
+            .center_in_work_area = true,
+            .bounds_are_client_size = true,
+        });
 }

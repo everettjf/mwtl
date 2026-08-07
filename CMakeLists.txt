@@ -32,10 +32,12 @@ mwtl_resolve_dependencies()
 
 add_library(mwtl STATIC
     src/application.cpp
+    src/controls.cpp
     src/dpi.cpp
     src/detail/diagnostics.cpp
     src/message_pump.cpp
     src/module.cpp
+    src/timer.cpp
     src/window_options.cpp)
 add_library(mwtl::mwtl ALIAS mwtl)
 
@@ -62,6 +64,7 @@ target_link_libraries(mwtl
         WTL::WTL
         WIL::WIL
     PRIVATE
+        comctl32
         ole32)
 
 if(MWTL_BUILD_TESTS)

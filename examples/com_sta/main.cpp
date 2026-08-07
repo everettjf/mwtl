@@ -16,8 +16,9 @@ public:
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try {
-        const mwtl::ApplicationOptions options{mwtl::ComApartment::sta};
-        return mwtl::Application(instance, options).Run<ComWindow>(show_command);
-    } catch (...) { return EXIT_FAILURE; }
+    return mwtl::RunApplication<ComWindow>(
+        instance,
+        show_command,
+        {},
+        {.com_apartment = mwtl::ComApartment::sta});
 }

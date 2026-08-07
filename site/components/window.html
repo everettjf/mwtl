@@ -2,34 +2,31 @@
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="canonical" href="https://everettjf.github.io/mwtl/components/window.html"><title>Window - mwtl</title><link rel="stylesheet" href="../styles.css"></head>
 <body>
-  <header class="shell nav"><a class="brand" href="../index.html">mwtl</a><nav class="nav-links"><a href="application.html">Application</a><a href="../building.html">Build</a></nav></header>
+  <header class="shell nav"><a class="brand" href="../index.html">mwtl</a><nav class="nav-links"><a href="controls.html">Controls</a><a href="../building.html">Build</a></nav></header>
   <main class="shell prose">
     <div class="eyebrow">Component</div><h1>mwtl::Window&lt;T&gt;</h1>
-    <p>Window is the WTL CRTP main top-level window base. It keeps HWND and message maps visible and places a noexcept C++ exception boundary around the real WTL WindowProc path.</p>
-    <h2>Native message interoperability</h2>
+    <p>Window is the WTL CRTP top-level window base. C++20 <code>requires</code> expressions discover common typed handlers, while HWND access and legacy WTL message maps remain available.</p>
+    <h2>Macro-free message interoperability</h2>
     <pre><code>constexpr UINT kRefresh = WM_APP + 1;
 
 class MainWindow final : public mwtl::Window&lt;MainWindow&gt; {
 public:
     void BuildUI() { SetTitle(L"Window demo"); }
 
-    BEGIN_MSG_MAP(MainWindow)
-        MESSAGE_HANDLER(WM_LBUTTONDOWN, OnClick)
-        MESSAGE_HANDLER(kRefresh, OnRefresh)
-        CHAIN_MSG_MAP(mwtl::Window&lt;MainWindow&gt;)
-    END_MSG_MAP()
-
-private:
-    LRESULT OnClick(UINT, WPARAM, LPARAM, BOOL&amp;) {
-        return ::SendMessageW(GetHwnd(), kRefresh, 0, 0);
+    void OnLeftButtonDown(const mwtl::MouseEvent&amp;) {
+        ::SendMessageW(GetHwnd(), kRefresh, 0, 0);
     }
-    LRESULT OnRefresh(UINT, WPARAM, LPARAM, BOOL&amp;) {
-        SetTitle(L"Native message received");
-        return 0;
+
+    mwtl::EventResult OnMessage(const mwtl::WindowMessage&amp; message) {
+        if (message.id == kRefresh) {
+            SetTitle(L"Native message received");
+            return mwtl::EventResult::Handled();
+        }
+        return mwtl::EventResult::Propagate();
     }
 };</code></pre>
     <h2>Key behavior</h2>
-    <ul><li><code>BuildUI()</code> runs during WM_CREATE after the HWND is attached.</li><li><code>GetHwnd()</code> returns a non-owning native handle; <code>IsWindow()</code> observes its current validity.</li><li>A derived message map must chain back to the exact mwtl/WTL base specialization with <code>CHAIN_MSG_MAP</code>.</li><li>The old HWND is no longer exposed after WM_NCDESTROY.</li><li>A creation-stage exception fails Create; a normal-message exception triggers safe shutdown; no exception crosses the Win32 ABI.</li></ul>
+    <ul><li><code>BuildUI()</code> runs during WM_CREATE after the HWND is attached.</li><li><code>GetHwnd()</code> returns the native handle.</li><li>A void convention handler consumes its message; <code>EventResult::Propagate()</code> continues default processing.</li><li>Existing WTL message maps can still override and chain to the mwtl base.</li><li>All paths remain inside the same noexcept WindowProc boundary.</li></ul>
     <p>Repository source: <a href="https://github.com/everettjf/mwtl/tree/main/examples/window">examples/window</a></p>
   </main>
   <footer class="shell footer">Return to the <a href="../index.html#components">component catalog</a></footer>

@@ -4,13 +4,37 @@
 #include <exception>
 #include <stdexcept>
 
+using mwtl::operator""_dip;
+
 class MainWindow final : public mwtl::Window<MainWindow> {
 public:
     void BuildUI() {
         if (!SetTitle(L"mwtl hello")) {
             throw std::runtime_error("SetWindowTextW failed while building the main window");
         }
+        if (!message_.Create(
+                GetHwnd(), kMessage,
+                L"Hello from a native Windows UI with modern C++20 ergonomics.",
+                {{28.0_dip, 28.0_dip}, {520.0_dip, 34.0_dip}}) ||
+            !button_.Create(
+                GetHwnd(), kButton, L"Make it brighter",
+                {{28.0_dip, 82.0_dip}, {180.0_dip, 36.0_dip}})) {
+            throw std::runtime_error("Could not create hello controls");
+        }
     }
+
+    void OnCommand(const mwtl::CommandEvent& event) {
+        if (event.id == kButton && event.notification == BN_CLICKED) {
+            static_cast<void>(message_.SetText(
+                L"A real BUTTON HWND, dispatched without message-map macros."));
+        }
+    }
+
+private:
+    static constexpr mwtl::ControlId kMessage{100};
+    static constexpr mwtl::ControlId kButton{101};
+    mwtl::Label message_;
+    mwtl::Button button_;
 };
 
 int WINAPI wWinMain(
@@ -18,19 +42,11 @@ int WINAPI wWinMain(
     HINSTANCE,
     PWSTR,
     int show_command) {
-    try {
-        return mwtl::Application(instance).Run<MainWindow>(show_command);
-    } catch (const std::exception& error) {
-        ::OutputDebugStringA("mwtl: std::exception escaped the application boundary: ");
-        ::OutputDebugStringA(error.what());
-        ::OutputDebugStringA("\r\n");
-    } catch (...) {
-        ::OutputDebugStringW(L"mwtl: unknown exception escaped the application boundary.\r\n");
-    }
-    ::MessageBoxW(
-        nullptr,
-        L"mwtl could not start because of an unexpected error.",
-        L"mwtl startup error",
-        MB_OK | MB_ICONERROR | MB_TASKMODAL);
-    return EXIT_FAILURE;
+    return mwtl::RunApplication<MainWindow>(
+        instance,
+        show_command,
+        {
+            .initial_bounds = {{0.0_dip, 0.0_dip}, {960.0_dip, 320.0_dip}},
+            .use_default_bounds = false,
+        });
 }

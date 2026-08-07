@@ -12,28 +12,19 @@ public:
         }
     }
 
-    BEGIN_MSG_MAP(ClosePolicyWindow)
-        MESSAGE_HANDLER(WM_CLOSE, OnClose)
-        CHAIN_MSG_MAP(mwtl::Window<ClosePolicyWindow>)
-    END_MSG_MAP()
-
-private:
-    LRESULT OnClose(UINT, WPARAM, LPARAM, BOOL& handled) {
+    mwtl::EventResult OnClose() {
         if (!close_confirmed_) {
             close_confirmed_ = true;
             SetTitle(L"Close requested once — close again to confirm");
-            return 0;
+            return mwtl::EventResult::Handled();
         }
-        handled = FALSE;
-        return 0;
+        return mwtl::EventResult::Propagate();
     }
 
+private:
     bool close_confirmed_ = false;
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try { return mwtl::Application(instance).Run<ClosePolicyWindow>(show_command); }
-    catch (const std::exception& error) { ::OutputDebugStringA(error.what()); }
-    catch (...) { ::OutputDebugStringW(L"Unknown exception at wWinMain.\r\n"); }
-    return EXIT_FAILURE;
+    return mwtl::RunApplication<ClosePolicyWindow>(instance, show_command);
 }

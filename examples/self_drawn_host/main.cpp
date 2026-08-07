@@ -17,22 +17,13 @@ public:
         });
     }
 
-    BEGIN_MSG_MAP(SelfDrawnWindow)
-        MESSAGE_HANDLER(mwtl::WindowWakeup::Message(), OnRenderDirty)
-        MESSAGE_HANDLER(WM_PAINT, OnPaint)
-        CHAIN_MSG_MAP(mwtl::Window<SelfDrawnWindow>)
-    END_MSG_MAP()
-
-private:
-    LRESULT OnRenderDirty(UINT, WPARAM, LPARAM, BOOL&) noexcept {
+    void OnWakeup() noexcept {
         ++frame_;
         ::InvalidateRect(GetHwnd(), nullptr, FALSE);
-        return 0;
     }
 
-    LRESULT OnPaint(UINT, WPARAM, LPARAM, BOOL&) noexcept {
-        PAINTSTRUCT paint{};
-        const HDC dc = ::BeginPaint(GetHwnd(), &paint);
+    void OnPaint(mwtl::PaintEvent& event) noexcept {
+        const HDC dc = event.GetDC();
         if (dc != nullptr) {
             RECT client{};
             ::GetClientRect(GetHwnd(), &client);
@@ -42,19 +33,15 @@ private:
             RECT marker{x, 80, x + 120, 160};
             ::SetDCBrushColor(dc, RGB(33, 115, 190));
             ::FillRect(dc, &marker, static_cast<HBRUSH>(::GetStockObject(DC_BRUSH)));
-            ::EndPaint(GetHwnd(), &paint);
         }
-        return 0;
     }
 
+private:
     std::jthread producer_;
     unsigned frame_ = 0;
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    try {
-        mwtl::WaitAwareMessagePump pump;
-        return mwtl::Application(instance).Run<SelfDrawnWindow>(
-            show_command, mwtl::WindowOptions{}, pump);
-    } catch (...) { return EXIT_FAILURE; }
+    mwtl::WaitAwareMessagePump pump;
+    return mwtl::RunApplication<SelfDrawnWindow>(instance, show_command, pump);
 }

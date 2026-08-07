@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/mwtl-mark.svg" width="132" alt="mwtl geometric sun logo">
+  <img src="docs/images/mwtl-mark.svg" width="144" alt="mwtl celestial geometry logo">
 </p>
 
 <h1 align="center">mwtl</h1>
@@ -16,9 +16,10 @@
 </p>
 
 <p align="center">
-  <a href="#build-and-run">Build</a> ·
-  <a href="#example-gallery">Examples</a> ·
-  <a href="https://everettjf.github.io/mwtl/">Documentation</a> ·
+  <a href="#hello-world">Hello World</a> &middot;
+  <a href="#visual-quick-start">Examples</a> &middot;
+  <a href="#build-and-run">Build</a> &middot;
+  <a href="https://everettjf.github.io/mwtl/">Documentation</a> &middot;
   <a href="docs/api-0.2.md">API &amp; ownership</a>
 </p>
 
@@ -26,9 +27,91 @@
 
 The project is not a replacement for Qt, WinUI, XAML/QML, or a cross-platform/full-visual UI framework. It favors native Windows controls and does not hide HWNDs.
 
-## Current status
+## Hello World
 
-Version 0.2 extends the milestone-1 foundation with:
+This is a complete native Windows application:
+
+```cpp
+#include <mwtl/mwtl.h>
+
+class HelloWindow final : public mwtl::Window<HelloWindow> {
+public:
+    void BuildUI() {
+        SetTitle(L"Hello, world!");
+    }
+};
+
+int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
+    return mwtl::RunApplication<HelloWindow>(instance, show);
+}
+```
+
+No message-map macros, generated code, framework-owned application object, or
+hidden HWND abstraction is required. Start with one class and add native
+controls only when the window needs them.
+
+## Visual quick start
+
+The most useful visual examples put the essential code on the left and the
+actual x64 Debug window on the right. Infrastructure demos with visually empty
+windows stay in the full catalog instead of taking over the front page.
+
+<table>
+  <tr>
+    <th width="54%" align="left">Hello: native label and button</th>
+    <th width="46%" align="left">Result</th>
+  </tr>
+  <tr>
+    <td valign="top"><pre><code>void BuildUI() {
+    message_.Create(*this, {100}, L"Hello, mwtl", bounds);
+    button_.Create(*this, {101}, L"Try it", button_bounds);
+}
+
+void OnCommand(const mwtl::CommandEvent&amp; event) {
+    if (event.IsClicked(button_)) {
+        message_.SetText(L"No message-map macros.");
+    }
+}</code></pre><a href="examples/hello/main.cpp">Open the complete Hello source &rarr;</a></td>
+    <td valign="top"><a href="examples/hello/main.cpp"><img width="100%" src="docs/images/examples/hello.png" alt="Hello window with a native label and button"></a></td>
+  </tr>
+  <tr>
+    <th align="left">Native controls: a complete small form</th>
+    <th align="left">Result</th>
+  </tr>
+  <tr>
+    <td valign="top"><pre><code>void BuildUI() {
+    name_.Create(*this, {102}, L"mwtl developer", name_bounds);
+    greet_.Create(*this, {103}, L"Say hello", button_bounds);
+    enabled_.Create(*this, {104}, L"Button enabled", check_bounds);
+    accent_.Create(*this, {105}, combo_bounds);
+    progress_.Create(*this, {106}, progress_bounds);
+    heartbeat_.Start(*this, {1}, 1s);
+}
+
+void OnCommand(const mwtl::CommandEvent&amp; event) {
+    if (event.IsClicked(greet_)) {
+        status_.SetText(L"Hello, " + name_.GetText());
+    }
+}</code></pre><a href="examples/controls/main.cpp">Open the complete controls source &rarr;</a></td>
+    <td valign="top"><a href="examples/controls/main.cpp"><img width="100%" src="docs/images/examples/controls.png" alt="Native controls form with text box, buttons, combo box and progress bar"></a></td>
+  </tr>
+  <tr>
+    <th align="left">Native painting: direct GDI remains available</th>
+    <th align="left">Result</th>
+  </tr>
+  <tr>
+    <td valign="top"><pre><code>void OnPaint(mwtl::PaintEvent&amp; event) {
+    ::FillRect(event.GetDC(), &amp;client, background);
+    ::DrawTextW(event.GetDC(), text, -1, &amp;client,
+                DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+}</code></pre><a href="examples/paint/main.cpp">Open the complete painting source &rarr;</a></td>
+    <td valign="top"><a href="examples/paint/main.cpp"><img width="100%" src="docs/images/examples/paint.png" alt="Native GDI paint example"></a></td>
+  </tr>
+</table>
+
+## Capabilities and project scope
+
+The current library provides:
 
 - macro-free C++20 convention handlers discovered with `requires`;
 - typed keyboard, mouse, resize, DPI, command, timer, paint, min/max, and raw-message events;
@@ -45,7 +128,7 @@ Version 0.2 extends the milestone-1 foundation with:
   designated initializers, and `std::jthread` in the focused examples;
 - independent C++20 consumer and public-header compile checks.
 
-The original foundation provides:
+Build and runtime foundations include:
 
 - a CMake static library target named `mwtl::mwtl`;
 - pinned official WTL and WIL dependencies;
@@ -60,21 +143,6 @@ The original foundation provides:
 
 There is currently no layout system, declarative control DSL, theme/font system, general task dispatcher, Mica/backdrop, Direct2D, DirectWrite, terminal, or ConPTY abstraction. The control wrappers deliberately remain thin owners of real system HWNDs.
 
-The [`v0.2.0` development plan](docs/mwtl-0.2-plan.md) defines the
-advanced native window host: configurable HWND creation, per-window DPI,
-wait-aware message pumping, thread-safe wake-up, system lifecycle
-interoperability, and a liney-win migration spike. It does not move terminal,
-rendering, or workspace product logic into mwtl.
-
-Implementation details are recorded in the [0.2 design](docs/mwtl-0.2-design.md),
-the [API and ownership reference](docs/api-0.2.md),
-the [liney-win migration spike](docs/liney-win-migration-spike.md), and the
-[native system-message recipes](docs/system-message-recipes.md). See also the
-[0.2.0 release notes](docs/release-notes-0.2.0.md).
-Performance results and the remaining manual gates are in the
-[0.2 evidence](docs/performance-0.2.0.md) and
-[release checklist](docs/release-checklist-0.2.0.md).
-
 ## Requirements
 
 - Windows 10 version 1809 or newer, or Windows 11;
@@ -83,7 +151,8 @@ Performance results and the remaining manual gates are in the
 - CMake 3.21 or newer;
 - C++20 (`/std:c++20`) is the required and publicly propagated language standard.
 
-Milestone 1 intentionally fails during CMake configuration on non-Windows, non-MSVC, and 32-bit targets. MinGW and clang-cl are not supported.
+mwtl intentionally fails during CMake configuration on non-Windows, non-MSVC,
+and 32-bit targets. MinGW and clang-cl are not supported.
 
 ## Dependencies
 
@@ -174,74 +243,6 @@ cmake --build build/x64 --config Debug --target mwtl_native_message_demo
 
 See [examples/README.md](examples/README.md) for the complete target and run-command index.
 
-## Visual quick start
-
-The full catalog above includes infrastructure examples whose windows are
-intentionally plain. This section instead highlights the examples where the
-visible result helps explain the API. Code is on the left and its actual x64
-Debug window is on the right.
-
-<table>
-  <tr>
-    <th width="54%" align="left">Hello: one window, one label, one button</th>
-    <th width="46%" align="left">Result</th>
-  </tr>
-  <tr>
-    <td valign="top"><pre><code>class MainWindow final
-    : public mwtl::Window&lt;MainWindow&gt; {
-public:
-    void BuildUI() {
-        message_.Create(*this, {100}, L"Hello, mwtl", bounds);
-        button_.Create(*this, {101}, L"Try it", button_bounds);
-    }
-
-    void OnCommand(const mwtl::CommandEvent&amp; event) {
-        if (event.IsClicked(button_)) {
-            message_.SetText(L"No message-map macros.");
-        }
-    }
-
-private:
-    mwtl::Label message_;
-    mwtl::Button button_;
-};</code></pre><a href="examples/hello/main.cpp">Open the complete Hello source →</a></td>
-    <td valign="top"><a href="examples/hello/main.cpp"><img width="100%" src="docs/images/examples/hello.png" alt="Hello window with a native label and button"></a></td>
-  </tr>
-  <tr>
-    <th align="left">Native controls: a complete small form</th>
-    <th align="left">Result</th>
-  </tr>
-  <tr>
-    <td valign="top"><pre><code>void BuildUI() {
-    name_.Create(*this, {102}, L"mwtl developer", name_bounds);
-    greet_.Create(*this, {103}, L"Say hello", button_bounds);
-    enabled_.Create(*this, {104}, L"Button enabled", check_bounds);
-    accent_.Create(*this, {105}, combo_bounds);
-    progress_.Create(*this, {106}, progress_bounds);
-    heartbeat_.Start(*this, {1}, 1s);
-}
-
-void OnCommand(const mwtl::CommandEvent&amp; event) {
-    if (event.IsClicked(greet_)) {
-        status_.SetText(L"Hello, " + name_.GetText());
-    }
-}</code></pre><a href="examples/controls/main.cpp">Open the complete controls source →</a></td>
-    <td valign="top"><a href="examples/controls/main.cpp"><img width="100%" src="docs/images/examples/controls.png" alt="Native controls form with text box, buttons, combo box and progress bar"></a></td>
-  </tr>
-  <tr>
-    <th align="left">Native painting: direct GDI remains available</th>
-    <th align="left">Result</th>
-  </tr>
-  <tr>
-    <td valign="top"><pre><code>void OnPaint(mwtl::PaintEvent&amp; event) {
-    ::FillRect(event.GetDC(), &amp;client, background);
-    ::DrawTextW(event.GetDC(), text, -1, &amp;client,
-                DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-}</code></pre><a href="examples/paint/main.cpp">Open the complete painting source →</a></td>
-    <td valign="top"><a href="examples/paint/main.cpp"><img width="100%" src="docs/images/examples/paint.png" alt="Native GDI paint example"></a></td>
-  </tr>
-</table>
-
 ## Tests
 
 `MWTL_BUILD_TESTS` defaults on for a top-level build and off when mwtl is embedded. The test suite covers:
@@ -266,24 +267,16 @@ The documentation site source is in [site/](site/). It includes a landing page, 
 
 After the repository is public, open **Settings → Pages**, select **GitHub Actions** as the source, then run the **Deploy GitHub Pages** workflow or push a change under `site/` to `main`. No Jekyll or Node build is required.
 
-## Minimal application
+## Development documents
 
-```cpp
-#include <mwtl/mwtl.h>
-
-class MainWindow final : public mwtl::Window<MainWindow> {
-public:
-    void BuildUI() { SetTitle(L"mwtl Demo"); }
-};
-
-int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
-    return mwtl::RunApplication<MainWindow>(instance, show_command);
-}
-```
-
-`BuildUI` runs during `WM_CREATE`, after the HWND is attached. `RunApplication`
-owns the `Application`, module, message loop, and ABI exception boundary. The
-HWND remains directly available through `GetHwnd()`.
+Release history and implementation evidence live below the getting-started
+material: [development plan](docs/mwtl-0.2-plan.md),
+[design](docs/mwtl-0.2-design.md), [API and ownership](docs/api-0.2.md),
+[liney-win migration spike](docs/liney-win-migration-spike.md),
+[system-message recipes](docs/system-message-recipes.md),
+[release notes](docs/release-notes-0.2.0.md),
+[performance evidence](docs/performance-0.2.0.md), and the
+[release checklist](docs/release-checklist-0.2.0.md).
 
 ## Modern event handlers
 

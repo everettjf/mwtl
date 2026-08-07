@@ -1,5 +1,6 @@
 file(READ "${PROJECT_ROOT}/CMakeLists.txt" cmake_text)
 file(READ "${PROJECT_ROOT}/CHANGELOG.md" changelog_text)
+file(READ "${PROJECT_ROOT}/.github/workflows/release.yml" release_workflow_text)
 
 string(REGEX MATCH "project\\(mwtl VERSION ([0-9]+\\.[0-9]+\\.[0-9]+)" _ "${cmake_text}")
 set(project_version "${CMAKE_MATCH_1}")
@@ -12,4 +13,7 @@ endif()
 if(NOT EXISTS "${PROJECT_ROOT}/cmake/mwtlConfig.cmake.in" OR
    NOT EXISTS "${PROJECT_ROOT}/.github/workflows/release.yml")
     message(FATAL_ERROR "Release package metadata is incomplete")
+endif()
+if(NOT release_workflow_text MATCHES [["artifacts/\$\(\$_.Name\)"]])
+    message(FATAL_ERROR "Release assets must use a portable forward-slash path")
 endif()

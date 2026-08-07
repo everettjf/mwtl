@@ -27,6 +27,8 @@
         <a href="#application">Application</a>
         <a href="#window">Window</a>
         <a href="#timer">Timer</a>
+        <a href="#desktop">Desktop integration</a>
+        <a href="#hot-corners">Hot corners</a>
         <span>Basic controls</span>
         <a href="#form-controls">Form controls</a>
         <a href="#events">Command events</a>
@@ -83,14 +85,41 @@ mwtl::EventResult OnTimer(mwtl::TimerId id) override {
 }</code></pre></div>
       </section>
 
+      <section id="desktop" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Foundation</span><h2>Desktop integration</h2></div><p>Owned native menus and accelerators, system file/folder dialogs, Unicode clipboard, shell drops, persistent placement, DPI fonts, focus navigation, and typed notifications.</p></div>
+        <div class="code-panel compact"><pre><code>mwtl::Menu bar, file;
+bar.Create();
+file.CreatePopup();
+file.AppendCommand(100, L"Open\tCtrl+O");
+bar.AppendSubmenu(std::move(file), L"File");
+bar.AttachToWindow(GetHwnd());
+
+const auto picked = mwtl::ShowOpenFileDialog({.owner = GetHwnd()});
+if (picked.accepted) Open(picked.path);</code></pre></div>
+      </section>
+
+      <section id="hot-corners" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Reference utility</span><h2>Multi-monitor Hot Corners</h2></div><p>A complete utility that uses every monitor's absolute virtual-desktop rectangle, including negative coordinates and mixed resolutions.</p></div>
+        <div class="example-grid">
+          <div class="code-panel"><div class="panel-label">Per-monitor detection</div><pre><code>EnumDisplayMonitors(nullptr, nullptr, CollectMonitor, data);
+GetCursorPos(&cursor);
+
+const auto hit = hot_corners::Detect(cursor, monitors, 2);
+const auto fired = dwell.Update(hit, GetTickCount64(), 350);
+if (fired) Activate(*fired);</code></pre></div>
+          <figure class="preview-panel"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/hot-corners.png" alt="mwtl multi-monitor Hot Corners utility"><figcaption>Four actions on every attached monitor, with display-change refresh and one-shot dwell behavior.</figcaption></figure>
+        </div>
+      </section>
+
       <section id="form-controls" class="doc-section">
         <div class="doc-heading"><div><span class="tag">Basic controls</span><h2>Native form controls</h2></div><p>Label, Button, TextBox, CheckBox, RadioButton, GroupBox, ComboBox, ListBox, ProgressBar, Slider, and ScrollBar.</p></div>
         <div class="example-grid">
-          <div class="code-panel"><div class="panel-label">Create and configure</div><pre><code>name_.Create(*this, {102}, L"mwtl developer", name_bounds);
-greet_.Create(*this, {103}, L"Say hello", button_bounds);
-enabled_.Create(*this, {104}, L"Button enabled", check_bounds);
-accent_.Create(*this, {105}, combo_bounds);
-progress_.Create(*this, {106}, progress_bounds);
+          <div class="code-panel"><div class="panel-label">Create and configure</div><pre><code>mwtl::ControlHost ui{*this};
+ui.Add(name_, {102}, L"mwtl developer", name_bounds);
+ui.Add(greet_, {103}, L"Say hello", button_bounds);
+ui.Add(enabled_, {104}, L"Button enabled", check_bounds);
+ui.Add(accent_, {105}, combo_bounds);
+ui.Add(progress_, {106}, progress_bounds);
 
 accent_.AddItem(L"Sky blue");
 progress_.SetRange(0, 100);

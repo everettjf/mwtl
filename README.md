@@ -23,6 +23,8 @@
   <a href="docs/api-0.2.md">API &amp; ownership</a>
 </p>
 
+See also the [0.3 desktop and packaging APIs](docs/api-0.3.md).
+
 `mwtl` is a lightweight, Windows-only modern C++ foundation built on ATL/WTL and Microsoft WIL. It keeps native HWND and Win32 message interoperability while reducing application/bootstrap boilerplate and making lifetime and error boundaries explicit.
 
 The project is not a replacement for Qt, WinUI, XAML/QML, or a cross-platform/full-visual UI framework. It favors native Windows controls and does not hide HWNDs.
@@ -63,8 +65,9 @@ windows stay in the full catalog instead of taking over the front page.
   </tr>
   <tr>
     <td valign="top"><pre><code>void BuildUI() {
-    message_.Create(*this, {100}, L"Hello, mwtl", bounds);
-    button_.Create(*this, {101}, L"Try it", button_bounds);
+    mwtl::ControlHost ui{*this};
+    ui.Add(message_, {100}, L"Hello, mwtl", bounds);
+    ui.Add(button_, {101}, L"Try it", button_bounds);
 }
 
 mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
@@ -136,6 +139,13 @@ mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
   </tr>
 </table>
 
+The `hot_corners` reference is a complete utility rather than a control
+gallery. It watches all monitor rectangles in virtual-desktop coordinates, so
+secondary displays, negative origins, mixed resolutions, and display changes
+do not fall back to primary-monitor edge assumptions.
+
+[![Multi-monitor Hot Corners utility](docs/images/examples/hot-corners.png)](examples/hot_corners/main.cpp)
+
 ## Capabilities and project scope
 
 The current library provides:
@@ -156,7 +166,11 @@ The current library provides:
 - optional application-owned STA/MTA COM initialization;
 - a C++20 public API using concepts, `std::span`, three-way comparison,
   designated initializers, and `std::jthread` in the focused examples;
-- independent C++20 consumer and public-header compile checks.
+- independent C++20 consumer and public-header compile checks;
+- installable `find_package` exports and CPack ZIP packages;
+- native menus/accelerators, system file and folder dialogs, Unicode clipboard,
+  shell file drops, persistent monitor-safe placement, DPI fonts, focus
+  navigation, and typed `WM_NOTIFY` dispatch.
 
 Build and runtime foundations include:
 
@@ -177,7 +191,7 @@ There is currently no layout system, declarative control DSL, theme/font system,
 ## Requirements
 
 - Windows 10 version 1809 or newer, or Windows 11;
-- x64 or ARM64;
+- x64;
 - Visual Studio 2022 or newer with the MSVC C++ desktop tools, Windows SDK, and C++ ATL component;
 - CMake 3.21 or newer;
 - C++20 (`/std:c++20`) is the required and publicly propagated language standard.
@@ -199,6 +213,26 @@ cmake -S . -B build/x64 `
 ```
 
 An embedding project may instead define `WTL::WTL` and `WIL::WIL` targets before calling `add_subdirectory(mwtl)`. If either target is already present, mwtl uses it and does not fetch that dependency. It never searches silently for an unidentified system copy.
+
+## Install and consume
+
+Install a Release build to a prefix:
+
+```powershell
+cmake --build build/x64 --config Release
+cmake --install build/x64 --config Release --prefix C:/deps/mwtl
+```
+
+An installed consumer uses the exported package target:
+
+```cmake
+find_package(mwtl 0.3 CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE mwtl::mwtl)
+```
+
+Set `CMAKE_PREFIX_PATH=C:/deps/mwtl` when configuring the consumer. The package
+retains the same immutable WTL and WIL dependency policy as a source build.
+Tagged releases also produce a ZIP package through CPack.
 
 ## Build and run
 
@@ -228,19 +262,11 @@ ctest --test-dir build/x64 -C Release --output-on-failure
 ./build/x64/examples/hello/Release/mwtl_hello.exe
 ```
 
-On a machine with the MSVC ARM64 compiler, ARM64 ATL libraries, and ARM64 Windows SDK libraries installed:
-
-```powershell
-cmake -S . -B build/arm64 -G "Visual Studio 18 2026" -A ARM64
-cmake --build build/arm64 --config Debug --verbose
-cmake --build build/arm64 --config Release --verbose
-```
-
 When mwtl is included with `add_subdirectory`, examples and tests default to off. Set `MWTL_BUILD_EXAMPLES=ON` or `MWTL_BUILD_TESTS=ON` explicitly when the parent wants them.
 
 ## Component examples
 
-The repository contains **21 independently buildable GUI examples**. They are all managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++20, warning, and Per-Monitor V2 manifest setup. Every name and screenshot below links directly to its complete `main.cpp`.
+The repository contains **22 independently buildable GUI examples**. They are all managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++20, warning, and Per-Monitor V2 manifest setup. Every name and screenshot below links directly to its complete `main.cpp`.
 
 | Component | Directory | CMake target | Demonstrates |
 |---|---|---|---|
@@ -258,6 +284,7 @@ The repository contains **21 independently buildable GUI examples**. They are al
 | Window state | [`examples/window_state`](examples/window_state/main.cpp) | `mwtl_window_state_demo` | Restored, minimized, and maximized state from `WM_SIZE` |
 | DPI | [`examples/dpi`](examples/dpi/main.cpp) | `mwtl_dpi_demo` | Per-window DPI and `WM_DPICHANGED` |
 | Window options | [`examples/window_options`](examples/window_options/main.cpp) | `mwtl_window_options_demo` | Class traits, styles, DIP client size and centering |
+| Hot corners | [`examples/hot_corners`](examples/hot_corners/main.cpp) | `mwtl_hot_corners_demo` | Correct per-monitor corner detection across the virtual desktop |
 | Wait-aware pump | [`examples/wait_aware`](examples/wait_aware/main.cpp) | `mwtl_wait_aware_demo` | Non-busy message/timer waiting |
 | Safe wake-up | [`examples/wakeup`](examples/wakeup/main.cpp) | `mwtl_wakeup_demo` | Worker-to-HWND lifetime-safe wake notification |
 | COM STA | [`examples/com_sta`](examples/com_sta/main.cpp) | `mwtl_com_sta_demo` | Optional COM apartment lifecycle |
@@ -291,7 +318,7 @@ See [examples/README.md](examples/README.md) for the complete target and run-com
   wait-handle dispatch, callback exception containment, 2,000-message wake-up
   bursts, idle CPU behavior, and a liney-style native host fixture.
 
-The repository CI workflow builds and tests x64 Debug and Release and separately cross-builds Debug and Release for ARM64.
+The repository CI workflow builds and tests x64 Debug and Release. ARM64 is intentionally deferred until it has a maintained validation environment.
 
 ## GitHub Pages
 

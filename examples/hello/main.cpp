@@ -12,15 +12,14 @@ public:
         if (!SetTitle(L"mwtl hello")) {
             throw std::runtime_error("SetWindowTextW failed while building the main window");
         }
-        if (!message_.Create(
-                *this, kMessage,
-                L"Hello from a native Windows UI with modern C++20 ergonomics.",
-                {{28.0_dip, 28.0_dip}, {520.0_dip, 34.0_dip}}) ||
-            !button_.Create(
-                *this, kButton, L"Make it brighter",
-                {{28.0_dip, 82.0_dip}, {180.0_dip, 36.0_dip}})) {
-            throw std::runtime_error("Could not create hello controls");
-        }
+        mwtl::ControlHost ui{*this};
+        ui.Add(
+            message_, kMessage,
+            L"Hello from a native Windows UI with modern C++20 ergonomics.",
+            {{28.0_dip, 28.0_dip}, {520.0_dip, 34.0_dip}});
+        ui.Add(
+            button_, kButton, L"Make it brighter",
+            {{28.0_dip, 82.0_dip}, {180.0_dip, 36.0_dip}});
     }
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {

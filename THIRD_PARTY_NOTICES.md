@@ -5,8 +5,8 @@ mwtl is an independent project. Microsoft and the upstream WTL and WIL projects 
 ## Windows Template Library (WTL)
 
 - Official repository: <https://git.code.sf.net/p/wtl/git>
-- Release tag: `Release_10.0`
-- Locked commit: `0e39a4d013fc56a854cb6f64dddee582db5601ab`
+- Release version: `10.01` (upstream does not publish a corresponding Git tag)
+- Locked commit: `011be908a1122e7bc9fd1106ecc48f22f5f86f00`
 - License: Microsoft Public License (Ms-PL)
 - Upstream license notice: each distributed WTL header contains the Ms-PL notice and links to <https://opensource.org/license/ms-pl-html>
 - Acquisition: CMake `FetchContent`, or a caller-provided `WTL::WTL` target / `MWTL_WTL_SOURCE_DIR`

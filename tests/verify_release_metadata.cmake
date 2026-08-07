@@ -1,0 +1,15 @@
+file(READ "${PROJECT_ROOT}/CMakeLists.txt" cmake_text)
+file(READ "${PROJECT_ROOT}/CHANGELOG.md" changelog_text)
+
+string(REGEX MATCH "project\\(mwtl VERSION ([0-9]+\\.[0-9]+\\.[0-9]+)" _ "${cmake_text}")
+set(project_version "${CMAKE_MATCH_1}")
+if(project_version STREQUAL "")
+    message(FATAL_ERROR "Could not read the mwtl project version")
+endif()
+if(NOT changelog_text MATCHES "## ${project_version} - (Unreleased|[0-9]{4}-[0-9]{2}-[0-9]{2})")
+    message(FATAL_ERROR "CHANGELOG does not contain project version ${project_version}")
+endif()
+if(NOT EXISTS "${PROJECT_ROOT}/cmake/mwtlConfig.cmake.in" OR
+   NOT EXISTS "${PROJECT_ROOT}/.github/workflows/release.yml")
+    message(FATAL_ERROR "Release package metadata is incomplete")
+endif()

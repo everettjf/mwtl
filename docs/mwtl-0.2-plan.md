@@ -28,7 +28,7 @@ The intended boundary is:
 
 - Windows 10 version 1809 and newer, and Windows 11.
 - MSVC with Visual Studio 2022 or a later toolset explicitly verified by CI.
-- x64 and ARM64.
+- x64. ARM64 is deferred until a maintained validation environment is available.
 - C++20 is the public minimum and default language standard.
 - C++20 consumers such as liney-win can use concepts, spans, designated
   initializers, and standard stop tokens without an adapter layer.
@@ -293,7 +293,7 @@ Deliverables:
 Exit gate:
 
 - all 0.1 examples build without source changes;
-- x64 Debug/Release and ARM64 compile/link CI are green;
+- x64 Debug/Release CI is green;
 - baseline measurements are committed and reproducible.
 
 ### WP1 — DPI value types and context
@@ -446,7 +446,6 @@ large patch.
 | Area | Required verification |
 |---|---|
 | x64 | Debug and Release configure, compile, link, and CTest |
-| ARM64 | Debug and Release configure, compile, and link |
 | Language | Public library, headers, examples, and consumer fixture compile with `/std:c++20` |
 | Headers | Every public header independently compiles without a PCH |
 | DPI | Conversion unit tests plus actual monitor-transition smoke tests |
@@ -463,8 +462,7 @@ large patch.
 | Reference app | liney-win unit, visual, smoke, soak, accessibility, and compatibility gates |
 
 “Static review” and “runtime verified” must remain separate result categories.
-An x64 result does not imply ARM64 success, and simulated DPI conversion tests
-do not replace an actual monitor-transition run.
+Simulated DPI conversion tests do not replace an actual monitor-transition run.
 
 ## 8. Performance gates
 
@@ -525,7 +523,6 @@ implemented without importing terminal/workspace semantics.
 - no required result is represented only by a code review when the matrix calls
   for runtime verification;
 - x64 Debug and Release are green locally and in CI;
-- ARM64 Debug and Release compile/link in CI;
 - C++20 evidence is present in build logs;
 - all public headers independently compile;
 - the wait-aware pump passes stress and lost-wakeup tests;

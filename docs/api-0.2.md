@@ -71,7 +71,14 @@ Existing WTL maps may override it and chain to `Window<T>`.
 ## Native controls and timer
 
 Label, Button, TextBox, CheckBox, RadioButton, GroupBox, ComboBox, ListBox,
-ProgressBar, and Slider wrap standard system child windows. They accept DIP
+ProgressBar, Slider, and ScrollBar wrap standard system child windows. The
+specialized wrappers cover TreeView, ListView, Header, TabControl, ComboBoxEx,
+DateTimePicker, MonthCalendar, HotKey, IpAddress, UpDown, SysLink, Toolbar,
+StatusBar, Rebar, Pager, Animation, and Tooltip. `ImageList` is move-only RAII;
+`ShowTaskDialog` models the modal result; Flat Scroll Bar initialization remains
+an explicit opt-in function. Together these map the Microsoft Control Library
+families without hiding the native handles or pretending that every style is a
+new C++ type. Child controls accept DIP
 bounds, own their HWND while valid, and
 expose it through `GetHwnd()`. `CommandEvent` retains the native control ID,
 notification code, and child HWND. `UiTimer::Start` accepts `TimerId` and

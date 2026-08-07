@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added thin native wrappers for every specialized Microsoft Control Library
+  family, including TreeView, ListView, Toolbar, DateTimePicker, MonthCalendar,
+  Rebar, Pager, TaskDialog, Tooltip, ImageList, and Flat Scroll Bar integration.
+- Added a populated Common Controls gallery, runtime creation coverage,
+  independent public-header checks, and a front-page screenshot.
 - Expanded the native controls set with GroupBox, RadioButton, ListBox, and
   Slider; the controls gallery and runtime test now instantiate all ten public
   wrappers.
@@ -15,8 +20,8 @@
 - Added the RAII `UiTimer` wrapper with `std::chrono` intervals and automatic
   cancellation.
 - Added `RunApplication` for a one-line, ABI-safe application entry point.
-- Converted every example to the macro-free API and added a controls gallery,
-  bringing the executable example catalog to 20 programs.
+- Converted every example to the macro-free API and added control galleries,
+  bringing the executable example catalog to 21 programs.
 - Added C++20 window-like overloads for controls and timers plus direct
   `CommandEvent::IsClicked(control)` matching to remove routine HWND and
   notification boilerplate.

@@ -1,0 +1,1 @@
+mwtl_add_example(mwtl_common_controls_demo main.cpp)

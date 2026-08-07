@@ -32,7 +32,11 @@ mwtl_resolve_dependencies()
 
 add_library(mwtl STATIC
     src/application.cpp
+    src/command_controls.cpp
+    src/control_resources.cpp
     src/controls.cpp
+    src/input_controls.cpp
+    src/navigation_controls.cpp
     src/dpi.cpp
     src/detail/diagnostics.cpp
     src/message_pump.cpp

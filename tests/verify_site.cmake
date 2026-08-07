@@ -3,6 +3,7 @@ foreach(required IN ITEMS
         building.html
         components/application.html
         components/controls.html
+        components/common-controls.html
         components/window.html
         components/hello.html
         styles.css

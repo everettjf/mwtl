@@ -287,4 +287,19 @@ public:
     [[nodiscard]] int GetValue() const noexcept;
 };
 
+struct ScrollBarOptions {
+    DWORD style = WS_CHILD | WS_VISIBLE | WS_TABSTOP | SBS_HORZ;
+    DWORD extended_style = 0;
+};
+
+class ScrollBar final : public NativeControl {
+public:
+    [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ScrollBarOptions options = {});
+    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ScrollBarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
+    void SetRange(int minimum, int maximum) noexcept;
+    void SetValue(int value) noexcept;
+    [[nodiscard]] int GetValue() const noexcept;
+};
+
 }  // namespace mwtl

@@ -344,4 +344,11 @@ int Slider::GetValue() const noexcept {
     return IsWindow() ? static_cast<int>(::SendMessageW(GetHwnd(), TBM_GETPOS, 0, 0)) : 0;
 }
 
+bool ScrollBar::Create(HWND parent, ControlId id, RectDip bounds, ScrollBarOptions options) {
+    return CreateNative(L"SCROLLBAR", parent, id, L"", bounds, options.style, options.extended_style);
+}
+void ScrollBar::SetRange(int minimum, int maximum) noexcept { if (IsWindow()) ::SetScrollRange(GetHwnd(), SB_CTL, minimum, maximum, TRUE); }
+void ScrollBar::SetValue(int value) noexcept { if (IsWindow()) ::SetScrollPos(GetHwnd(), SB_CTL, value, TRUE); }
+int ScrollBar::GetValue() const noexcept { return IsWindow() ? ::GetScrollPos(GetHwnd(), SB_CTL) : 0; }
+
 }  // namespace mwtl

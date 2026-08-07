@@ -1,6 +1,6 @@
 # mwtl examples
 
-The repository includes 20 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path. Common messages use C++20 convention handlers rather than message-map macros.
+The repository includes 21 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path. Common messages use C++20 convention handlers rather than message-map macros.
 
 | Directory | Target | Focus |
 |---|---|---|
@@ -22,6 +22,7 @@ The repository includes 20 focused executables. Each example is intentionally sm
 | `wakeup` | `mwtl_wakeup_demo` | A lifetime-safe worker-to-window wake token |
 | `com_sta` | `mwtl_com_sta_demo` | Application-owned COM STA initialization and cleanup |
 | `controls` | `mwtl_controls_demo` | All ten supported wrappers: text, buttons, grouping, choices, list, progress, slider, commands, and timer |
+| `common_controls` | `mwtl_common_controls_demo` | TreeView, ListView, Toolbar, DateTimePicker, and every specialized Common Controls family |
 | `self_drawn_host` | `mwtl_self_drawn_host_demo` | Worker-driven dirty frames, GDI paint, wake token, and wait-aware pump |
 | `system_lifecycle` | `mwtl_system_lifecycle_demo` | Power, display, settings, IME, end-session, and accessibility hand-off messages |
 

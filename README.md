@@ -81,6 +81,25 @@ mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
     <th align="left">Result</th>
   </tr>
   <tr>
+    <th align="left">Windows Common Controls: the complete specialized gallery</th>
+    <th align="left">Result</th>
+  </tr>
+  <tr>
+    <td valign="top"><pre><code>void BuildUI() override {
+    toolbar_.Create(rebar_, {201}, toolbar_bounds);
+    tree_.Create(*this, {202}, tree_bounds);
+    list_.Create(*this, {203}, list_bounds);
+    date_.Create(*this, {207}, date_bounds);
+    calendar_.Create(*this, {208}, calendar_bounds);
+
+    const auto root = tree_.AddItem(L"Common Controls");
+    tree_.AddItem(L"Navigation", root);
+    list_.AddColumn(L"Control", 170);
+    list_.AddItem(L"ListView");
+}</code></pre><a href="examples/common_controls/main.cpp">Open the complete Common Controls source &rarr;</a></td>
+    <td valign="top"><a href="examples/common_controls/main.cpp"><img width="100%" src="docs/images/examples/common-controls.png" alt="Windows Common Controls gallery with TreeView, ListView, Toolbar, DateTimePicker, MonthCalendar and other native controls"></a></td>
+  </tr>
+  <tr>
     <td valign="top"><pre><code>void BuildUI() {
     name_.Create(*this, {102}, L"mwtl developer", name_bounds);
     greet_.Create(*this, {103}, L"Say hello", button_bounds);
@@ -124,8 +143,10 @@ The current library provides:
 - macro-free C++20 convention handlers discovered with `requires`;
 - typed keyboard, mouse, resize, DPI, command, timer, paint, min/max, and raw-message events;
 - RAII `UiTimer` with `std::chrono` intervals;
-- ten native wrappers: Label, Button, TextBox, CheckBox, RadioButton, GroupBox,
-  ComboBox, ListBox, ProgressBar, and Slider;
+- the full Microsoft Control Library family surface: standard form controls plus
+  TreeView, ListView, Header, TabControl, ComboBoxEx, DateTimePicker,
+  MonthCalendar, HotKey, IpAddress, UpDown, SysLink, Toolbar, StatusBar, Rebar,
+  Pager, Animation, Tooltip, ScrollBar, ImageList, TaskDialog, and Flat Scroll Bar;
 - one-line `RunApplication<MainWindow>()` process startup;
 - DIP geometry conversion and per-window `DpiContext`;
 - configurable class traits, styles, icons/cursor/background, and initial bounds;
@@ -219,7 +240,7 @@ When mwtl is included with `add_subdirectory`, examples and tests default to off
 
 ## Component examples
 
-The repository contains **20 independently buildable GUI examples**. They are all managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++20, warning, and Per-Monitor V2 manifest setup. Every name and screenshot below links directly to its complete `main.cpp`.
+The repository contains **21 independently buildable GUI examples**. They are all managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++20, warning, and Per-Monitor V2 manifest setup. Every name and screenshot below links directly to its complete `main.cpp`.
 
 | Component | Directory | CMake target | Demonstrates |
 |---|---|---|---|
@@ -241,6 +262,7 @@ The repository contains **20 independently buildable GUI examples**. They are al
 | Safe wake-up | [`examples/wakeup`](examples/wakeup/main.cpp) | `mwtl_wakeup_demo` | Worker-to-HWND lifetime-safe wake notification |
 | COM STA | [`examples/com_sta`](examples/com_sta/main.cpp) | `mwtl_com_sta_demo` | Optional COM apartment lifecycle |
 | Native controls | [`examples/controls`](examples/controls/main.cpp) | `mwtl_controls_demo` | Every supported control: text, buttons, choices, lists, progress, slider, commands, and timer |
+| Common Controls | [`examples/common_controls`](examples/common_controls/main.cpp) | `mwtl_common_controls_demo` | All specialized Windows Common Controls families in one populated native gallery |
 | Self-drawn host | [`examples/self_drawn_host`](examples/self_drawn_host/main.cpp) | `mwtl_self_drawn_host_demo` | Dirty-frame wake-up, native GDI and wait-aware pumping |
 | System lifecycle | [`examples/system_lifecycle`](examples/system_lifecycle/main.cpp) | `mwtl_system_lifecycle_demo` | Power/display/settings/IME/end-session/accessibility messages |
 

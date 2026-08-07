@@ -17,6 +17,7 @@ set(example_names
     wakeup
     com_sta
     controls
+    common_controls
     self_drawn_host
     system_lifecycle)
 
@@ -24,7 +25,12 @@ file(READ "${PROJECT_ROOT}/README.md" root_readme)
 file(READ "${PROJECT_ROOT}/examples/README.md" examples_readme)
 file(READ "${PROJECT_ROOT}/examples/CMakeLists.txt" examples_cmake)
 file(READ "${PROJECT_ROOT}/include/mwtl/controls.h" controls_header)
+file(READ "${PROJECT_ROOT}/include/mwtl/navigation_controls.h" navigation_controls_header)
+file(READ "${PROJECT_ROOT}/include/mwtl/input_controls.h" input_controls_header)
+file(READ "${PROJECT_ROOT}/include/mwtl/command_controls.h" command_controls_header)
+file(READ "${PROJECT_ROOT}/include/mwtl/control_resources.h" control_resources_header)
 file(READ "${PROJECT_ROOT}/examples/controls/main.cpp" controls_example)
+file(READ "${PROJECT_ROOT}/examples/common_controls/main.cpp" common_controls_example)
 
 set(public_control_types
     Label Button TextBox CheckBox RadioButton GroupBox ComboBox ListBox
@@ -35,6 +41,28 @@ foreach(control_type IN LISTS public_control_types)
     endif()
     if(NOT controls_example MATCHES "mwtl::${control_type}")
         message(FATAL_ERROR "controls example does not instantiate: ${control_type}")
+    endif()
+endforeach()
+
+set(specialized_control_types
+    TreeView ListView Header TabControl ComboBoxEx DateTimePicker MonthCalendar
+    HotKey IpAddress UpDown SysLink Toolbar StatusBar Rebar Pager Animation
+    Tooltip ImageList)
+set(all_specialized_headers "${navigation_controls_header}${input_controls_header}${command_controls_header}${control_resources_header}")
+foreach(control_type IN LISTS specialized_control_types)
+    if(NOT all_specialized_headers MATCHES "class ${control_type} final")
+        message(FATAL_ERROR "specialized control wrapper is missing: ${control_type}")
+    endif()
+    if(NOT common_controls_example MATCHES "mwtl::${control_type}")
+        message(FATAL_ERROR "common controls example does not instantiate: ${control_type}")
+    endif()
+endforeach()
+foreach(function_name IN ITEMS ShowTaskDialog InitializeFlatScrollBars)
+    if(NOT control_resources_header MATCHES "${function_name}")
+        message(FATAL_ERROR "common controls function is missing: ${function_name}")
+    endif()
+    if(NOT common_controls_example MATCHES "mwtl::${function_name}")
+        message(FATAL_ERROR "common controls example does not call: ${function_name}")
     endif()
 endforeach()
 
@@ -66,7 +94,7 @@ endforeach()
 
 # Keep every capture on disk for reference, but feature only visually useful
 # examples in the README instead of showing nearly blank infrastructure windows.
-set(featured_images hello controls paint)
+set(featured_images hello controls common_controls paint)
 foreach(example_name IN LISTS featured_images)
     string(REPLACE "_" "-" image_slug "${example_name}")
     set(image_path "docs/images/examples/${image_slug}.png")
@@ -83,6 +111,6 @@ if(NOT root_readme MATCHES "docs/images/mwtl-mark.svg")
 endif()
 
 list(LENGTH example_names example_count)
-if(example_count LESS 20)
-    message(FATAL_ERROR "fewer than 20 examples are cataloged")
+if(example_count LESS 21)
+    message(FATAL_ERROR "fewer than 21 examples are cataloged")
 endif()

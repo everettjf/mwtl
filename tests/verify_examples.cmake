@@ -19,7 +19,8 @@ set(example_names
     controls
     common_controls
     self_drawn_host
-    system_lifecycle)
+    system_lifecycle
+    hot_corners)
 
 file(READ "${PROJECT_ROOT}/README.md" root_readme)
 file(READ "${PROJECT_ROOT}/examples/README.md" examples_readme)

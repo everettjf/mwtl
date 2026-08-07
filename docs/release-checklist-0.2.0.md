@@ -13,7 +13,7 @@
 - [x] README, Pages, design, recipes, upgrade notes and changelog synchronized.
 - [ ] Actual multi-monitor 125/150/200% transitions (test host has one 96-DPI monitor).
 - [ ] Full liney-win product migration/quality suite (Zig 0.15.2 is absent).
-- [ ] ARM64 local build (explicitly excluded from this x64-focused run).
+- [x] Release scope is x64-only; ARM64 support is deferred.
 
 The unchecked product/environment gates prevent claiming a fully validated
 release candidate; they do not indicate an x64 mwtl build or test failure.

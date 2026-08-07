@@ -1,7 +1,21 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 - 2026-08-07
 
+- Narrowed the currently supported architecture to x64; ARM64 is deferred until
+  it has a maintained validation environment.
+- Added an installable CMake package, an installed `find_package` consumer
+  regression test, ZIP packaging, and a tag-driven release workflow.
+- Added native menus and accelerators, file/folder dialogs, Unicode clipboard,
+  shell file drops, persistent monitor-safe placement, DPI message fonts,
+  focus navigation, and typed `WM_NOTIFY` helpers.
+- Added a complete multi-monitor Hot Corners utility with per-screen/per-corner
+  actions, configurable dwell/tolerance, tray and fullscreen pause, persistence,
+  and a no-input self-test mode.
+- Added `ControlHost`, a concise throwing control-creation syntax that binds the
+  parent once while retaining explicit member lifetime, IDs, DIP bounds, native
+  option structs, handles, and the existing non-throwing `Create` API.
+- Updated the pinned Windows Template Library dependency from 10.0 to 10.01.
 - Added thin native wrappers for every specialized Microsoft Control Library
   family, including TreeView, ListView, Toolbar, DateTimePicker, MonthCalendar,
   Rebar, Pager, TaskDialog, Tooltip, ImageList, and Flat Scroll Bar integration.
@@ -21,7 +35,7 @@
   cancellation.
 - Added `RunApplication` for a one-line, ABI-safe application entry point.
 - Converted every example to the macro-free API and added control galleries,
-  bringing the executable example catalog to 21 programs.
+  bringing the executable example catalog to 22 programs.
 - Added C++20 window-like overloads for controls and timers plus direct
   `CommandEvent::IsClicked(control)` matching to remove routine HWND and
   notification boilerplate.

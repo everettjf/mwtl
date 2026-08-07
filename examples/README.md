@@ -1,6 +1,6 @@
 # mwtl examples
 
-The repository includes 21 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path. Common messages use C++20 convention handlers rather than message-map macros.
+The repository includes 22 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path. Common messages use C++20 convention handlers rather than message-map macros.
 
 | Directory | Target | Focus |
 |---|---|---|
@@ -25,6 +25,7 @@ The repository includes 21 focused executables. Each example is intentionally sm
 | `common_controls` | `mwtl_common_controls_demo` | TreeView, ListView, Toolbar, DateTimePicker, and every specialized Common Controls family |
 | `self_drawn_host` | `mwtl_self_drawn_host_demo` | Worker-driven dirty frames, GDI paint, wake token, and wait-aware pump |
 | `system_lifecycle` | `mwtl_system_lifecycle_demo` | Power, display, settings, IME, end-session, and accessibility hand-off messages |
+| `hot_corners` | `mwtl_hot_corners_demo` | Multi-monitor hot corners using virtual-desktop coordinates and dwell detection |
 
 Configure with `MWTL_BUILD_EXAMPLES=ON`, then build one target or all targets:
 

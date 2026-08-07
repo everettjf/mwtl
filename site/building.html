@@ -22,11 +22,14 @@ ctest --test-dir build/x64 -C Debug --output-on-failure</code></pre>
     <pre><code>build\x64\examples\application\Debug\mwtl_application_demo.exe
 build\x64\examples\window\Debug\mwtl_window_demo.exe
 build\x64\examples\hello\Debug\mwtl_hello.exe</code></pre>
-    <h2>ARM64 build</h2>
-    <pre><code>cmake -S . -B build/arm64 -G "Visual Studio 17 2022" -A ARM64 \
-  -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=OFF
-cmake --build build/arm64 --config Release --verbose</code></pre>
-    <div class="callout">The ARM64 target requires the MSVC ARM64 compiler, ARM64 ATL, and matching Windows SDK libraries. An x64 host can normally cross-compile these executables but cannot run the ARM64 GUI examples directly.</div>
+    <div class="callout">The current supported architecture is x64. ARM64 is deferred until it has a maintained build and runtime validation environment.</div>
+    <h2>Install and consume</h2>
+    <pre><code>cmake --install build/x64 --config Release --prefix C:/deps/mwtl
+
+# consumer CMakeLists.txt
+find_package(mwtl 0.3 CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE mwtl::mwtl)</code></pre>
+    <p>Configure the consumer with <code>-DCMAKE_PREFIX_PATH=C:/deps/mwtl</code>. The installed package resolves the same immutable WTL and WIL revisions.</p>
     <h2>Offline dependencies</h2>
     <pre><code>cmake -S . -B build/x64 -G "Visual Studio 17 2022" -A x64 \
   -DMWTL_WTL_SOURCE_DIR=C:/deps/wtl \

@@ -4,8 +4,8 @@ set(MWTL_WTL_SOURCE_DIR "" CACHE PATH "Path to an existing official WTL source t
 set(MWTL_WIL_SOURCE_DIR "" CACHE PATH "Path to an existing Microsoft WIL source tree")
 
 set(MWTL_WTL_REPOSITORY "https://git.code.sf.net/p/wtl/git")
-set(MWTL_WTL_TAG "Release_10.0")
-set(MWTL_WTL_COMMIT "0e39a4d013fc56a854cb6f64dddee582db5601ab")
+set(MWTL_WTL_TAG "10.01")
+set(MWTL_WTL_COMMIT "011be908a1122e7bc9fd1106ecc48f22f5f86f00")
 
 set(MWTL_WIL_REPOSITORY "https://github.com/microsoft/wil.git")
 set(MWTL_WIL_TAG "v1.0.260126.7")
@@ -39,11 +39,9 @@ function(mwtl_resolve_dependencies)
                 GIT_REPOSITORY "${MWTL_WTL_REPOSITORY}"
                 GIT_TAG "${MWTL_WTL_COMMIT}"
                 GIT_SHALLOW FALSE
-                GIT_PROGRESS TRUE)
-            FetchContent_GetProperties(mwtl_wtl)
-            if(NOT mwtl_wtl_POPULATED)
-                FetchContent_Populate(mwtl_wtl)
-            endif()
+                GIT_PROGRESS TRUE
+                SOURCE_SUBDIR _mwtl_headers_only)
+            FetchContent_MakeAvailable(mwtl_wtl)
             mwtl_add_wtl_target("${mwtl_wtl_SOURCE_DIR}")
         endif()
     endif()
@@ -57,11 +55,9 @@ function(mwtl_resolve_dependencies)
                 GIT_REPOSITORY "${MWTL_WIL_REPOSITORY}"
                 GIT_TAG "${MWTL_WIL_COMMIT}"
                 GIT_SHALLOW FALSE
-                GIT_PROGRESS TRUE)
-            FetchContent_GetProperties(mwtl_wil)
-            if(NOT mwtl_wil_POPULATED)
-                FetchContent_Populate(mwtl_wil)
-            endif()
+                GIT_PROGRESS TRUE
+                SOURCE_SUBDIR _mwtl_headers_only)
+            FetchContent_MakeAvailable(mwtl_wil)
             mwtl_add_wil_target("${mwtl_wil_SOURCE_DIR}")
         endif()
     endif()

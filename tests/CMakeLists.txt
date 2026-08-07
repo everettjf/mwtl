@@ -24,7 +24,7 @@ foreach(mode IN ITEMS
         TIMEOUT 20)
 endforeach()
 
-foreach(header IN ITEMS application command_controls control_resources controls dpi events input_controls message_pump navigation_controls timer window window_options wakeup umbrella)
+foreach(header IN ITEMS application command_controls control_host control_resources controls desktop dpi events input_controls message_pump navigation_controls timer window window_options wakeup umbrella)
     add_library(mwtl_header_${header} OBJECT header_${header}.cpp)
     target_compile_features(mwtl_header_${header} PRIVATE cxx_std_20)
     target_compile_options(mwtl_header_${header} PRIVATE /W4 /permissive- /EHsc /utf-8)
@@ -78,6 +78,23 @@ set_tests_properties(mwtl.modern_api PROPERTIES
     ENVIRONMENT "MWTL_TEST_NO_DIALOGS=1"
     TIMEOUT 20)
 
+add_executable(mwtl_desktop_test desktop_test.cpp)
+target_compile_features(mwtl_desktop_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_desktop_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_desktop_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.desktop COMMAND mwtl_desktop_test)
+set_tests_properties(mwtl.desktop PROPERTIES TIMEOUT 20)
+
+add_executable(mwtl_hot_corner_model_test
+    hot_corner_model_test.cpp
+    "${PROJECT_SOURCE_DIR}/examples/hot_corners/hot_corner_model.cpp")
+target_compile_features(mwtl_hot_corner_model_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_hot_corner_model_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_include_directories(mwtl_hot_corner_model_test PRIVATE
+    "${PROJECT_SOURCE_DIR}/examples/hot_corners")
+add_test(NAME mwtl.hot_corner_model COMMAND mwtl_hot_corner_model_test)
+set_tests_properties(mwtl.hot_corner_model PROPERTIES TIMEOUT 20)
+
 if(TARGET mwtl_hello)
     set(mwtl_mt_tool "${CMAKE_MT}")
     if(NOT EXISTS "${mwtl_mt_tool}" AND CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
@@ -108,7 +125,8 @@ if(TARGET mwtl_hello)
             mwtl_controls_demo
             mwtl_common_controls_demo
             mwtl_self_drawn_host_demo
-            mwtl_system_lifecycle_demo)
+            mwtl_system_lifecycle_demo
+            mwtl_hot_corners_demo)
         add_test(
             NAME mwtl.manifest.${example_target}
             COMMAND "${CMAKE_COMMAND}"
@@ -118,6 +136,9 @@ if(TARGET mwtl_hello)
                 -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_manifest.cmake")
         set_tests_properties(mwtl.manifest.${example_target} PROPERTIES TIMEOUT 20)
     endforeach()
+    add_test(NAME mwtl.hot_corners_self_test
+        COMMAND $<TARGET_FILE:mwtl_hot_corners_demo> --self-test)
+    set_tests_properties(mwtl.hot_corners_self_test PROPERTIES TIMEOUT 10)
 endif()
 
 add_test(
@@ -133,3 +154,22 @@ add_test(
         "-DPROJECT_ROOT=${PROJECT_SOURCE_DIR}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_examples.cmake")
 set_tests_properties(mwtl.examples.catalog PROPERTIES TIMEOUT 20)
+
+add_test(
+    NAME mwtl.package_consumer
+    COMMAND "${CMAKE_COMMAND}"
+        "-DMWTL_BUILD_DIR=${PROJECT_BINARY_DIR}"
+        "-DMWTL_SOURCE_DIR=${PROJECT_SOURCE_DIR}"
+        "-DMWTL_INSTALL_DIR=${PROJECT_BINARY_DIR}/package-install"
+        "-DMWTL_CONFIGURATION=$<CONFIG>"
+        "-DMWTL_GENERATOR=${CMAKE_GENERATOR}"
+        "-DMWTL_PLATFORM=${CMAKE_GENERATOR_PLATFORM}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_package_consumer.cmake")
+set_tests_properties(mwtl.package_consumer PROPERTIES TIMEOUT 120)
+
+add_test(
+    NAME mwtl.release_metadata
+    COMMAND "${CMAKE_COMMAND}"
+        "-DPROJECT_ROOT=${PROJECT_SOURCE_DIR}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_release_metadata.cmake")
+set_tests_properties(mwtl.release_metadata PROPERTIES TIMEOUT 20)

@@ -14,42 +14,23 @@ bool command_seen = false;
 bool key_seen = false;
 bool custom_seen = false;
 bool timer_seen = false;
+bool notify_seen = false;
+int notify_failure = 0;
 
 class ModernApiWindow final : public mwtl::WindowBase {
 public:
     void BuildUI() override {
-        if (!label_.Create(
-                *this, kLabel, L"Modern API test",
-                {{8.0_dip, 8.0_dip}, {180.0_dip, 24.0_dip}}) ||
-            !text_.Create(
-                *this, kText, L"native edit",
-                {{8.0_dip, 40.0_dip}, {180.0_dip, 28.0_dip}}) ||
-            !button_.Create(
-                *this, kButton, L"Verify",
-                {{8.0_dip, 76.0_dip}, {100.0_dip, 28.0_dip}}) ||
-            !check_.Create(
-                *this, kCheck, L"Checked",
-                {{120.0_dip, 76.0_dip}, {100.0_dip, 28.0_dip}}) ||
-            !combo_.Create(
-                *this, kCombo,
-                {{8.0_dip, 112.0_dip}, {180.0_dip, 120.0_dip}}) ||
-            !progress_.Create(
-                *this, kProgress,
-                {{8.0_dip, 148.0_dip}, {180.0_dip, 20.0_dip}}) ||
-            !group_.Create(
-                *this, kGroup, L"Choices",
-                {{208.0_dip, 8.0_dip}, {180.0_dip, 92.0_dip}}) ||
-            !radio_.Create(
-                *this, kRadio, L"Selected",
-                {{224.0_dip, 36.0_dip}, {120.0_dip, 24.0_dip}}) ||
-            !list_.Create(
-                *this, kList,
-                {{208.0_dip, 108.0_dip}, {180.0_dip, 72.0_dip}}) ||
-            !slider_.Create(
-                *this, kSlider,
-                {{8.0_dip, 180.0_dip}, {180.0_dip, 28.0_dip}})) {
-            throw std::runtime_error("modern API fixture setup failed");
-        }
+        mwtl::ControlHost ui{*this};
+        ui.Add(label_, kLabel, L"Modern API test", {{8.0_dip, 8.0_dip}, {180.0_dip, 24.0_dip}});
+        ui.Add(text_, kText, L"native edit", {{8.0_dip, 40.0_dip}, {180.0_dip, 28.0_dip}});
+        ui.Add(button_, kButton, L"Verify", {{8.0_dip, 76.0_dip}, {100.0_dip, 28.0_dip}});
+        ui.Add(check_, kCheck, L"Checked", {{120.0_dip, 76.0_dip}, {100.0_dip, 28.0_dip}});
+        ui.Add(combo_, kCombo, {{8.0_dip, 112.0_dip}, {180.0_dip, 120.0_dip}});
+        ui.Add(progress_, kProgress, {{8.0_dip, 148.0_dip}, {180.0_dip, 20.0_dip}});
+        ui.Add(group_, kGroup, L"Choices", {{208.0_dip, 8.0_dip}, {180.0_dip, 92.0_dip}});
+        ui.Add(radio_, kRadio, L"Selected", {{224.0_dip, 36.0_dip}, {120.0_dip, 24.0_dip}});
+        ui.Add(list_, kList, {{208.0_dip, 108.0_dip}, {180.0_dip, 72.0_dip}});
+        ui.Add(slider_, kSlider, {{8.0_dip, 180.0_dip}, {180.0_dip, 28.0_dip}});
 
         const auto require = [](bool created, const char* name) {
             if (!created) throw std::runtime_error(name);
@@ -119,6 +100,9 @@ public:
         button_.Click();
         ::SendMessageW(GetHwnd(), WM_KEYDOWN, VK_SPACE, 1);
         ::SendMessageW(GetHwnd(), kCustomMessage, 42, 0);
+        NMHDR notification{button_.GetHwnd(), static_cast<UINT_PTR>(kButton.value), NM_CLICK};
+        ::SendMessageW(GetHwnd(), WM_NOTIFY, notification.idFrom,
+                       reinterpret_cast<LPARAM>(&notification));
     }
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {
@@ -132,6 +116,14 @@ public:
     mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) override {
         key_seen = event.virtual_key == VK_SPACE && event.repeat_count == 1;
         return mwtl::EventResult::Handled();
+    }
+
+    mwtl::EventResult OnNotify(const mwtl::NotifyEvent& event) override {
+        if (event.GetCode() != NM_CLICK) return mwtl::EventResult::Propagate();
+        notify_seen = true;
+        if (event.GetId() != kButton) notify_failure |= 1;
+        if (event.GetControl() != button_.GetHwnd()) notify_failure |= 4;
+        return mwtl::EventResult::Handled(1);
     }
 
     mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) override {
@@ -196,5 +188,7 @@ int main() {
     if (!key_seen) return 12;
     if (!custom_seen) return 13;
     if (!timer_seen) return 14;
+    if (!notify_seen) return 15;
+    if (notify_failure != 0) return 20 + notify_failure;
     return EXIT_SUCCESS;
 }

@@ -1,0 +1,1 @@
+mwtl_add_example(mwtl_hot_corners_demo main.cpp hot_corner_model.cpp)

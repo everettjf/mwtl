@@ -21,6 +21,12 @@ Milestone 1 provides:
 
 There is currently no DIP/geometry API, DPI relayout, layout system, control DSL/wrappers, theme/font system, dispatcher, Mica/backdrop, Direct2D, or DirectWrite support.
 
+The proposed [`v0.2.0` development plan](docs/mwtl-0.2-plan.md) focuses on an
+advanced native window host: configurable HWND creation, per-window DPI,
+wait-aware message pumping, thread-safe wake-up, system lifecycle
+interoperability, and a liney-win migration spike. It does not move terminal,
+rendering, or workspace product logic into mwtl.
+
 ## Requirements
 
 - Windows 10 version 1809 or newer, or Windows 11;

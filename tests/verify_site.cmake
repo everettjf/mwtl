@@ -8,6 +8,7 @@ foreach(required IN ITEMS
         components/window.html
         components/hello.html
         assets/mwtl-mark.svg
+        assets/site.js
         styles.css
         .nojekyll)
     if(NOT EXISTS "${SITE_ROOT}/${required}")

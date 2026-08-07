@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="mwtl is a small C++20 library for modern native Windows applications.">
+  <meta name="description" content="mwtl 0.4 is a lightweight C++20 library for native Windows controls, typed events, and DPI-aware responsive layout.">
   <link rel="canonical" href="https://everettjf.github.io/mwtl/">
   <title>mwtl — modern native Windows UI</title>
-  <link rel="stylesheet" href="styles.css?v=20260807c">
-  <script defer src="assets/site.js?v=20260807c"></script>
+  <link rel="stylesheet" href="styles.css?v=20260807d">
+  <script defer src="assets/site.js?v=20260807d"></script>
 </head>
 <body>
   <header class="shell nav">
@@ -21,13 +21,40 @@
 
   <main>
     <section class="shell hero home-hero">
-      <div class="eyebrow">C++20 · Win32 · WTL · WIL</div>
+      <div class="eyebrow">API 0.4 · C++20 · Win32 · WTL · WIL</div>
       <h1>Native Windows UI,<br>with less ceremony.</h1>
-      <p class="lede">Small modern wrappers around real HWND controls. Direct messages, native behavior, predictable ownership.</p>
+      <p class="lede">Concise creation, typed events, checked batches, and DPI-aware responsive layout around real HWND controls—without closing off Win32.</p>
       <div class="actions">
         <a class="button primary" href="components/index.html">Explore components</a>
         <a class="button" href="building.html">Build the examples</a>
       </div>
+    </section>
+
+    <section class="shell section" aria-labelledby="api-title">
+      <div class="eyebrow">New in 0.4</div>
+      <h2 id="api-title">One concise path for native UI.</h2>
+      <div class="grid">
+        <article class="card"><span class="tag">27 controls</span><h3>Consistent creation</h3><p>Bind a parent once with <code>ControlHost</code>, while direct non-throwing <code>Create</code> remains available.</p></article>
+        <article class="card"><span class="tag">Checked</span><h3>Batch operations</h3><p>Add items, columns, tabs, toolbar buttons, and status text with precise partial-failure results.</p></article>
+        <article class="card"><span class="tag">Responsive</span><h3>Native HWND layout</h3><p>Nest rows, columns, and overlays with Auto, Fixed, Stretch, margins, gaps, min/max constraints, and DPI conversion.</p></article>
+      </div>
+    </section>
+
+    <section class="shell quick-code" aria-labelledby="layout-title">
+      <div>
+        <div class="eyebrow">Responsive layout</div>
+        <h2 id="layout-title">Resize real controls.</h2>
+        <p>Layout nodes keep non-owning HWND references and rearrange automatically on <code>WM_SIZE</code>.</p>
+      </div>
+      <pre><code>using mwtl::operator""_dip;
+
+auto row = mwtl::Row();
+row.Gap(8_dip)
+   .Add(name_, mwtl::Stretch(1.0f, 160_dip))
+   .Add(save_, mwtl::Fixed(96_dip));
+
+layout_.SetRoot(std::move(row));
+SetLayout(layout_);</code></pre>
     </section>
 
     <section class="shell quick-code" aria-labelledby="hello-title">
@@ -52,8 +79,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 
     <section class="shell home-strip">
       <div><strong>Native</strong><span>Real HWND controls and Win32 messages</span></div>
-      <div><strong>Modern</strong><span>C++20 concepts, RAII, typed events</span></div>
-      <div><strong>Focused</strong><span>No rendering engine or closed abstraction</span></div>
+      <div><strong>Modern</strong><span>C++20 concepts, RAII, typed events, checked batches</span></div>
+      <div><strong>Responsive</strong><span>DPI-aware row, column, and overlay layout</span></div>
     </section>
   </main>
 

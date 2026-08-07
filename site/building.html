@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="canonical" href="https://everettjf.github.io/mwtl/building.html">
   <title>Build mwtl - mwtl</title>
-  <link rel="stylesheet" href="styles.css?v=20260807c">
-  <script defer src="assets/site.js?v=20260807c"></script>
+  <link rel="stylesheet" href="styles.css?v=20260807d">
+  <script defer src="assets/site.js?v=20260807d"></script>
 </head>
 <body>
   <header class="shell nav"><a class="brand" href="index.html"><img src="assets/mwtl-mark.svg" alt=""><span>mwtl</span></a><nav class="nav-links"><a href="components/index.html">Components</a><a class="active" href="building.html">Build</a><a href="https://github.com/everettjf/mwtl">GitHub</a></nav></header>
@@ -18,6 +18,7 @@
   -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
 cmake --build build/x64 --config Debug --verbose
 ctest --test-dir build/x64 -C Debug --output-on-failure</code></pre>
+    <p>CI validates both x64 Debug and Release configurations. The public API remains C++20-only.</p>
     <h2>Run component examples</h2>
     <pre><code>build\x64\examples\application\Debug\mwtl_application_demo.exe
 build\x64\examples\window\Debug\mwtl_window_demo.exe
@@ -30,6 +31,8 @@ build\x64\examples\hello\Debug\mwtl_hello.exe</code></pre>
 find_package(mwtl 0.4 CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE mwtl::mwtl)</code></pre>
     <p>Configure the consumer with <code>-DCMAKE_PREFIX_PATH=C:/deps/mwtl</code>. The installed package resolves the same immutable WTL and WIL revisions.</p>
+    <h2>Create a ZIP package</h2>
+    <pre><code>cmake --build build/x64 --config Release --target package</code></pre>
     <h2>Offline dependencies</h2>
     <pre><code>cmake -S . -B build/x64 -G "Visual Studio 17 2022" -A x64 \
   -DMWTL_WTL_SOURCE_DIR=C:/deps/wtl \

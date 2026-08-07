@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/everettjf/mwtl/actions/workflows/ci.yml"><img src="https://github.com/everettjf/mwtl/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/API-0.4-6278f5.svg" alt="API 0.4">
   <a href="https://github.com/everettjf/mwtl/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-17a589.svg" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/C%2B%2B-20-146c94.svg" alt="C++20">
   <img src="https://img.shields.io/badge/platform-Windows-ff9f43.svg" alt="Windows">
@@ -20,11 +21,12 @@
   <a href="#visual-quick-start">Examples</a> &middot;
   <a href="#build-and-run">Build</a> &middot;
   <a href="https://everettjf.github.io/mwtl/">Documentation</a> &middot;
-  <a href="docs/api-0.2.md">API &amp; ownership</a>
+  <a href="docs/api-0.4.md">API 0.4</a>
 </p>
 
-See also the [0.3 desktop and packaging APIs](docs/api-0.3.md) and the
-[0.4 concise API and responsive layout guide](docs/api-0.4.md).
+Start with the [0.4 concise API and responsive layout guide](docs/api-0.4.md).
+The [0.3 desktop and packaging APIs](docs/api-0.3.md) and the original
+[ownership guide](docs/api-0.2.md) remain available as focused references.
 
 `mwtl` is a lightweight, Windows-only modern C++ foundation built on ATL/WTL and Microsoft WIL. It keeps native HWND and Win32 message interoperability while reducing application/bootstrap boilerplate and making lifetime and error boundaries explicit.
 
@@ -52,6 +54,32 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 No message-map macros, generated code, framework-owned application object, or
 hidden HWND abstraction is required. Start with one class and add native
 controls only when the window needs them.
+
+## API 0.4 at a glance
+
+Version 0.4 makes the concise path consistent without hiding Win32. All 27
+native child-control wrappers use the same parent-bound creation API; checked
+batches report partial failures; events match their source control; and a
+non-owning DPI-aware layout rearranges real HWNDs on resize.
+
+```cpp
+using mwtl::operator""_dip;
+
+mwtl::ControlHost ui{*this};
+ui.Add(name_, {100}, L"Developer", {0_dip, 0_dip, 240_dip, 32_dip});
+ui.Add(save_, {101}, L"Save", {0_dip, 0_dip, 96_dip, 32_dip});
+mwtl::AddItems(theme_, {L"System", L"Light", L"Dark"});
+
+auto row = mwtl::Row();
+row.Gap(8_dip)
+   .Add(name_, mwtl::Stretch(1.0f, 160_dip))
+   .Add(save_, mwtl::Fixed(96_dip));
+layout_.SetRoot(std::move(row));
+SetLayout(layout_);
+```
+
+Direct `Create(...)`, `GetHwnd()`, native messages, styles, and return values
+remain available when application code needs lower-level control.
 
 ## Visual quick start
 
@@ -81,10 +109,6 @@ mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
     <td valign="top"><a href="examples/hello/main.cpp"><img width="100%" src="docs/images/examples/hello.png" alt="Hello window with a native label and button"></a></td>
   </tr>
   <tr>
-    <th align="left">Native controls: a complete small form</th>
-    <th align="left">Result</th>
-  </tr>
-  <tr>
     <th align="left">Windows Common Controls: the complete specialized gallery</th>
     <th align="left">Result</th>
   </tr>
@@ -102,6 +126,10 @@ mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
     mwtl::AddItems(list_, {L"ListView"});
 }</code></pre><a href="examples/common_controls/main.cpp">Open the complete Common Controls source &rarr;</a></td>
     <td valign="top"><a href="examples/common_controls/main.cpp"><img width="100%" src="docs/images/examples/common-controls.png" alt="Windows Common Controls gallery with TreeView, ListView, Toolbar, DateTimePicker, MonthCalendar and other native controls"></a></td>
+  </tr>
+  <tr>
+    <th align="left">Native controls: a complete responsive form</th>
+    <th align="left">Result</th>
   </tr>
   <tr>
     <td valign="top"><pre><code>void BuildUI() {

@@ -18,7 +18,7 @@
 - [x] Multi-monitor corner tests cover negative origins, mixed resolutions,
   seams, half-open bounds, tolerance, dwell, and one-shot firing.
 - [x] GitHub x64 Debug and Release CI is green for the release commit.
-- [ ] Release workflow dry-run artifact is downloaded and inspected.
+- [x] Release workflow dry-run artifact is downloaded and inspected.
 
 ## Runtime verification
 

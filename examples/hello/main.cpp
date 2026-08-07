@@ -1,25 +1,27 @@
 #include <mwtl/mwtl.h>
 
 #include <cstdlib>
-#include <exception>
-#include <stdexcept>
 
 using mwtl::operator""_dip;
 
 class MainWindow final : public mwtl::WindowBase {
 public:
     void BuildUI() override {
-        if (!SetTitle(L"mwtl hello")) {
-            throw std::runtime_error("SetWindowTextW failed while building the main window");
-        }
+        mwtl::Must(SetTitle(L"mwtl hello"), "set window title");
         mwtl::ControlHost ui{*this};
         ui.Add(
             message_, kMessage,
-            L"Hello from a native Windows UI with modern C++20 ergonomics.",
-            {{28.0_dip, 28.0_dip}, {520.0_dip, 34.0_dip}});
-        ui.Add(
-            button_, kButton, L"Make it brighter",
-            {{28.0_dip, 82.0_dip}, {180.0_dip, 36.0_dip}});
+            L"Hello from a native Windows UI with modern C++20 ergonomics.");
+        ui.Add(button_, kButton, L"Make it brighter");
+        UseLayout(
+            mwtl::Column()
+                .Margin(28.0_dip)
+                .Gap(20.0_dip)
+                .Add(message_, mwtl::Fixed(34.0_dip))
+                .Add(button_, mwtl::Fixed(36.0_dip), {
+                    .alignment = mwtl::CrossAlignment::start,
+                    .preferred_size = mwtl::SizeDip{180.0_dip, 36.0_dip},
+                }));
     }
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {

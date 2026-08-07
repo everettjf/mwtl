@@ -3,8 +3,8 @@
 #include <windows.h>
 
 #include <chrono>
-#include <concepts>
 
+#include <mwtl/concepts.h>
 #include <mwtl/events.h>
 
 namespace mwtl {
@@ -23,10 +23,7 @@ public:
         HWND window,
         TimerId id,
         std::chrono::milliseconds interval) noexcept;
-    template <typename Window>
-        requires requires(const Window& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Window>
     [[nodiscard]] bool Start(
         const Window& window,
         TimerId id,

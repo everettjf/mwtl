@@ -18,6 +18,16 @@
   positioning, and automatic `WM_SIZE` integration through `Window::SetLayout`.
 - Migrated the controls gallery, Common Controls gallery, Hot Corners utility,
   and full control runtime test to the concise APIs.
+- Added public `WindowLike` and `ControlLike` concepts for clearer C++20
+  extension contracts and compiler diagnostics.
+- Added rvalue-qualified fluent layout construction and `Window::UseLayout`
+  so a window can own and install a complete layout expression in one call.
+- Let `ControlHost` omit provisional bounds for controls immediately managed
+  by layout, while retaining every explicit-bounds overload.
+- Added `Must` checked-to-throwing adapters with `std::source_location` and
+  detailed batch failure context.
+- Extended all checked batch APIs to accept C++20 input ranges and views while
+  preserving span and initializer-list calls.
 
 ## 0.3.0 - 2026-08-07
 

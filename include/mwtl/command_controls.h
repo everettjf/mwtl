@@ -7,6 +7,7 @@
 #include <span>
 #include <string_view>
 
+#include <mwtl/concepts.h>
 #include <mwtl/controls.h>
 
 namespace mwtl {
@@ -15,7 +16,7 @@ struct ToolbarOptions { DWORD style = WS_CHILD | WS_VISIBLE | TBSTYLE_FLAT | TBS
 class Toolbar final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ToolbarOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ToolbarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] bool AddTextButton(ControlId command, std::wstring_view text);
     void AutoSize() noexcept;
@@ -25,7 +26,7 @@ struct StatusBarOptions { DWORD style = WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP; 
 class StatusBar final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, StatusBarOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, StatusBarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] bool SetParts(std::span<const int> right_edges) noexcept;
     [[nodiscard]] bool SetPartText(int part, std::wstring_view text);
@@ -35,7 +36,7 @@ struct RebarOptions { DWORD style = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS
 class Rebar final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, RebarOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, RebarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] bool AddBand(const NativeControl& child, std::wstring_view text, int minimum_width);
 };
@@ -44,7 +45,7 @@ struct PagerOptions { DWORD style = WS_CHILD | WS_VISIBLE | PGS_HORZ; DWORD exte
 class Pager final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, PagerOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, PagerOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     void SetChild(const NativeControl& child) noexcept;
     void SetButtonSize(int pixels) noexcept;
@@ -54,7 +55,7 @@ struct AnimationOptions { DWORD style = WS_CHILD | WS_VISIBLE | ACS_CENTER | ACS
 class Animation final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, AnimationOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, AnimationOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] bool Open(HINSTANCE module, UINT resource_id) noexcept;
     [[nodiscard]] bool Play(UINT repeat_count = UINT_MAX, UINT from = 0, UINT to = UINT_MAX) noexcept;

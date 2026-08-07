@@ -66,16 +66,16 @@ non-owning DPI-aware layout rearranges real HWNDs on resize.
 using mwtl::operator""_dip;
 
 mwtl::ControlHost ui{*this};
-ui.Add(name_, {100}, L"Developer", {0_dip, 0_dip, 240_dip, 32_dip});
-ui.Add(save_, {101}, L"Save", {0_dip, 0_dip, 96_dip, 32_dip});
-mwtl::AddItems(theme_, {L"System", L"Light", L"Dark"});
+ui.Add(name_, {100}, L"Developer");
+ui.Add(save_, {101}, L"Save");
+mwtl::Must(mwtl::AddItems(
+    theme_, {L"System", L"Light", L"Dark"}));
 
-auto row = mwtl::Row();
-row.Gap(8_dip)
-   .Add(name_, mwtl::Stretch(1.0f, 160_dip))
-   .Add(save_, mwtl::Fixed(96_dip));
-layout_.SetRoot(std::move(row));
-SetLayout(layout_);
+UseLayout(
+    mwtl::Row()
+        .Gap(8_dip)
+        .Add(name_, mwtl::Stretch(1.0f, 160_dip))
+        .Add(save_, mwtl::Fixed(96_dip)));
 ```
 
 Direct `Create(...)`, `GetHwnd()`, native messages, styles, and return values
@@ -95,8 +95,13 @@ windows stay in the full catalog instead of taking over the front page.
   <tr>
     <td valign="top"><pre><code>void BuildUI() {
     mwtl::ControlHost ui{*this};
-    ui.Add(message_, {100}, L"Hello, mwtl", bounds);
-    ui.Add(button_, {101}, L"Try it", button_bounds);
+    ui.Add(message_, {100}, L"Hello, mwtl");
+    ui.Add(button_, {101}, L"Try it");
+    UseLayout(
+        mwtl::Column()
+            .Margin(20_dip).Gap(8_dip)
+            .Add(message_, mwtl::Fixed(28_dip))
+            .Add(button_, mwtl::Fixed(36_dip)));
 }
 
 mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
@@ -134,15 +139,15 @@ mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
   <tr>
     <td valign="top"><pre><code>void BuildUI() {
     mwtl::ControlHost ui{*this};
-    ui.Add(name_, {102}, L"mwtl developer", name_bounds);
-    ui.Add(greet_, {103}, L"Say hello", button_bounds);
-    ui.Add(enabled_, {104}, L"Button enabled", check_bounds);
-    ui.Add(accent_, {105}, combo_bounds);
-    ui.Add(progress_, {106}, progress_bounds);
-    ui.Add(group_, {107}, L"Choices", group_bounds);
-    ui.Add(radio_, {108}, L"Sky blue", radio_bounds);
-    ui.Add(list_, {109}, list_bounds);
-    ui.Add(slider_, {110}, slider_bounds);
+    ui.Add(name_, {102}, L"mwtl developer");
+    ui.Add(greet_, {103}, L"Say hello");
+    ui.Add(enabled_, {104}, L"Button enabled");
+    ui.Add(accent_, {105});
+    ui.Add(progress_, {106});
+    ui.Add(group_, {107}, L"Choices");
+    ui.Add(radio_, {108}, L"Sky blue");
+    ui.Add(list_, {109});
+    ui.Add(slider_, {110});
     heartbeat_.Start(*this, {1}, 1s);
 }
 

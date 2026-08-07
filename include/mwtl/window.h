@@ -11,6 +11,8 @@
 #include <exception>
 #include <functional>
 #include <memory>
+#include <optional>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -135,11 +137,26 @@ public:
     }
 
     [[nodiscard]] bool SetLayout(LayoutHost& layout) noexcept {
+        owned_layout_.reset();
         layout_ = &layout;  // Non-owning; the layout must outlive the HWND.
         return !IsWindow() || layout.Arrange(GetHwnd());
     }
 
-    void ClearLayout() noexcept { layout_ = nullptr; }
+    void UseLayout(LayoutNode root) {
+        owned_layout_.emplace();
+        owned_layout_->SetRoot(std::move(root));
+        layout_ = &*owned_layout_;
+        if (IsWindow() && !layout_->Arrange(GetHwnd())) {
+            layout_ = nullptr;
+            owned_layout_.reset();
+            throw std::runtime_error("mwtl could not arrange the owned layout");
+        }
+    }
+
+    void ClearLayout() noexcept {
+        layout_ = nullptr;
+        owned_layout_.reset();
+    }
 
     void ConfigureWindowOptions(const WindowOptions& options) noexcept {
         apply_suggested_dpi_rect_ = options.apply_suggested_dpi_rect;
@@ -489,6 +506,7 @@ private:
     bool accelerator_filter_registered_ = false;
     bool recovery_requested_ = false;
     bool apply_suggested_dpi_rect_ = true;
+    std::optional<LayoutHost> owned_layout_;
     LayoutHost* layout_ = nullptr;  // Non-owning.
     int exit_code_ = EXIT_SUCCESS;
     std::shared_ptr<detail::WindowWakeState> wake_state_;

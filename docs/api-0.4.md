@@ -11,7 +11,7 @@ parents:
 
 ```cpp
 mwtl::ControlHost ui{*this};
-ui.Add(name_, kName, L"Developer", {16_dip, 16_dip, 240_dip, 32_dip});
+ui.Add(name_, kName, L"Developer"); // Layout will assign the bounds.
 ui.Add(rebar_, kRebar, {16_dip, 60_dip, 600_dip, 40_dip});
 
 mwtl::ControlHost rebar_ui{rebar_};
@@ -21,6 +21,14 @@ rebar_ui.Add(toolbar_, kToolbar, {0_dip, 0_dip, 400_dip, 32_dip});
 The four-DIP `RectDip` constructor is `x, y, width, height`. The original
 `{{x, y}, {width, height}}` form remains valid. Code that requires non-throwing
 handling can continue to call `control.Create(...)` directly.
+
+The no-bounds overload creates the native control with a zero provisional
+rectangle. Use it when `UseLayout` will arrange the control before the window
+is shown. Explicit bounds remain the right choice for manually positioned UI.
+
+`WindowLike` describes any type with `GetHwnd() -> HWND`; `ControlLike` adds a
+control ID. The public concepts let application wrappers participate without
+inheriting from an mwtl implementation class.
 
 ## Event matching
 
@@ -47,7 +55,17 @@ if (!result) {
 ```
 
 The same result contract applies to `AddColumns`, `AddTabs`, `AddButtons`, and
-`SetPartTexts`.
+`SetPartTexts`. Each helper accepts initializer lists, spans, or any compatible
+C++20 `input_range`, including views:
+
+```cpp
+auto visible = names | std::views::filter(IsVisible);
+mwtl::Must(mwtl::AddItems(list_, visible), "populate visible names");
+```
+
+`Must(bool)` converts a checked Win32-style failure to `std::system_error`.
+`Must(BatchResult)` reports the failure index, completed count, and native
+result. Both include the C++20 `std::source_location` of the call site.
 
 ## Responsive layout
 
@@ -55,22 +73,23 @@ Controls stay ordinary named C++ members. Layout nodes only hold non-owning
 `HWND` references:
 
 ```cpp
-auto fields = mwtl::Column();
-fields.Gap(8_dip)
-    .Add(name_, mwtl::Fixed(32_dip))
-    .Add(notes_, mwtl::Stretch(1.0f, 80_dip));
-
-auto root = mwtl::Row();
-root.Margin(16_dip).Gap(12_dip)
-    .Add(navigation_, mwtl::Fixed(220_dip))
-    .Add(std::move(fields), mwtl::Stretch());
-
-layout_.SetRoot(std::move(root));
-if (!SetLayout(layout_)) throw std::runtime_error("layout failed");
+UseLayout(
+    mwtl::Row()
+        .Margin(16_dip)
+        .Gap(12_dip)
+        .Add(navigation_, mwtl::Fixed(220_dip))
+        .Add(
+            mwtl::Column()
+                .Gap(8_dip)
+                .Add(name_, mwtl::Fixed(32_dip))
+                .Add(notes_, mwtl::Stretch(1.0f, 80_dip)),
+            mwtl::Stretch()));
 ```
 
-`SetLayout` performs the initial arrangement and automatically rearranges on
-non-minimized `WM_SIZE`. `LayoutHost::Arrange` remains public for unusual hosts.
+`UseLayout` makes the window own the layout, performs the initial arrangement,
+and automatically rearranges on non-minimized `WM_SIZE`. Rvalue-qualified
+builders keep nested move-only nodes in one expression. `SetLayout(LayoutHost&)`
+and `LayoutHost::Arrange` remain public for externally owned or unusual hosts.
 
 ### Tracks and containers
 

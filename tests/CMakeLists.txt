@@ -24,7 +24,7 @@ foreach(mode IN ITEMS
         TIMEOUT 20)
 endforeach()
 
-foreach(header IN ITEMS application command_controls control_batch control_host control_resources controls desktop dpi events input_controls layout message_pump navigation_controls timer window window_options wakeup umbrella)
+foreach(header IN ITEMS application command_controls concepts control_batch control_host control_resources controls desktop dpi events input_controls layout message_pump must navigation_controls timer window window_options wakeup umbrella)
     add_library(mwtl_header_${header} OBJECT header_${header}.cpp)
     target_compile_features(mwtl_header_${header} PRIVATE cxx_std_20)
     target_compile_options(mwtl_header_${header} PRIVATE /W4 /permissive- /EHsc /utf-8)

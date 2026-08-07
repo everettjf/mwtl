@@ -1,8 +1,6 @@
 #include <mwtl/mwtl.h>
 
 #include <array>
-#include <stdexcept>
-#include <system_error>
 
 using mwtl::operator""_dip;
 
@@ -10,9 +8,6 @@ class CommonControlsWindow final : public mwtl::WindowBase {
 public:
     void BuildUI() override {
         SetTitle(L"Windows Common Controls gallery");
-        const auto require = [](bool created, const char* name) {
-            if (!created) throw std::system_error(static_cast<int>(::GetLastError()), std::system_category(), name);
-        };
         mwtl::ControlHost ui{*this};
         ui.Add(rebar_, {200}, {16.0_dip, 12.0_dip, 1160.0_dip, 48.0_dip});
         mwtl::ControlHost rebar_ui{rebar_};
@@ -36,12 +31,12 @@ public:
         ui.Add(animation_label_, {217}, L"Animation host\n(resource-driven AVI)", {836.0_dip, 390.0_dip, 260.0_dip, 56.0_dip});
         ui.Add(scroll_, {218}, {16.0_dip, 486.0_dip, 666.0_dip, 28.0_dip});
         ui.Add(status_, {219}, {0.0_dip, 540.0_dip, 1240.0_dip, 28.0_dip});
-        require(tooltip_.Create(rebar_.GetHwnd()), "Tooltip");
-        require(images_.Create(16, 16), "ImageList");
+        mwtl::Must(tooltip_.Create(rebar_.GetHwnd()), "create Tooltip");
+        mwtl::Must(images_.Create(16, 16), "create ImageList");
 
-        require(static_cast<bool>(mwtl::AddButtons(toolbar_, {
-            {kAbout, L"Task Dialog"}, {kRefresh, L"Refresh"}})),
-            "Toolbar buttons");
+        mwtl::Must(mwtl::AddButtons(toolbar_, {
+            {kAbout, L"Task Dialog"}, {kRefresh, L"Refresh"}}),
+            "populate Toolbar buttons");
         toolbar_.AutoSize();
         static_cast<void>(rebar_.AddBand(toolbar_, L"", 360));
         static_cast<void>(tooltip_.AddTool(toolbar_.GetHwnd(), L"Native Toolbar hosted by a Rebar"));
@@ -52,18 +47,20 @@ public:
         static_cast<void>(tree_.AddItem(L"Commands", root));
         static_cast<void>(tree_.Expand(root));
 
-        require(static_cast<bool>(mwtl::AddColumns(list_, {
-            {L"Control", 170}, {L"Ownership", 150}})), "ListView columns");
+        mwtl::Must(mwtl::AddColumns(list_, {
+            {L"Control", 170}, {L"Ownership", 150}}),
+            "populate ListView columns");
         const int row = list_.AddItem(L"ListView");
         static_cast<void>(list_.SetSubItem(row, 1, L"Native HWND"));
         list_.SetExtendedListStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
-        require(static_cast<bool>(mwtl::AddColumns(header_, {
-            {L"Standalone Header", 210}, {L"Resizable column", 180}})),
-            "Header columns");
-        require(static_cast<bool>(mwtl::AddTabs(tabs_, {L"Tree", L"List"})),
-            "Tabs");
-        require(static_cast<bool>(mwtl::AddItems(combo_ex_, {
-            L"ComboBoxEx item", L"Image-capable item"})), "ComboBoxEx items");
+        mwtl::Must(mwtl::AddColumns(header_, {
+            {L"Standalone Header", 210}, {L"Resizable column", 180}}),
+            "populate Header columns");
+        mwtl::Must(mwtl::AddTabs(tabs_, {L"Tree", L"List"}),
+            "populate Tabs");
+        mwtl::Must(mwtl::AddItems(combo_ex_, {
+            L"ComboBoxEx item", L"Image-capable item"}),
+            "populate ComboBoxEx items");
         static_cast<void>(combo_ex_.SetSelection(0));
         hot_key_.SetValue('K', HOTKEYF_CONTROL | HOTKEYF_ALT);
         ip_.SetValue(127, 0, 0, 1);
@@ -73,9 +70,9 @@ public:
         static_cast<void>(mwtl::InitializeFlatScrollBars(scroll_.GetHwnd()));
         const std::array parts{700, 980, -1};
         static_cast<void>(status_.SetParts(parts));
-        require(static_cast<bool>(mwtl::SetPartTexts(status_, {
+        mwtl::Must(mwtl::SetPartTexts(status_, {
             {0, L"All specialized control families are native"},
-            {1, L"Unicode + DPI aware"}})), "Status text");
+            {1, L"Unicode + DPI aware"}}), "populate Status text");
         static_cast<void>(images_.AddIcon(::LoadIconW(nullptr, IDI_INFORMATION)));
     }
 

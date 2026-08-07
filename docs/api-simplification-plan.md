@@ -23,7 +23,7 @@ The current concise path is structurally sound:
 
 ```cpp
 mwtl::ControlHost ui{*this};
-ui.Add(name_, kName, L"mwtl developer", name_bounds);
+ui.Add(name_, kName, L"mwtl developer");
 ui.Add(accent_, kAccent, combo_bounds, combo_options).AddItem(L"Blue");
 ```
 
@@ -122,6 +122,9 @@ zero-overhead and runtime-polymorphic users respectively.
 - checked item/column/tab/button/status batches report partial progress;
 - responsive row/column/overlay layout is public and automatically attached to
   `Window` resize handling.
+- the C++20 usability pass adds public concepts, range-aware batches,
+  `std::source_location` failure adapters, zero-provisional-bounds control
+  creation, rvalue-qualified layout builders, and window-owned `UseLayout`.
 
 ### Later: only with demonstrated demand
 

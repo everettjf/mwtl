@@ -6,6 +6,8 @@
 #include <concepts>
 #include <cstdint>
 
+#include <mwtl/concepts.h>
+
 namespace mwtl {
 
 struct EventResult {
@@ -81,28 +83,19 @@ struct CommandEvent {
         return id == expected_id && notification == expected_notification;
     }
 
-    template <typename Control>
-        requires requires(const Control& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Control>
     [[nodiscard]] bool IsFrom(const Control& expected) const noexcept {
         return control != nullptr && control == expected.GetHwnd();
     }
 
-    template <typename Control>
-        requires requires(const Control& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Control>
     [[nodiscard]] bool Is(
         const Control& expected,
         UINT expected_notification) const noexcept {
         return notification == expected_notification && IsFrom(expected);
     }
 
-    template <typename Control>
-        requires requires(const Control& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Control>
     [[nodiscard]] bool IsClicked(const Control& expected) const noexcept {
         return notification == BN_CLICKED && IsFrom(expected);
     }
@@ -117,19 +110,13 @@ struct NotifyEvent {
     [[nodiscard]] constexpr UINT GetCode() const noexcept { return header.code; }
     [[nodiscard]] constexpr HWND GetControl() const noexcept { return header.hwndFrom; }
 
-    template <typename Control>
-        requires requires(const Control& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Control>
     [[nodiscard]] bool IsFrom(const Control& expected) const noexcept {
         return header.hwndFrom != nullptr &&
                header.hwndFrom == expected.GetHwnd();
     }
 
-    template <typename Control>
-        requires requires(const Control& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Control>
     [[nodiscard]] bool Is(
         const Control& expected,
         UINT expected_code) const noexcept {

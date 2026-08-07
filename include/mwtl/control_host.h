@@ -2,12 +2,12 @@
 
 #include <windows.h>
 
-#include <concepts>
 #include <string_view>
 #include <system_error>
 #include <utility>
 
 #include <mwtl/dpi.h>
+#include <mwtl/concepts.h>
 #include <mwtl/events.h>
 
 namespace mwtl {
@@ -18,10 +18,7 @@ class ControlHost final {
 public:
     explicit ControlHost(HWND parent) noexcept : parent_(parent) {}
 
-    template <typename Parent>
-        requires requires(const Parent& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Parent>
     explicit ControlHost(const Parent& parent) noexcept : parent_(parent.GetHwnd()) {}
 
     template <typename Control, typename... Arguments>
@@ -31,6 +28,36 @@ public:
         }
     Control& Add(Control& control, Arguments&&... arguments) const {
         return AddNative(control, std::forward<Arguments>(arguments)...);
+    }
+
+    template <typename Control, typename... Options>
+        requires requires(
+            Control& control, HWND parent, ControlId id, Options&&... options) {
+            { control.Create(
+                parent, id, RectDip{}, std::forward<Options>(options)...) }
+                -> std::convertible_to<bool>;
+        }
+    Control& Add(
+        Control& control, ControlId id, Options&&... options) const {
+        return AddNative(
+            control, id, RectDip{}, std::forward<Options>(options)...);
+    }
+
+    template <typename Control, typename... Options>
+        requires requires(
+            Control& control, HWND parent, ControlId id,
+            std::wstring_view text, Options&&... options) {
+            { control.Create(
+                parent, id, text, RectDip{},
+                std::forward<Options>(options)...) }
+                -> std::convertible_to<bool>;
+        }
+    Control& Add(
+        Control& control, ControlId id, std::wstring_view text,
+        Options&&... options) const {
+        return AddNative(
+            control, id, text, RectDip{},
+            std::forward<Options>(options)...);
     }
 
     template <typename Control, typename... Options>

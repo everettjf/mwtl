@@ -2,13 +2,13 @@
 
 #include <windows.h>
 
-#include <concepts>
 #include <limits>
 #include <memory>
 #include <optional>
 #include <utility>
 #include <vector>
 
+#include <mwtl/concepts.h>
 #include <mwtl/dpi.h>
 
 namespace mwtl {
@@ -95,30 +95,61 @@ public:
     LayoutNode(LayoutNode&&) noexcept;
     LayoutNode& operator=(LayoutNode&&) noexcept;
 
-    LayoutNode& Gap(Dip value) noexcept;
-    LayoutNode& Margin(Thickness value) noexcept;
-    LayoutNode& Margin(Dip uniform) noexcept;
+    LayoutNode& Gap(Dip value) & noexcept;
+    LayoutNode&& Gap(Dip value) && noexcept {
+        Gap(value);
+        return std::move(*this);
+    }
+    LayoutNode& Margin(Thickness value) & noexcept;
+    LayoutNode&& Margin(Thickness value) && noexcept {
+        Margin(value);
+        return std::move(*this);
+    }
+    LayoutNode& Margin(Dip uniform) & noexcept;
+    LayoutNode&& Margin(Dip uniform) && noexcept {
+        Margin(uniform);
+        return std::move(*this);
+    }
 
     LayoutNode& Add(
         HWND window,
         LayoutLength length = LayoutLength::Auto(),
-        LayoutItemOptions options = {});
+        LayoutItemOptions options = {}) &;
+    LayoutNode&& Add(
+        HWND window,
+        LayoutLength length = LayoutLength::Auto(),
+        LayoutItemOptions options = {}) && {
+        Add(window, length, std::move(options));
+        return std::move(*this);
+    }
 
-    template <typename Control>
-        requires requires(const Control& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Control>
     LayoutNode& Add(
         const Control& control,
         LayoutLength length = LayoutLength::Auto(),
-        LayoutItemOptions options = {}) {
+        LayoutItemOptions options = {}) & {
         return Add(control.GetHwnd(), length, std::move(options));
+    }
+    template <WindowLike Control>
+    LayoutNode&& Add(
+        const Control& control,
+        LayoutLength length = LayoutLength::Auto(),
+        LayoutItemOptions options = {}) && {
+        Add(control.GetHwnd(), length, std::move(options));
+        return std::move(*this);
     }
 
     LayoutNode& Add(
         LayoutNode child,
         LayoutLength length = LayoutLength::Auto(),
-        LayoutItemOptions options = {});
+        LayoutItemOptions options = {}) &;
+    LayoutNode&& Add(
+        LayoutNode child,
+        LayoutLength length = LayoutLength::Auto(),
+        LayoutItemOptions options = {}) && {
+        Add(std::move(child), length, std::move(options));
+        return std::move(*this);
+    }
 
     [[nodiscard]] LayoutDirection GetDirection() const noexcept;
     [[nodiscard]] std::size_t GetCount() const noexcept;

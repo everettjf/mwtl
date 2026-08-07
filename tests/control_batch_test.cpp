@@ -1,6 +1,10 @@
 #include <mwtl/control_batch.h>
+#include <mwtl/must.h>
 
+#include <array>
+#include <ranges>
 #include <string_view>
+#include <system_error>
 
 namespace {
 
@@ -29,5 +33,41 @@ int main() {
         stopped.native_result != -7 || failure.calls != 2) {
         return 2;
     }
+
+    const std::array range_items{L"zero", L"one", L"two", L"three"};
+    FakeItems ranged;
+    auto odd_length = range_items | std::views::filter(
+        [](std::wstring_view item) { return item.size() % 2 != 0; });
+    const mwtl::BatchResult ranged_result = mwtl::AddItems(ranged, odd_length);
+    if (!ranged_result || ranged_result.completed != 3 || ranged.calls != 3)
+        return 3;
+
+    const mwtl::BatchResult must_result =
+        mwtl::Must(mwtl::AddItems(ranged, range_items), "range population");
+    if (must_result.completed != range_items.size()) return 4;
+
+    bool detailed_failure = false;
+    try {
+        mwtl::Must(stopped, "expected batch failure");
+    } catch (const std::runtime_error& error) {
+        const std::string_view message = error.what();
+        detailed_failure = message.find("expected batch failure") !=
+                               std::string_view::npos &&
+                           message.find("item 1") != std::string_view::npos &&
+                           message.find("native result -7") !=
+                               std::string_view::npos;
+    }
+    if (!detailed_failure) return 5;
+
+    bool win32_failure = false;
+    try {
+        ::SetLastError(ERROR_ACCESS_DENIED);
+        mwtl::Must(false, "expected Win32 failure");
+    } catch (const std::system_error& error) {
+        win32_failure = error.code().value() == ERROR_ACCESS_DENIED &&
+                        std::string_view(error.what()).find(
+                            "expected Win32 failure") != std::string_view::npos;
+    }
+    if (!win32_failure) return 6;
     return 0;
 }

@@ -34,9 +34,9 @@
       <div class="eyebrow">New in 0.4</div>
       <h2 id="api-title">One concise path for native UI.</h2>
       <div class="grid">
-        <article class="card"><span class="tag">27 controls</span><h3>Consistent creation</h3><p>Bind a parent once with <code>ControlHost</code>, while direct non-throwing <code>Create</code> remains available.</p></article>
-        <article class="card"><span class="tag">Checked</span><h3>Batch operations</h3><p>Add items, columns, tabs, toolbar buttons, and status text with precise partial-failure results.</p></article>
-        <article class="card"><span class="tag">Responsive</span><h3>Native HWND layout</h3><p>Nest rows, columns, and overlays with Auto, Fixed, Stretch, margins, gaps, min/max constraints, and DPI conversion.</p></article>
+        <article class="card"><span class="tag">27 controls</span><h3>Consistent creation</h3><p>Bind a parent once with <code>ControlHost</code>; omit provisional bounds when layout owns positioning.</p></article>
+        <article class="card"><span class="tag">C++20 ranges</span><h3>Checked setup</h3><p>Populate controls from lists, spans, ranges, or views, then use <code>Must</code> for source-located failures.</p></article>
+        <article class="card"><span class="tag">One expression</span><h3>Native HWND layout</h3><p>Pass nested rvalue rows, columns, and overlays directly to window-owned <code>UseLayout</code>.</p></article>
       </div>
     </section>
 
@@ -48,13 +48,11 @@
       </div>
       <pre><code>using mwtl::operator""_dip;
 
-auto row = mwtl::Row();
-row.Gap(8_dip)
-   .Add(name_, mwtl::Stretch(1.0f, 160_dip))
-   .Add(save_, mwtl::Fixed(96_dip));
-
-layout_.SetRoot(std::move(row));
-SetLayout(layout_);</code></pre>
+UseLayout(
+    mwtl::Row()
+        .Gap(8_dip)
+        .Add(name_, mwtl::Stretch(1.0f, 160_dip))
+        .Add(save_, mwtl::Fixed(96_dip)));</code></pre>
     </section>
 
     <section class="shell quick-code" aria-labelledby="hello-title">

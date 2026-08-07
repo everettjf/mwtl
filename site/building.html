@@ -18,7 +18,7 @@
   -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
 cmake --build build/x64 --config Debug --verbose
 ctest --test-dir build/x64 -C Debug --output-on-failure</code></pre>
-    <p>CI validates both x64 Debug and Release configurations. The public API remains C++20-only.</p>
+    <p>CI validates both x64 Debug and Release configurations. The public API remains C++20-only and uses concepts, ranges, <code>std::source_location</code>, and ref-qualified fluent builders.</p>
     <h2>Run component examples</h2>
     <pre><code>build\x64\examples\application\Debug\mwtl_application_demo.exe
 build\x64\examples\window\Debug\mwtl_window_demo.exe

@@ -6,6 +6,7 @@
 #include <concepts>
 #include <string_view>
 
+#include <mwtl/concepts.h>
 #include <mwtl/controls.h>
 
 namespace mwtl {
@@ -19,7 +20,7 @@ struct TreeViewOptions {
 class TreeView final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, TreeViewOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, TreeViewOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] HTREEITEM AddItem(std::wstring_view text, HTREEITEM parent = TVI_ROOT, HTREEITEM after = TVI_LAST);
     [[nodiscard]] bool Expand(HTREEITEM item, bool expanded = true) noexcept;
@@ -33,7 +34,7 @@ struct ListViewOptions {
 class ListView final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ListViewOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ListViewOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] int AddColumn(std::wstring_view text, int width_pixels, int index = -1);
     [[nodiscard]] int AddItem(std::wstring_view text, int index = -1);
@@ -49,7 +50,7 @@ struct HeaderOptions {
 class Header final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, HeaderOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, HeaderOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] int AddColumn(std::wstring_view text, int width_pixels, int index = -1);
 };
@@ -62,7 +63,7 @@ struct TabControlOptions {
 class TabControl final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, TabControlOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, TabControlOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] int AddTab(std::wstring_view text, int index = -1);
     [[nodiscard]] int GetSelection() const noexcept;
@@ -77,7 +78,7 @@ struct ComboBoxExOptions {
 class ComboBoxEx final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ComboBoxExOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ComboBoxExOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     [[nodiscard]] int AddItem(std::wstring_view text, int index = -1);
     [[nodiscard]] int GetSelection() const noexcept;

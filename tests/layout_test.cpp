@@ -172,5 +172,13 @@ int main() {
         null_rejected = true;
     }
     if (!null_rejected) return 18;
+
+    LayoutHost fluent_layout(
+        Row()
+            .Margin(4_dip)
+            .Gap(3_dip)
+            .Add(top, Fixed(20_dip))
+            .Add(bottom, Stretch()));
+    if (!fluent_layout.HasRoot() || !fluent_layout.Arrange(parent)) return 19;
     return EXIT_SUCCESS;
 }

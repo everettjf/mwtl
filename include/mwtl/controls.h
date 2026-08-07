@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 
+#include <mwtl/concepts.h>
 #include <mwtl/dpi.h>
 #include <mwtl/events.h>
 
@@ -66,10 +67,7 @@ public:
         RectDip bounds,
         LabelOptions options = {});
 
-    template <typename Parent>
-        requires requires(const Parent& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(
         const Parent& parent,
         ControlId id,
@@ -93,10 +91,7 @@ public:
         std::wstring_view text,
         RectDip bounds,
         ButtonOptions options = {});
-    template <typename Parent>
-        requires requires(const Parent& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(
         const Parent& parent,
         ControlId id,
@@ -121,10 +116,7 @@ public:
         std::wstring_view text,
         RectDip bounds,
         TextBoxOptions options = {});
-    template <typename Parent>
-        requires requires(const Parent& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(
         const Parent& parent,
         ControlId id,
@@ -150,10 +142,7 @@ public:
         std::wstring_view text,
         RectDip bounds,
         CheckBoxOptions options = {});
-    template <typename Parent>
-        requires requires(const Parent& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(
         const Parent& parent,
         ControlId id,
@@ -174,7 +163,7 @@ struct RadioButtonOptions {
 class RadioButton final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, std::wstring_view text, RectDip bounds, RadioButtonOptions options = {}) {
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
@@ -190,7 +179,7 @@ struct GroupBoxOptions {
 class GroupBox final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, std::wstring_view text, RectDip bounds, GroupBoxOptions options = {}) {
         return Create(parent.GetHwnd(), id, text, bounds, options);
     }
@@ -204,7 +193,7 @@ struct ListBoxOptions {
 class ListBox final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ListBoxOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ListBoxOptions options = {}) {
         return Create(parent.GetHwnd(), id, bounds, options);
     }
@@ -226,10 +215,7 @@ public:
         ControlId id,
         RectDip bounds,
         ComboBoxOptions options = {});
-    template <typename Parent>
-        requires requires(const Parent& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(
         const Parent& parent,
         ControlId id,
@@ -254,10 +240,7 @@ public:
         ControlId id,
         RectDip bounds,
         ProgressBarOptions options = {});
-    template <typename Parent>
-        requires requires(const Parent& value) {
-            { value.GetHwnd() } -> std::same_as<HWND>;
-        }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(
         const Parent& parent,
         ControlId id,
@@ -278,7 +261,7 @@ struct SliderOptions {
 class Slider final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, SliderOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, SliderOptions options = {}) {
         return Create(parent.GetHwnd(), id, bounds, options);
     }
@@ -295,7 +278,7 @@ struct ScrollBarOptions {
 class ScrollBar final : public NativeControl {
 public:
     [[nodiscard]] bool Create(HWND parent, ControlId id, RectDip bounds, ScrollBarOptions options = {});
-    template <typename Parent> requires requires(const Parent& value) { { value.GetHwnd() } -> std::same_as<HWND>; }
+    template <WindowLike Parent>
     [[nodiscard]] bool Create(const Parent& parent, ControlId id, RectDip bounds, ScrollBarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     void SetRange(int minimum, int maximum) noexcept;
     void SetValue(int value) noexcept;

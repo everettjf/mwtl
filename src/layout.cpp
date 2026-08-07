@@ -87,12 +87,12 @@ LayoutNode::~LayoutNode() noexcept = default;
 LayoutNode::LayoutNode(LayoutNode&&) noexcept = default;
 LayoutNode& LayoutNode::operator=(LayoutNode&&) noexcept = default;
 
-LayoutNode& LayoutNode::Gap(Dip value) noexcept {
+LayoutNode& LayoutNode::Gap(Dip value) & noexcept {
     gap_ = Dip{(std::max)(0.0f, value.value)};
     return *this;
 }
 
-LayoutNode& LayoutNode::Margin(Thickness value) noexcept {
+LayoutNode& LayoutNode::Margin(Thickness value) & noexcept {
     margin_ = {
         Dip{(std::max)(0.0f, value.left.value)},
         Dip{(std::max)(0.0f, value.top.value)},
@@ -102,7 +102,7 @@ LayoutNode& LayoutNode::Margin(Thickness value) noexcept {
     return *this;
 }
 
-LayoutNode& LayoutNode::Margin(Dip uniform) noexcept {
+LayoutNode& LayoutNode::Margin(Dip uniform) & noexcept {
     const Dip value{(std::max)(0.0f, uniform.value)};
     return Margin({value, value, value, value});
 }
@@ -110,7 +110,7 @@ LayoutNode& LayoutNode::Margin(Dip uniform) noexcept {
 LayoutNode& LayoutNode::Add(
     HWND window,
     LayoutLength length,
-    LayoutItemOptions options) {
+    LayoutItemOptions options) & {
     if (window == nullptr) {
         throw std::invalid_argument("mwtl layout window is null");
     }
@@ -121,7 +121,7 @@ LayoutNode& LayoutNode::Add(
 LayoutNode& LayoutNode::Add(
     LayoutNode child,
     LayoutLength length,
-    LayoutItemOptions options) {
+    LayoutItemOptions options) & {
     children_.emplace_back(
         std::move(child), length, std::move(options));
     return *this;

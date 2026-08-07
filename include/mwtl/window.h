@@ -21,6 +21,8 @@
 #include <mwtl/wakeup.h>
 #include <mwtl/window_options.h>
 
+extern WTL::CAppModule _Module;
+
 namespace mwtl::detail {
 
 void ReportException(
@@ -40,10 +42,26 @@ struct WindowMarker {};
 
 template <typename T, typename ClassTraits = DefaultWindowClassTraits>
 class Window : public WTL::CFrameWindowImpl<T>, public detail::WindowMarker {
+    class AcceleratorFilter final : public WTL::CMessageFilter {
+    public:
+        explicit AcceleratorFilter(Window* owner) noexcept : owner_(owner) {}
+        BOOL PreTranslateMessage(MSG* message) override {
+            return message != nullptr && owner_->m_hWnd != nullptr &&
+                    owner_->m_hAccel != nullptr
+                ? ::TranslateAcceleratorW(owner_->m_hWnd, owner_->m_hAccel, message)
+                : FALSE;
+        }
+
+    private:
+        Window* owner_;
+    };
+
 public:
     using Base = WTL::CFrameWindowImpl<T>;
 
-    Window() : wake_state_(std::make_shared<detail::WindowWakeState>()) {}
+    Window()
+        : accelerator_filter_(this),
+          wake_state_(std::make_shared<detail::WindowWakeState>()) {}
     ~Window() = default;
 
     Window(const Window&) = delete;
@@ -101,6 +119,19 @@ public:
     }
 
     [[nodiscard]] WindowWakeup GetWakeup() const noexcept { return WindowWakeup(wake_state_); }
+
+    void SetAccelerators(HACCEL accelerators) noexcept {
+        this->m_hAccel = accelerators;  // Non-owning; the table must outlive the window.
+        WTL::CMessageLoop* loop = _Module.GetMessageLoop();
+        if (loop == nullptr) return;
+        if (accelerators != nullptr && !accelerator_filter_registered_) {
+            accelerator_filter_registered_ =
+                loop->AddMessageFilter(&accelerator_filter_) != FALSE;
+        } else if (accelerators == nullptr && accelerator_filter_registered_) {
+            loop->RemoveMessageFilter(&accelerator_filter_);
+            accelerator_filter_registered_ = false;
+        }
+    }
 
     void ConfigureWindowOptions(const WindowOptions& options) noexcept {
         apply_suggested_dpi_rect_ = options.apply_suggested_dpi_rect;
@@ -276,6 +307,15 @@ private:
                     [&target, &event] { return target.OnCommand(event); }, result);
             }
         }
+        if (message == WM_NOTIFY && lparam != 0) {
+            if constexpr (requires(T& value, const NotifyEvent& event) {
+                              value.OnNotify(event);
+                          }) {
+                const NotifyEvent event{*reinterpret_cast<const NMHDR*>(lparam)};
+                return InvokeModernHandler(
+                    [&target, &event] { return target.OnNotify(event); }, result);
+            }
+        }
         if (message == WM_GETMINMAXINFO && lparam != 0) {
             if constexpr (requires(T& value, MinMaxInfoEvent event) {
                               value.OnMinMaxInfo(event);
@@ -366,6 +406,12 @@ private:
             }
 
             if (message == WM_NCDESTROY) {
+                if (self->accelerator_filter_registered_) {
+                    if (WTL::CMessageLoop* loop = _Module.GetMessageLoop(); loop != nullptr) {
+                        loop->RemoveMessageFilter(&self->accelerator_filter_);
+                    }
+                    self->accelerator_filter_registered_ = false;
+                }
                 self->wake_state_->window.store(nullptr, std::memory_order_release);
             }
 
@@ -427,7 +473,9 @@ private:
         return 0;
     }
 
+    AcceleratorFilter accelerator_filter_;
     bool creation_complete_ = false;
+    bool accelerator_filter_registered_ = false;
     bool recovery_requested_ = false;
     bool apply_suggested_dpi_rect_ = true;
     int exit_code_ = EXIT_SUCCESS;
@@ -450,6 +498,7 @@ public:
     virtual EventResult OnTimer(TimerId) { return EventResult::Propagate(); }
     virtual EventResult OnDpiChanged(const DpiChangedEvent&) { return EventResult::Propagate(); }
     virtual EventResult OnCommand(const CommandEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnNotify(const NotifyEvent&) { return EventResult::Propagate(); }
     virtual EventResult OnMinMaxInfo(MinMaxInfoEvent) { return EventResult::Propagate(); }
     virtual EventResult OnPaint(PaintEvent&) { return EventResult::Propagate(); }
     virtual EventResult OnWakeup() { return EventResult::Propagate(); }

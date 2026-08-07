@@ -98,6 +98,23 @@ struct CommandEvent {
     }
 };
 
+struct NotifyEvent {
+    const NMHDR& header;
+
+    [[nodiscard]] constexpr ControlId GetId() const noexcept {
+        return ControlId{static_cast<int>(header.idFrom)};
+    }
+    [[nodiscard]] constexpr UINT GetCode() const noexcept { return header.code; }
+    [[nodiscard]] constexpr HWND GetControl() const noexcept { return header.hwndFrom; }
+
+    template <typename Notification>
+    [[nodiscard]] const Notification* As(UINT expected_code) const noexcept {
+        return header.code == expected_code
+            ? reinterpret_cast<const Notification*>(&header)
+            : nullptr;
+    }
+};
+
 struct MinMaxInfoEvent {
     MINMAXINFO& info;
 };

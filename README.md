@@ -56,12 +56,14 @@ No message-map macros, generated code, framework-owned application object, or
 hidden HWND abstraction is required. Start with one class and add native
 controls only when the window needs them.
 
-## API 0.4 at a glance
+## API 0.5 at a glance
 
-Version 0.4 makes the concise path consistent without hiding Win32. All 27
-native child-control wrappers use the same parent-bound creation API; checked
-batches report partial failures; events match their source control; and a
-non-owning DPI-aware layout rearranges real HWNDs on resize.
+Version 0.5 makes the concise path consistent without hiding Win32. All 27
+native child-control wrappers use the same parent-bound creation API and
+dynamic intrinsic measurement; checked batches accept ranges and report
+partial failures; typed events match their source control; and the DPI-aware
+layout rearranges real HWNDs on resize. Main windows support constructor
+injection, while dialogs use structured filters and `std::filesystem::path`.
 
 ```cpp
 using mwtl::operator""_dip;

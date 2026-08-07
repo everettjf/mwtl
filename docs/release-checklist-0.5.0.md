@@ -12,8 +12,7 @@
 
 ## Build and analysis
 
-- [ ] x64 Debug and Release build and all CTest cases pass locally and in CI
-  (local complete; CI pending).
+- [x] x64 Debug and Release build and all CTest cases pass locally and in CI.
 - [x] MSVC native static analysis completes with no mwtl correctness findings.
 - [x] Independent-header and installed-package consumers pass.
 - [x] CPack ZIP contents and SHA-256 checksum are inspected.
@@ -31,7 +30,7 @@
 
 ## Publication
 
-- [ ] README, API guide, changelog, security policy, and support scope agree.
+- [x] README, API guide, changelog, security policy, and support scope agree.
 - [ ] The signed release tag points to the fully validated commit.
 - [ ] GitHub Release contains the ZIP, checksum, dependency revisions, and
   generated release notes.

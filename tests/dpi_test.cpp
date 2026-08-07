@@ -45,6 +45,12 @@ int main() {
                      "negative monitor coordinates");
     passed &= Expect(rect.right == 112 && rect.bottom == 75,
                      "rectangle size conversion");
+    const RECT concise_rect = dpi120.ToPixels(
+        RectDip{-10.0_dip, -20.0_dip, 100.0_dip, 80.0_dip});
+    passed &= Expect(
+        concise_rect.left == rect.left && concise_rect.top == rect.top &&
+        concise_rect.right == rect.right && concise_rect.bottom == rect.bottom,
+        "concise rectangle construction");
     passed &= Expect(DpiContext::FromDpi(0).GetDpi() == 96,
                      "zero DPI fallback");
     passed &= Expect(DpiContext::FromDpi(UINT_MAX).ToPixels(Dip(1.0e20f)) == INT_MAX,

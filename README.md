@@ -23,7 +23,8 @@
   <a href="docs/api-0.2.md">API &amp; ownership</a>
 </p>
 
-See also the [0.3 desktop and packaging APIs](docs/api-0.3.md).
+See also the [0.3 desktop and packaging APIs](docs/api-0.3.md) and the
+[0.4 concise API and responsive layout guide](docs/api-0.4.md).
 
 `mwtl` is a lightweight, Windows-only modern C++ foundation built on ATL/WTL and Microsoft WIL. It keeps native HWND and Win32 message interoperability while reducing application/bootstrap boilerplate and making lifetime and error boundaries explicit.
 
@@ -89,30 +90,31 @@ mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
   </tr>
   <tr>
     <td valign="top"><pre><code>void BuildUI() override {
-    toolbar_.Create(rebar_, {201}, toolbar_bounds);
-    tree_.Create(*this, {202}, tree_bounds);
-    list_.Create(*this, {203}, list_bounds);
-    date_.Create(*this, {207}, date_bounds);
-    calendar_.Create(*this, {208}, calendar_bounds);
+    mwtl::ControlHost ui{*this};
+    ui.Add(tree_, {202}, tree_bounds);
+    ui.Add(list_, {203}, list_bounds);
+    ui.Add(date_, {207}, date_bounds);
+    ui.Add(calendar_, {208}, calendar_bounds);
 
     const auto root = tree_.AddItem(L"Common Controls");
     tree_.AddItem(L"Navigation", root);
-    list_.AddColumn(L"Control", 170);
-    list_.AddItem(L"ListView");
+    mwtl::AddColumns(list_, {{L"Control", 170}});
+    mwtl::AddItems(list_, {L"ListView"});
 }</code></pre><a href="examples/common_controls/main.cpp">Open the complete Common Controls source &rarr;</a></td>
     <td valign="top"><a href="examples/common_controls/main.cpp"><img width="100%" src="docs/images/examples/common-controls.png" alt="Windows Common Controls gallery with TreeView, ListView, Toolbar, DateTimePicker, MonthCalendar and other native controls"></a></td>
   </tr>
   <tr>
     <td valign="top"><pre><code>void BuildUI() {
-    name_.Create(*this, {102}, L"mwtl developer", name_bounds);
-    greet_.Create(*this, {103}, L"Say hello", button_bounds);
-    enabled_.Create(*this, {104}, L"Button enabled", check_bounds);
-    accent_.Create(*this, {105}, combo_bounds);
-    progress_.Create(*this, {106}, progress_bounds);
-    group_.Create(*this, {107}, L"Choices", group_bounds);
-    radio_.Create(*this, {108}, L"Sky blue", radio_bounds);
-    list_.Create(*this, {109}, list_bounds);
-    slider_.Create(*this, {110}, slider_bounds);
+    mwtl::ControlHost ui{*this};
+    ui.Add(name_, {102}, L"mwtl developer", name_bounds);
+    ui.Add(greet_, {103}, L"Say hello", button_bounds);
+    ui.Add(enabled_, {104}, L"Button enabled", check_bounds);
+    ui.Add(accent_, {105}, combo_bounds);
+    ui.Add(progress_, {106}, progress_bounds);
+    ui.Add(group_, {107}, L"Choices", group_bounds);
+    ui.Add(radio_, {108}, L"Sky blue", radio_bounds);
+    ui.Add(list_, {109}, list_bounds);
+    ui.Add(slider_, {110}, slider_bounds);
     heartbeat_.Start(*this, {1}, 1s);
 }
 
@@ -158,7 +160,10 @@ The current library provides:
   MonthCalendar, HotKey, IpAddress, UpDown, SysLink, Toolbar, StatusBar, Rebar,
   Pager, Animation, Tooltip, ScrollBar, ImageList, TaskDialog, and Flat Scroll Bar;
 - one-line `RunApplication<MainWindow>()` process startup;
-- DIP geometry conversion and per-window `DpiContext`;
+- concise parent-bound creation for all native child controls, checked batch
+  population, and control-aware command/notify matching;
+- four-value DIP geometry, per-window `DpiContext`, and responsive nested
+  row/column/overlay layout with automatic resize handling;
 - configurable class traits, styles, icons/cursor/background, and initial bounds;
 - automatic `WM_DPICHANGED` suggested-rectangle handling (opt-out is explicit);
 - a `MsgWaitForMultipleObjectsEx` pump preserving WTL message filters;
@@ -186,7 +191,10 @@ Build and runtime foundations include:
 - CTest coverage for normal exit, creation failure cleanup, message-handler exceptions, public-header independence, and the embedded DPI manifest;
 - a static component documentation site under `site/`, ready for GitHub Pages deployment.
 
-There is currently no layout system, declarative control DSL, theme/font system, general task dispatcher, Mica/backdrop, Direct2D, DirectWrite, terminal, or ConPTY abstraction. The control wrappers deliberately remain thin owners of real system HWNDs.
+There is currently no ownership-hiding declarative control DSL, binding/theme
+system, general task dispatcher, Mica/backdrop, Direct2D, DirectWrite, terminal,
+or ConPTY abstraction. The controls remain thin owners of real system HWNDs;
+layout nodes only keep non-owning handles.
 
 ## Requirements
 
@@ -226,7 +234,7 @@ cmake --install build/x64 --config Release --prefix C:/deps/mwtl
 An installed consumer uses the exported package target:
 
 ```cmake
-find_package(mwtl 0.3 CONFIG REQUIRED)
+find_package(mwtl 0.4 CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE mwtl::mwtl)
 ```
 

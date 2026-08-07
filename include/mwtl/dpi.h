@@ -40,6 +40,13 @@ struct SizeDip {
 struct RectDip {
     PointDip origin{};
     SizeDip size{};
+
+    constexpr RectDip() noexcept = default;
+    constexpr RectDip(PointDip input_origin, SizeDip input_size) noexcept
+        : origin(input_origin), size(input_size) {}
+    constexpr RectDip(
+        Dip x, Dip y, Dip width, Dip height) noexcept
+        : origin{x, y}, size{width, height} {}
 };
 
 struct Thickness {

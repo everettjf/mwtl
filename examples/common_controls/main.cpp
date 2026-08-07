@@ -13,31 +13,35 @@ public:
         const auto require = [](bool created, const char* name) {
             if (!created) throw std::system_error(static_cast<int>(::GetLastError()), std::system_category(), name);
         };
-        require(rebar_.Create(*this, {200}, {{16.0_dip, 12.0_dip}, {1160.0_dip, 48.0_dip}}), "Rebar");
-        require(toolbar_.Create(rebar_, {201}, {{0.0_dip, 0.0_dip}, {420.0_dip, 34.0_dip}}), "Toolbar");
-        require(tree_.Create(*this, {202}, {{16.0_dip, 76.0_dip}, {250.0_dip, 310.0_dip}}), "TreeView");
-        require(list_.Create(*this, {203}, {{282.0_dip, 76.0_dip}, {400.0_dip, 180.0_dip}}), "ListView");
-        require(header_.Create(*this, {204}, {{282.0_dip, 270.0_dip}, {400.0_dip, 34.0_dip}}), "Header");
-        require(tabs_.Create(*this, {205}, {{282.0_dip, 318.0_dip}, {400.0_dip, 68.0_dip}}), "TabControl");
-        require(combo_ex_.Create(*this, {206}, {{704.0_dip, 76.0_dip}, {250.0_dip, 150.0_dip}}), "ComboBoxEx");
-        require(date_.Create(*this, {207}, {{704.0_dip, 126.0_dip}, {250.0_dip, 34.0_dip}}), "DateTimePicker");
-        require(calendar_.Create(*this, {208}, {{970.0_dip, 76.0_dip}, {260.0_dip, 210.0_dip}}), "MonthCalendar");
-        require(hot_key_.Create(*this, {209}, {{704.0_dip, 176.0_dip}, {250.0_dip, 34.0_dip}}), "HotKey");
-        require(ip_.Create(*this, {210}, {{704.0_dip, 226.0_dip}, {250.0_dip, 34.0_dip}}), "IpAddress");
-        require(number_.Create(*this, {211}, L"42", {{704.0_dip, 276.0_dip}, {210.0_dip, 34.0_dip}}), "UpDown buddy");
-        require(spin_.Create(*this, {212}, {{914.0_dip, 276.0_dip}, {40.0_dip, 34.0_dip}}), "UpDown");
-        require(link_.Create(*this, {213}, L"Read the <a href=\"https://learn.microsoft.com/windows/win32/controls/\">Common Controls docs</a>", {{704.0_dip, 326.0_dip}, {510.0_dip, 38.0_dip}}), "SysLink");
-        require(pager_.Create(*this, {214}, {{16.0_dip, 410.0_dip}, {666.0_dip, 54.0_dip}}), "Pager");
-        require(pager_text_.Create(pager_, {215}, L"Pager child: content can be wider than its viewport", {{0.0_dip, 0.0_dip}, {820.0_dip, 32.0_dip}}), "Pager child");
-        require(animation_.Create(*this, {216}, {{704.0_dip, 382.0_dip}, {120.0_dip, 72.0_dip}}), "Animation");
-        require(animation_label_.Create(*this, {217}, L"Animation host\n(resource-driven AVI)", {{836.0_dip, 390.0_dip}, {260.0_dip, 56.0_dip}}), "Animation label");
-        require(scroll_.Create(*this, {218}, {{16.0_dip, 486.0_dip}, {666.0_dip, 28.0_dip}}), "ScrollBar");
-        require(status_.Create(*this, {219}, {{0.0_dip, 540.0_dip}, {1240.0_dip, 28.0_dip}}), "StatusBar");
+        mwtl::ControlHost ui{*this};
+        ui.Add(rebar_, {200}, {16.0_dip, 12.0_dip, 1160.0_dip, 48.0_dip});
+        mwtl::ControlHost rebar_ui{rebar_};
+        rebar_ui.Add(toolbar_, {201}, {0.0_dip, 0.0_dip, 420.0_dip, 34.0_dip});
+        ui.Add(tree_, {202}, {16.0_dip, 76.0_dip, 250.0_dip, 310.0_dip});
+        ui.Add(list_, {203}, {282.0_dip, 76.0_dip, 400.0_dip, 180.0_dip});
+        ui.Add(header_, {204}, {282.0_dip, 270.0_dip, 400.0_dip, 34.0_dip});
+        ui.Add(tabs_, {205}, {282.0_dip, 318.0_dip, 400.0_dip, 68.0_dip});
+        ui.Add(combo_ex_, {206}, {704.0_dip, 76.0_dip, 250.0_dip, 150.0_dip});
+        ui.Add(date_, {207}, {704.0_dip, 126.0_dip, 250.0_dip, 34.0_dip});
+        ui.Add(calendar_, {208}, {970.0_dip, 76.0_dip, 260.0_dip, 210.0_dip});
+        ui.Add(hot_key_, {209}, {704.0_dip, 176.0_dip, 250.0_dip, 34.0_dip});
+        ui.Add(ip_, {210}, {704.0_dip, 226.0_dip, 250.0_dip, 34.0_dip});
+        ui.Add(number_, {211}, L"42", {704.0_dip, 276.0_dip, 210.0_dip, 34.0_dip});
+        ui.Add(spin_, {212}, {914.0_dip, 276.0_dip, 40.0_dip, 34.0_dip});
+        ui.Add(link_, {213}, L"Read the <a href=\"https://learn.microsoft.com/windows/win32/controls/\">Common Controls docs</a>", {704.0_dip, 326.0_dip, 510.0_dip, 38.0_dip});
+        ui.Add(pager_, {214}, {16.0_dip, 410.0_dip, 666.0_dip, 54.0_dip});
+        mwtl::ControlHost pager_ui{pager_};
+        pager_ui.Add(pager_text_, {215}, L"Pager child: content can be wider than its viewport", {0.0_dip, 0.0_dip, 820.0_dip, 32.0_dip});
+        ui.Add(animation_, {216}, {704.0_dip, 382.0_dip, 120.0_dip, 72.0_dip});
+        ui.Add(animation_label_, {217}, L"Animation host\n(resource-driven AVI)", {836.0_dip, 390.0_dip, 260.0_dip, 56.0_dip});
+        ui.Add(scroll_, {218}, {16.0_dip, 486.0_dip, 666.0_dip, 28.0_dip});
+        ui.Add(status_, {219}, {0.0_dip, 540.0_dip, 1240.0_dip, 28.0_dip});
         require(tooltip_.Create(rebar_.GetHwnd()), "Tooltip");
         require(images_.Create(16, 16), "ImageList");
 
-        static_cast<void>(toolbar_.AddTextButton(kAbout, L"Task Dialog"));
-        static_cast<void>(toolbar_.AddTextButton(kRefresh, L"Refresh"));
+        require(static_cast<bool>(mwtl::AddButtons(toolbar_, {
+            {kAbout, L"Task Dialog"}, {kRefresh, L"Refresh"}})),
+            "Toolbar buttons");
         toolbar_.AutoSize();
         static_cast<void>(rebar_.AddBand(toolbar_, L"", 360));
         static_cast<void>(tooltip_.AddTool(toolbar_.GetHwnd(), L"Native Toolbar hosted by a Rebar"));
@@ -48,17 +52,18 @@ public:
         static_cast<void>(tree_.AddItem(L"Commands", root));
         static_cast<void>(tree_.Expand(root));
 
-        static_cast<void>(list_.AddColumn(L"Control", 170));
-        static_cast<void>(list_.AddColumn(L"Ownership", 150));
+        require(static_cast<bool>(mwtl::AddColumns(list_, {
+            {L"Control", 170}, {L"Ownership", 150}})), "ListView columns");
         const int row = list_.AddItem(L"ListView");
         static_cast<void>(list_.SetSubItem(row, 1, L"Native HWND"));
         list_.SetExtendedListStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
-        static_cast<void>(header_.AddColumn(L"Standalone Header", 210));
-        static_cast<void>(header_.AddColumn(L"Resizable column", 180));
-        static_cast<void>(tabs_.AddTab(L"Tree"));
-        static_cast<void>(tabs_.AddTab(L"List"));
-        static_cast<void>(combo_ex_.AddItem(L"ComboBoxEx item"));
-        static_cast<void>(combo_ex_.AddItem(L"Image-capable item"));
+        require(static_cast<bool>(mwtl::AddColumns(header_, {
+            {L"Standalone Header", 210}, {L"Resizable column", 180}})),
+            "Header columns");
+        require(static_cast<bool>(mwtl::AddTabs(tabs_, {L"Tree", L"List"})),
+            "Tabs");
+        require(static_cast<bool>(mwtl::AddItems(combo_ex_, {
+            L"ComboBoxEx item", L"Image-capable item"})), "ComboBoxEx items");
         static_cast<void>(combo_ex_.SetSelection(0));
         hot_key_.SetValue('K', HOTKEYF_CONTROL | HOTKEYF_ALT);
         ip_.SetValue(127, 0, 0, 1);
@@ -68,8 +73,9 @@ public:
         static_cast<void>(mwtl::InitializeFlatScrollBars(scroll_.GetHwnd()));
         const std::array parts{700, 980, -1};
         static_cast<void>(status_.SetParts(parts));
-        static_cast<void>(status_.SetPartText(0, L"All specialized control families are native"));
-        static_cast<void>(status_.SetPartText(1, L"Unicode + DPI aware"));
+        require(static_cast<bool>(mwtl::SetPartTexts(status_, {
+            {0, L"All specialized control families are native"},
+            {1, L"Unicode + DPI aware"}})), "Status text");
         static_cast<void>(images_.AddIcon(::LoadIconW(nullptr, IDI_INFORMATION)));
     }
 

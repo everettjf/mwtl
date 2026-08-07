@@ -27,7 +27,7 @@ build\x64\examples\hello\Debug\mwtl_hello.exe</code></pre>
     <pre><code>cmake --install build/x64 --config Release --prefix C:/deps/mwtl
 
 # consumer CMakeLists.txt
-find_package(mwtl 0.3 CONFIG REQUIRED)
+find_package(mwtl 0.4 CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE mwtl::mwtl)</code></pre>
     <p>Configure the consumer with <code>-DCMAKE_PREFIX_PATH=C:/deps/mwtl</code>. The installed package resolves the same immutable WTL and WIL revisions.</p>
     <h2>Offline dependencies</h2>

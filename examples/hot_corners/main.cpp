@@ -117,22 +117,22 @@ public:
             SaveSettings(); UpdateStatus();
             return EventResult::Handled();
         }
-        if (event.control == monitor_.GetHwnd() && event.notification == CBN_SELCHANGE) {
+        if (event.Is(monitor_, CBN_SELCHANGE)) {
             StoreVisibleMonitor();
             shown_monitor_ = static_cast<std::size_t>((std::max)(0, monitor_.GetSelection()));
             LoadVisibleMonitor();
             return EventResult::Handled();
         }
         for (const auto& combo : actions_) {
-            if (event.control == combo.GetHwnd() && event.notification == CBN_SELCHANGE) {
+            if (event.Is(combo, CBN_SELCHANGE)) {
                 StoreVisibleMonitor(); SaveSettings(); return EventResult::Handled();
             }
         }
-        if (event.control == dwell_.GetHwnd() && event.notification == CBN_SELCHANGE) {
+        if (event.Is(dwell_, CBN_SELCHANGE)) {
             settings_.dwell_ms = kDwellValues[static_cast<std::size_t>((std::max)(0, dwell_.GetSelection()))];
             tracker_.Reset(); SaveSettings(); UpdateStatus(); return EventResult::Handled();
         }
-        if (event.control == tolerance_.GetHwnd() && event.notification == CBN_SELCHANGE) {
+        if (event.Is(tolerance_, CBN_SELCHANGE)) {
             settings_.tolerance = kToleranceValues[static_cast<std::size_t>((std::max)(0, tolerance_.GetSelection()))];
             tracker_.Reset(); SaveSettings(); UpdateStatus(); return EventResult::Handled();
         }
@@ -211,26 +211,31 @@ private:
     }
 
     void CreateControls() {
-        auto require = [](bool ok) { if (!ok) throw std::runtime_error("control creation failed"); };
-        require(enabled_.Create(*this, kEnabled, L"Enabled", {{16_dip, 16_dip}, {120_dip, 24_dip}}));
-        require(fullscreen_.Create(*this, kFullscreen, L"Pause for fullscreen apps", {{150_dip, 16_dip}, {220_dip, 24_dip}}));
-        require(monitor_.Create(*this, kMonitor, {{16_dip, 56_dip}, {220_dip, 180_dip}}));
+        ControlHost ui{*this};
+        ui.Add(enabled_, kEnabled, L"Enabled", {16_dip, 16_dip, 120_dip, 24_dip});
+        ui.Add(fullscreen_, kFullscreen, L"Pause for fullscreen apps", {150_dip, 16_dip, 220_dip, 24_dip});
+        ui.Add(monitor_, kMonitor, {16_dip, 56_dip, 220_dip, 180_dip});
         constexpr std::array<const wchar_t*, 4> corners{L"Top left", L"Top right", L"Bottom left", L"Bottom right"};
         for (std::size_t i = 0; i < 4; ++i) {
-            require(corner_labels_[i].Create(*this, {static_cast<int>(140 + i)}, corners[i],
-                {{260_dip, Dip{56.0f + static_cast<float>(i) * 42.0f}}, {110_dip, 24_dip}}));
-            require(actions_[i].Create(*this, {static_cast<int>(kFirstAction.value + i)},
-                {{380_dip, Dip{52.0f + static_cast<float>(i) * 42.0f}}, {190_dip, 180_dip}}));
-            for (int action = 0; action <= 4; ++action)
-                (void)actions_[i].AddItem(ActionName(static_cast<hot_corners::Action>(action)));
+            ui.Add(corner_labels_[i], {static_cast<int>(140 + i)}, corners[i],
+                {260_dip, Dip{56.0f + static_cast<float>(i) * 42.0f}, 110_dip, 24_dip});
+            ui.Add(actions_[i], {static_cast<int>(kFirstAction.value + i)},
+                {380_dip, Dip{52.0f + static_cast<float>(i) * 42.0f}, 190_dip, 180_dip});
+            const auto populated = AddItems(actions_[i], {
+                ActionName(hot_corners::Action::none),
+                ActionName(hot_corners::Action::task_view),
+                ActionName(hot_corners::Action::notifications),
+                ActionName(hot_corners::Action::start),
+                ActionName(hot_corners::Action::show_desktop)});
+            if (!populated) throw std::runtime_error("action population failed");
         }
-        require(dwell_label_.Create(*this, {150}, L"Dwell", {{16_dip, 246_dip}, {80_dip, 24_dip}}));
-        require(dwell_.Create(*this, kDwell, {{96_dip, 242_dip}, {140_dip, 150_dip}}));
+        ui.Add(dwell_label_, {150}, L"Dwell", {16_dip, 246_dip, 80_dip, 24_dip});
+        ui.Add(dwell_, kDwell, {96_dip, 242_dip, 140_dip, 150_dip});
         for (auto value : kDwellValues) (void)dwell_.AddItem(std::to_wstring(value) + L" ms");
-        require(tolerance_label_.Create(*this, {151}, L"Tolerance", {{260_dip, 246_dip}, {100_dip, 24_dip}}));
-        require(tolerance_.Create(*this, kTolerance, {{360_dip, 242_dip}, {140_dip, 150_dip}}));
+        ui.Add(tolerance_label_, {151}, L"Tolerance", {260_dip, 246_dip, 100_dip, 24_dip});
+        ui.Add(tolerance_, kTolerance, {360_dip, 242_dip, 140_dip, 150_dip});
         for (auto value : kToleranceValues) (void)tolerance_.AddItem(std::to_wstring(value) + L" px");
-        require(status_.Create(*this, kStatus, L"Starting...", {{16_dip, 302_dip}, {650_dip, 48_dip}}));
+        ui.Add(status_, kStatus, L"Starting...", {16_dip, 302_dip, 650_dip, 48_dip});
     }
 
     void RefreshMonitors() {

@@ -32,63 +32,72 @@ public:
         ui.Add(list_, kList, {{208.0_dip, 108.0_dip}, {180.0_dip, 72.0_dip}});
         ui.Add(slider_, kSlider, {{8.0_dip, 180.0_dip}, {180.0_dip, 28.0_dip}});
 
+        ui.Add(tree_, {220}, {{400.0_dip, 8.0_dip}, {120.0_dip, 80.0_dip}});
+        ui.Add(list_view_, {221}, {{400.0_dip, 92.0_dip}, {160.0_dip, 80.0_dip}});
+        ui.Add(header_, {222}, {{400.0_dip, 176.0_dip}, {160.0_dip, 24.0_dip}});
+        ui.Add(tabs_, {223}, {{400.0_dip, 204.0_dip}, {160.0_dip, 48.0_dip}});
+        ui.Add(combo_ex_, {224}, {{570.0_dip, 8.0_dip}, {140.0_dip, 100.0_dip}});
+        ui.Add(date_, {225}, {{570.0_dip, 44.0_dip}, {140.0_dip, 28.0_dip}});
+        ui.Add(calendar_, {226}, {{720.0_dip, 8.0_dip}, {180.0_dip, 150.0_dip}});
+        ui.Add(hot_key_, {227}, {{570.0_dip, 76.0_dip}, {140.0_dip, 28.0_dip}});
+        ui.Add(ip_, {228}, {{570.0_dip, 108.0_dip}, {140.0_dip, 28.0_dip}});
+        ui.Add(spin_text_, {238}, L"0", {{530.0_dip, 140.0_dip}, {40.0_dip, 28.0_dip}});
+        ui.Add(spin_, {229}, {{570.0_dip, 140.0_dip}, {28.0_dip, 28.0_dip}});
+        ui.Add(link_, {230}, L"<a href=\"https://example.test\">link</a>", {{570.0_dip, 172.0_dip}, {140.0_dip, 28.0_dip}});
+        ui.Add(rebar_, {231}, {{8.0_dip, 220.0_dip}, {240.0_dip, 36.0_dip}});
+        mwtl::ControlHost rebar_ui{rebar_};
+        rebar_ui.Add(toolbar_, {232}, {{0.0_dip, 0.0_dip}, {180.0_dip, 28.0_dip}});
+        ui.Add(pager_, {233}, {{8.0_dip, 260.0_dip}, {240.0_dip, 36.0_dip}});
+        mwtl::ControlHost pager_ui{pager_};
+        pager_ui.Add(pager_label_, {234}, L"pager", {{0.0_dip, 0.0_dip}, {300.0_dip, 24.0_dip}});
+        ui.Add(animation_, {235}, {{260.0_dip, 260.0_dip}, {80.0_dip, 36.0_dip}});
+        ui.Add(scroll_, {236}, {{350.0_dip, 260.0_dip}, {160.0_dip, 24.0_dip}});
+        ui.Add(status_bar_, {237}, {{0.0_dip, 300.0_dip}, {600.0_dip, 24.0_dip}});
         const auto require = [](bool created, const char* name) {
             if (!created) throw std::runtime_error(name);
         };
-        require(tree_.Create(*this, {220}, {{400.0_dip, 8.0_dip}, {120.0_dip, 80.0_dip}}), "TreeView creation failed");
-        require(list_view_.Create(*this, {221}, {{400.0_dip, 92.0_dip}, {160.0_dip, 80.0_dip}}), "ListView creation failed");
-        require(header_.Create(*this, {222}, {{400.0_dip, 176.0_dip}, {160.0_dip, 24.0_dip}}), "Header creation failed");
-        require(tabs_.Create(*this, {223}, {{400.0_dip, 204.0_dip}, {160.0_dip, 48.0_dip}}), "TabControl creation failed");
-        require(combo_ex_.Create(*this, {224}, {{570.0_dip, 8.0_dip}, {140.0_dip, 100.0_dip}}), "ComboBoxEx creation failed");
-        require(date_.Create(*this, {225}, {{570.0_dip, 44.0_dip}, {140.0_dip, 28.0_dip}}), "DateTimePicker creation failed");
-        require(calendar_.Create(*this, {226}, {{720.0_dip, 8.0_dip}, {180.0_dip, 150.0_dip}}), "MonthCalendar creation failed");
-        require(hot_key_.Create(*this, {227}, {{570.0_dip, 76.0_dip}, {140.0_dip, 28.0_dip}}), "HotKey creation failed");
-        require(ip_.Create(*this, {228}, {{570.0_dip, 108.0_dip}, {140.0_dip, 28.0_dip}}), "IpAddress creation failed");
-        require(spin_text_.Create(*this, {238}, L"0", {{530.0_dip, 140.0_dip}, {40.0_dip, 28.0_dip}}), "UpDown buddy creation failed");
-        require(spin_.Create(*this, {229}, {{570.0_dip, 140.0_dip}, {28.0_dip, 28.0_dip}}), "UpDown creation failed");
-        require(link_.Create(*this, {230}, L"<a href=\"https://example.test\">link</a>", {{570.0_dip, 172.0_dip}, {140.0_dip, 28.0_dip}}), "SysLink creation failed");
-        require(rebar_.Create(*this, {231}, {{8.0_dip, 220.0_dip}, {240.0_dip, 36.0_dip}}), "Rebar creation failed");
-        require(toolbar_.Create(rebar_, {232}, {{0.0_dip, 0.0_dip}, {180.0_dip, 28.0_dip}}), "Toolbar creation failed");
-        require(pager_.Create(*this, {233}, {{8.0_dip, 260.0_dip}, {240.0_dip, 36.0_dip}}), "Pager creation failed");
-        require(pager_label_.Create(pager_, {234}, L"pager", {{0.0_dip, 0.0_dip}, {300.0_dip, 24.0_dip}}), "Pager child creation failed");
-        require(animation_.Create(*this, {235}, {{260.0_dip, 260.0_dip}, {80.0_dip, 36.0_dip}}), "Animation creation failed");
-        require(scroll_.Create(*this, {236}, {{350.0_dip, 260.0_dip}, {160.0_dip, 24.0_dip}}), "ScrollBar creation failed");
-        require(status_bar_.Create(*this, {237}, {{0.0_dip, 300.0_dip}, {600.0_dip, 24.0_dip}}), "StatusBar creation failed");
         require(tooltip_.Create(rebar_.GetHwnd()), "Tooltip creation failed");
         require(images_.Create(16, 16), "ImageList creation failed");
         require(timer_.Start(*this, kTimer, 1ms), "Timer creation failed");
 
         check_.SetChecked(true);
-        static_cast<void>(combo_.AddItem(L"first"));
-        static_cast<void>(combo_.AddItem(L"second"));
+        require(static_cast<bool>(mwtl::AddItems(combo_, {L"first", L"second"})),
+                "ComboBox population failed");
         progress_.SetRange(0, 100);
         progress_.SetValue(64);
         radio_.SetChecked(true);
-        static_cast<void>(list_.AddItem(L"first"));
-        static_cast<void>(list_.AddItem(L"second"));
+        require(static_cast<bool>(mwtl::AddItems(list_, {L"first", L"second"})),
+                "ListBox population failed");
         slider_.SetRange(0, 100);
         slider_.SetValue(73);
         const HTREEITEM root = tree_.AddItem(L"root");
         static_cast<void>(tree_.AddItem(L"child", root));
         static_cast<void>(tree_.Expand(root));
-        static_cast<void>(list_view_.AddColumn(L"name", 80));
+        require(static_cast<bool>(mwtl::AddColumns(list_view_, {{L"name", 80}})),
+                "ListView column population failed");
         const int list_row = list_view_.AddItem(L"item");
         static_cast<void>(list_view_.SetSubItem(list_row, 0, L"updated"));
-        static_cast<void>(header_.AddColumn(L"header", 80));
-        static_cast<void>(tabs_.AddTab(L"tab"));
-        static_cast<void>(combo_ex_.AddItem(L"combo"));
+        require(static_cast<bool>(mwtl::AddColumns(header_, {{L"header", 80}})),
+                "Header column population failed");
+        require(static_cast<bool>(mwtl::AddTabs(tabs_, {L"tab"})),
+                "Tab population failed");
+        require(static_cast<bool>(mwtl::AddItems(combo_ex_, {L"combo"})),
+                "ComboBoxEx population failed");
         static_cast<void>(combo_ex_.SetSelection(0));
         hot_key_.SetValue('K', HOTKEYF_CONTROL);
         ip_.SetValue(127, 0, 0, 1);
         spin_.SetBuddy(spin_text_); spin_.SetRange(0, 100); spin_.SetValue(42);
-        static_cast<void>(toolbar_.AddTextButton({600}, L"Tool")); toolbar_.AutoSize();
+        require(static_cast<bool>(mwtl::AddButtons(toolbar_, {{{600}, L"Tool"}})),
+                "Toolbar button population failed");
+        toolbar_.AutoSize();
         static_cast<void>(rebar_.AddBand(toolbar_, L"Band", 120));
         pager_.SetChild(pager_label_);
         scroll_.SetRange(0, 100); scroll_.SetValue(31);
         static_cast<void>(mwtl::InitializeFlatScrollBars(scroll_.GetHwnd()));
         const std::array status_parts{120, -1};
         static_cast<void>(status_bar_.SetParts(status_parts));
-        static_cast<void>(status_bar_.SetPartText(0, L"ready"));
+        require(static_cast<bool>(mwtl::SetPartTexts(status_bar_, {{0, L"ready"}})),
+                "Status text population failed");
         static_cast<void>(tooltip_.AddTool(toolbar_.GetHwnd(), L"tooltip"));
         if (!combo_.SetSelection(1) || combo_.GetSelection() != 1 ||
             !check_.IsChecked() || progress_.GetValue() != 64 ||
@@ -119,7 +128,7 @@ public:
     }
 
     mwtl::EventResult OnNotify(const mwtl::NotifyEvent& event) override {
-        if (event.GetCode() != NM_CLICK) return mwtl::EventResult::Propagate();
+        if (!event.Is(button_, NM_CLICK)) return mwtl::EventResult::Propagate();
         notify_seen = true;
         if (event.GetId() != kButton) notify_failure |= 1;
         if (event.GetControl() != button_.GetHwnd()) notify_failure |= 4;

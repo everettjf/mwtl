@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(mwtl VERSION 0.3.0 LANGUAGES CXX)
+project(mwtl VERSION 0.4.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -45,6 +45,7 @@ add_library(mwtl STATIC
     src/control_resources.cpp
     src/controls.cpp
     src/input_controls.cpp
+    src/layout.cpp
     src/navigation_controls.cpp
     src/dpi.cpp
     src/desktop.cpp

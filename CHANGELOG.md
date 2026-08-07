@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0 - Unreleased
+
+- Unified concise `ControlHost` creation across all 27 native child-control
+  wrappers while retaining every direct non-throwing `Create` overload.
+- Added control-aware `CommandEvent` and `NotifyEvent` matching that keeps the
+  original IDs, notification codes, `HWND`, and `NMHDR` available.
+- Added four-DIP `RectDip{x, y, width, height}` construction. The original
+  nested point/size form remains valid; `RectDip` is intentionally no longer
+  an aggregate.
+- Added checked batch population for text items, columns, tabs, toolbar
+  buttons, and status-part text, including completed count, failure index, and
+  the native failure result.
+- Added a retained responsive layout layer with nested rows, columns, overlays,
+  margins, gaps, Auto/Fixed/Stretch tracks, minimum and maximum constraints,
+  cross-axis alignment, preferred/native sizes, DPI conversion, deferred HWND
+  positioning, and automatic `WM_SIZE` integration through `Window::SetLayout`.
+- Migrated the controls gallery, Common Controls gallery, Hot Corners utility,
+  and full control runtime test to the concise APIs.
+
 ## 0.3.0 - 2026-08-07
 
 - Narrowed the currently supported architecture to x64; ARM64 is deferred until

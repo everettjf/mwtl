@@ -93,6 +93,16 @@ struct CommandEvent {
         requires requires(const Control& value) {
             { value.GetHwnd() } -> std::same_as<HWND>;
         }
+    [[nodiscard]] bool Is(
+        const Control& expected,
+        UINT expected_notification) const noexcept {
+        return notification == expected_notification && IsFrom(expected);
+    }
+
+    template <typename Control>
+        requires requires(const Control& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
     [[nodiscard]] bool IsClicked(const Control& expected) const noexcept {
         return notification == BN_CLICKED && IsFrom(expected);
     }
@@ -106,6 +116,25 @@ struct NotifyEvent {
     }
     [[nodiscard]] constexpr UINT GetCode() const noexcept { return header.code; }
     [[nodiscard]] constexpr HWND GetControl() const noexcept { return header.hwndFrom; }
+
+    template <typename Control>
+        requires requires(const Control& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool IsFrom(const Control& expected) const noexcept {
+        return header.hwndFrom != nullptr &&
+               header.hwndFrom == expected.GetHwnd();
+    }
+
+    template <typename Control>
+        requires requires(const Control& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool Is(
+        const Control& expected,
+        UINT expected_code) const noexcept {
+        return header.code == expected_code && IsFrom(expected);
+    }
 
     template <typename Notification>
     [[nodiscard]] const Notification* As(UINT expected_code) const noexcept {

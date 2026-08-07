@@ -121,7 +121,7 @@ ui.Add(enabled_, {104}, L"Button enabled", check_bounds);
 ui.Add(accent_, {105}, combo_bounds);
 ui.Add(progress_, {106}, progress_bounds);
 
-accent_.AddItem(L"Sky blue");
+mwtl::AddItems(accent_, {L"Sky blue", L"Graphite", L"Forest"});
 progress_.SetRange(0, 100);
 progress_.SetValue(64);</code></pre></div>
           <figure class="preview-panel"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="mwtl native form controls example"><figcaption>System controls retain native keyboard, IME, accessibility, and theme behavior.</figcaption></figure>
@@ -142,15 +142,18 @@ progress_.SetValue(64);</code></pre></div>
       <section id="data-navigation" class="doc-section">
         <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Data and navigation</h2></div><p><code>TreeView</code>, <code>ListView</code>, <code>Header</code>, <code>TabControl</code>, and <code>ComboBoxEx</code>.</p></div>
         <div class="example-grid">
-          <div class="code-panel"><div class="panel-label">TreeView + ListView</div><pre><code>tree_.Create(*this, {202}, tree_bounds);
-list_.Create(*this, {203}, list_bounds);
+          <div class="code-panel"><div class="panel-label">TreeView + ListView</div><pre><code>mwtl::ControlHost ui{*this};
+ui.Add(tree_, {202}, tree_bounds);
+ui.Add(list_, {203}, list_bounds);
 
 const auto root = tree_.AddItem(L"Common Controls");
 tree_.AddItem(L"Navigation", root);
 tree_.Expand(root);
 
-list_.AddColumn(L"Control", 170);
-list_.AddColumn(L"Ownership", 150);
+mwtl::AddColumns(list_, {
+    {L"Control", 170},
+    {L"Ownership", 150},
+});
 const int row = list_.AddItem(L"ListView");
 list_.SetSubItem(row, 1, L"Native HWND");</code></pre></div>
           <figure class="preview-panel common-preview"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="Complete Windows Common Controls gallery"><figcaption>The complete populated gallery. Continue below for the other families.</figcaption></figure>
@@ -159,11 +162,12 @@ list_.SetSubItem(row, 1, L"Native HWND");</code></pre></div>
 
       <section id="date-input" class="doc-section">
         <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Date and input</h2></div><p><code>DateTimePicker</code>, <code>MonthCalendar</code>, <code>HotKey</code>, <code>IpAddress</code>, <code>UpDown</code>, and <code>SysLink</code>.</p></div>
-        <div class="code-panel compact"><pre><code>date_.Create(*this, {207}, date_bounds);
-calendar_.Create(*this, {208}, calendar_bounds);
-hot_key_.Create(*this, {209}, hotkey_bounds);
-ip_.Create(*this, {210}, ip_bounds);
-spin_.Create(*this, {212}, spin_bounds);
+        <div class="code-panel compact"><pre><code>mwtl::ControlHost ui{*this};
+ui.Add(date_, {207}, date_bounds);
+ui.Add(calendar_, {208}, calendar_bounds);
+ui.Add(hot_key_, {209}, hotkey_bounds);
+ui.Add(ip_, {210}, ip_bounds);
+ui.Add(spin_, {212}, spin_bounds);
 
 hot_key_.SetValue('K', HOTKEYF_CONTROL | HOTKEYF_ALT);
 ip_.SetValue(127, 0, 0, 1);
@@ -173,15 +177,36 @@ spin_.SetRange(0, 100);</code></pre></div>
 
       <section id="commands" class="doc-section">
         <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Commands and containers</h2></div><p><code>Toolbar</code>, <code>StatusBar</code>, <code>Rebar</code>, <code>Pager</code>, and <code>Animation</code>.</p></div>
-        <div class="code-panel compact"><pre><code>rebar_.Create(*this, {200}, rebar_bounds);
-toolbar_.Create(rebar_, {201}, toolbar_bounds);
-toolbar_.AddTextButton({500}, L"Task Dialog");
+        <div class="code-panel compact"><pre><code>mwtl::ControlHost ui{*this};
+ui.Add(rebar_, {200}, rebar_bounds);
+mwtl::ControlHost band{rebar_};
+band.Add(toolbar_, {201}, toolbar_bounds);
+mwtl::AddButtons(toolbar_, {{{500}, L"Task Dialog"}});
 toolbar_.AutoSize();
 rebar_.AddBand(toolbar_, L"", 360);
 
-status_.Create(*this, {219}, status_bounds);
+ui.Add(status_, {219}, status_bounds);
 status_.SetParts({700, 980, -1});
-status_.SetPartText(0, L"Native controls ready");</code></pre></div>
+mwtl::SetPartTexts(status_, {{0, L"Native controls ready"}});</code></pre></div>
+      </section>
+
+      <section id="layout" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Responsive layout</span><h2>Rows, columns, and overlays</h2></div><p>Compose DPI-aware layouts with margins, gaps, fixed, automatic, and weighted stretch tracks. The window rearranges attached controls on every resize.</p></div>
+        <div class="code-panel compact"><pre><code>using mwtl::operator""_dip;
+
+auto actions = mwtl::Row();
+actions.Gap(8.0_dip)
+    .Add(name_, mwtl::Stretch())
+    .Add(greet_, mwtl::Fixed(100.0_dip));
+
+auto root = mwtl::Column();
+root.Margin(16.0_dip).Gap(10.0_dip)
+    .Add(title_, mwtl::Auto())
+    .Add(std::move(actions), mwtl::Stretch())
+    .Add(status_, mwtl::Auto());
+
+layout_.SetRoot(std::move(root));
+SetLayout(layout_);</code></pre></div>
       </section>
 
       <section id="resources" class="doc-section">

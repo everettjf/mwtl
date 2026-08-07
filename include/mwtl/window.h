@@ -18,6 +18,7 @@
 
 #include <mwtl/dpi.h>
 #include <mwtl/events.h>
+#include <mwtl/layout.h>
 #include <mwtl/wakeup.h>
 #include <mwtl/window_options.h>
 
@@ -132,6 +133,13 @@ public:
             accelerator_filter_registered_ = false;
         }
     }
+
+    [[nodiscard]] bool SetLayout(LayoutHost& layout) noexcept {
+        layout_ = &layout;  // Non-owning; the layout must outlive the HWND.
+        return !IsWindow() || layout.Arrange(GetHwnd());
+    }
+
+    void ClearLayout() noexcept { layout_ = nullptr; }
 
     void ConfigureWindowOptions(const WindowOptions& options) noexcept {
         apply_suggested_dpi_rect_ = options.apply_suggested_dpi_rect;
@@ -255,6 +263,9 @@ private:
             }
         }
         if (message == WM_SIZE) {
+            if (layout_ != nullptr && wparam != SIZE_MINIMIZED) {
+                static_cast<void>(layout_->Arrange(GetHwnd()));
+            }
             if constexpr (requires(T& value, const ResizeEvent& event) {
                               value.OnResize(event);
                           }) {
@@ -478,6 +489,7 @@ private:
     bool accelerator_filter_registered_ = false;
     bool recovery_requested_ = false;
     bool apply_suggested_dpi_rect_ = true;
+    LayoutHost* layout_ = nullptr;  // Non-owning.
     int exit_code_ = EXIT_SUCCESS;
     std::shared_ptr<detail::WindowWakeState> wake_state_;
 };

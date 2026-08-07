@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
 #include <stdexcept>
 #include <string>
@@ -76,6 +77,10 @@ bool VerifyClipboardRoundTrip() {
     const bool wrote = mwtl::SetClipboardText(nullptr, L"mwtl clipboard round trip");
     const bool matched = wrote &&
         mwtl::GetClipboardText() == L"mwtl clipboard round trip";
+    if (!matched) {
+        std::fprintf(stderr, "clipboard round trip failed: wrote=%d error=%lu\n",
+                     wrote ? 1 : 0, ::GetLastError());
+    }
 
     bool restored = had_text && mwtl::SetClipboardText(nullptr, original_text);
     if (!had_text && ::OpenClipboard(nullptr) != FALSE) {

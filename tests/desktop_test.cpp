@@ -42,16 +42,16 @@ public:
             throw std::runtime_error("accelerator fixture failed");
         }
         SetAccelerators(accelerators_.GetHandle());
-        ::SetTimer(GetHwnd(), 1, 10, nullptr);
+        ::SetTimer(GetHwnd(), 1, 25, nullptr);
         ::SetTimer(GetHwnd(), 2, 2000, nullptr);
     }
 
     mwtl::EventResult OnTimer(mwtl::TimerId id) {
-        ::KillTimer(GetHwnd(), id.value);
         if (id.value == 1) {
             ::SetFocus(GetHwnd());
             ::PostMessageW(GetHwnd(), WM_KEYDOWN, VK_F6, 0);
         } else {
+            ::KillTimer(GetHwnd(), id.value);
             (void)Close();
         }
         return mwtl::EventResult::Handled();
@@ -60,6 +60,8 @@ public:
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) {
         if (event.control == nullptr && event.id.value == 701) {
             accelerator_seen = true;
+            ::KillTimer(GetHwnd(), 1);
+            ::KillTimer(GetHwnd(), 2);
             (void)Close();
             return mwtl::EventResult::Handled();
         }

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.0 - Unreleased
+## 0.5.0 - 2026-08-07
 
 - Removed public `[[nodiscard]]` annotations so concise application code can
   intentionally ignore native results without casts or warning suppression.

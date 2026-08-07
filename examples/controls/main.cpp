@@ -13,33 +13,32 @@ public:
     void BuildUI() {
         SetTitle(L"Modern native controls");
 
-        const HWND parent = GetHwnd();
         const bool created =
             heading_.Create(
-                parent, kHeading, L"Native controls, modern C++20 ownership",
+                *this, kHeading, L"Native controls, modern C++20 ownership",
                 {{28.0_dip, 22.0_dip}, {540.0_dip, 32.0_dip}}) &&
             name_label_.Create(
-                parent, kNameLabel, L"Your name",
+                *this, kNameLabel, L"Your name",
                 {{28.0_dip, 66.0_dip}, {180.0_dip, 24.0_dip}}) &&
             name_.Create(
-                parent, kName, L"mwtl developer",
+                *this, kName, L"mwtl developer",
                 {{28.0_dip, 92.0_dip}, {360.0_dip, 34.0_dip}}) &&
             greet_.Create(
-                parent, kGreet, L"Say hello",
+                *this, kGreet, L"Say hello",
                 {{408.0_dip, 92.0_dip}, {160.0_dip, 34.0_dip}}) &&
             enabled_.Create(
-                parent, kEnabled, L"Keep the native button enabled",
+                *this, kEnabled, L"Keep the native button enabled",
                 {{28.0_dip, 144.0_dip}, {280.0_dip, 28.0_dip}}) &&
             accent_.Create(
-                parent, kAccent,
+                *this, kAccent,
                 {{328.0_dip, 140.0_dip}, {240.0_dip, 180.0_dip}}) &&
             progress_.Create(
-                parent, kProgress,
+                *this, kProgress,
                 {{28.0_dip, 196.0_dip}, {540.0_dip, 22.0_dip}}) &&
             status_.Create(
-                parent, kStatus, L"Ready — the UI remains native HWNDs",
+                *this, kStatus, L"Ready — the UI remains native HWNDs",
                 {{28.0_dip, 242.0_dip}, {540.0_dip, 50.0_dip}});
-        if (!created || !heartbeat_.Start(parent, kHeartbeat, 1s)) {
+        if (!created || !heartbeat_.Start(*this, kHeartbeat, 1s)) {
             throw std::runtime_error("Could not create the controls example");
         }
         enabled_.SetChecked(true);
@@ -54,11 +53,11 @@ public:
     }
 
     void OnCommand(const mwtl::CommandEvent& event) {
-        if (event.id == kGreet && event.notification == BN_CLICKED) {
+        if (event.IsClicked(greet_)) {
             static_cast<void>(status_.SetText(
                 L"Hello, " + name_.GetText() +
                 L"! Button notification received."));
-        } else if (event.id == kEnabled && event.notification == BN_CLICKED) {
+        } else if (event.IsClicked(enabled_)) {
             greet_.SetEnabled(enabled_.IsChecked());
         } else if (event.id == kAccent && event.notification == CBN_SELCHANGE) {
             static_cast<void>(status_.SetText(

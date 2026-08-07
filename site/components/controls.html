@@ -9,15 +9,14 @@
     <pre><code>using mwtl::operator""_dip;
 
 void BuildUI() {
-    name.Create(GetHwnd(), {100}, L"Ada",
+    name.Create(*this, {100}, L"Ada",
         {{24.0_dip, 24.0_dip}, {280.0_dip, 32.0_dip}});
-    greet.Create(GetHwnd(), {101}, L"Greet",
+    greet.Create(*this, {101}, L"Greet",
         {{320.0_dip, 24.0_dip}, {120.0_dip, 32.0_dip}});
 }
 
 void OnCommand(const mwtl::CommandEvent&amp; event) {
-    if (event.id == mwtl::ControlId{101} &amp;&amp;
-        event.notification == BN_CLICKED) {
+    if (event.IsClicked(greet)) {
         SetTitle(L"Hello, " + name.GetText());
     }
 }</code></pre>

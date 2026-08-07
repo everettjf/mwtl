@@ -146,7 +146,7 @@ The repository contains **20 independently buildable GUI examples**. They are al
 |---|---|---|---|
 | Quick start | [`examples/hello`](examples/hello/main.cpp) | `mwtl_hello` | Smallest complete program |
 | `mwtl::Application` | [`examples/application`](examples/application/main.cpp) | `mwtl_application_demo` | HINSTANCE observation, Run, exit code, and wWinMain boundary |
-| `mwtl::Window<T>` | [`examples/window`](examples/window/main.cpp) | `mwtl_window_demo` | HWND access, typed convention handlers, WM_APP messages, and direct WM_CLOSE |
+| `mwtl::Window<T>` | [`examples/window`](examples/window/main.cpp) | `mwtl_window_demo` | HWND access, typed convention handlers, WM_APP messages, and `Close()` |
 | Native message | [`examples/native_message`](examples/native_message/main.cpp) | `mwtl_native_message_demo` | Typed `WM_APP` constant, payload, `PostMessageW`, and `OnMessage` |
 | Keyboard | [`examples/keyboard`](examples/keyboard/main.cpp) | `mwtl_keyboard_demo` | `WM_KEYDOWN`, virtual-key values, and Escape-to-close |
 | Mouse | [`examples/mouse`](examples/mouse/main.cpp) | `mwtl_mouse_demo` | Client coordinates from `WM_MOUSEMOVE` and `WM_LBUTTONDOWN` |
@@ -174,50 +174,71 @@ cmake --build build/x64 --config Debug --target mwtl_native_message_demo
 
 See [examples/README.md](examples/README.md) for the complete target and run-command index.
 
-## Example gallery
+## Visual quick start
 
-These screenshots were captured from the actual x64 Debug executables. Click any image or title to open that example's source.
+The full catalog above includes infrastructure examples whose windows are
+intentionally plain. This section instead highlights the examples where the
+visible result helps explain the API. Code is on the left and its actual x64
+Debug window is on the right.
 
 <table>
   <tr>
-    <td width="50%" valign="top"><a href="examples/hello/main.cpp"><img src="docs/images/examples/hello.png" alt="Hello example"></a><br><strong><a href="examples/hello/main.cpp">Hello</a></strong><br><sub>The smallest complete mwtl application.</sub></td>
-    <td width="50%" valign="top"><a href="examples/application/main.cpp"><img src="docs/images/examples/application.png" alt="Application example"></a><br><strong><a href="examples/application/main.cpp">Application</a></strong><br><sub>Application lifetime, instance access, and the ABI boundary.</sub></td>
+    <th width="54%" align="left">Hello: one window, one label, one button</th>
+    <th width="46%" align="left">Result</th>
   </tr>
   <tr>
-    <td valign="top"><a href="examples/window/main.cpp"><img src="docs/images/examples/window.png" alt="Window example"></a><br><strong><a href="examples/window/main.cpp">Window</a></strong><br><sub>Native HWND access and typed convention handlers.</sub></td>
-    <td valign="top"><a href="examples/native_message/main.cpp"><img src="docs/images/examples/native-message.png" alt="Native message example"></a><br><strong><a href="examples/native_message/main.cpp">Native message</a></strong><br><sub>A typed WM_APP message with a native payload.</sub></td>
+    <td valign="top"><pre><code>class MainWindow final
+    : public mwtl::Window&lt;MainWindow&gt; {
+public:
+    void BuildUI() {
+        message_.Create(*this, {100}, L"Hello, mwtl", bounds);
+        button_.Create(*this, {101}, L"Try it", button_bounds);
+    }
+
+    void OnCommand(const mwtl::CommandEvent&amp; event) {
+        if (event.IsClicked(button_)) {
+            message_.SetText(L"No message-map macros.");
+        }
+    }
+
+private:
+    mwtl::Label message_;
+    mwtl::Button button_;
+};</code></pre><a href="examples/hello/main.cpp">Open the complete Hello source →</a></td>
+    <td valign="top"><a href="examples/hello/main.cpp"><img width="100%" src="docs/images/examples/hello.png" alt="Hello window with a native label and button"></a></td>
   </tr>
   <tr>
-    <td valign="top"><a href="examples/keyboard/main.cpp"><img src="docs/images/examples/keyboard.png" alt="Keyboard example"></a><br><strong><a href="examples/keyboard/main.cpp">Keyboard</a></strong><br><sub>Virtual keys and Escape-to-close.</sub></td>
-    <td valign="top"><a href="examples/mouse/main.cpp"><img src="docs/images/examples/mouse.png" alt="Mouse example"></a><br><strong><a href="examples/mouse/main.cpp">Mouse</a></strong><br><sub>Native client coordinates and button input.</sub></td>
+    <th align="left">Native controls: a complete small form</th>
+    <th align="left">Result</th>
   </tr>
   <tr>
-    <td valign="top"><a href="examples/resize/main.cpp"><img src="docs/images/examples/resize.png" alt="Resize example"></a><br><strong><a href="examples/resize/main.cpp">Resize</a></strong><br><sub>WM_SIZE dimensions and window state.</sub></td>
-    <td valign="top"><a href="examples/timer/main.cpp"><img src="docs/images/examples/timer.png" alt="Timer example"></a><br><strong><a href="examples/timer/main.cpp">Timer</a></strong><br><sub>Chrono intervals, typed IDs, and RAII cleanup.</sub></td>
+    <td valign="top"><pre><code>void BuildUI() {
+    name_.Create(*this, {102}, L"mwtl developer", name_bounds);
+    greet_.Create(*this, {103}, L"Say hello", button_bounds);
+    enabled_.Create(*this, {104}, L"Button enabled", check_bounds);
+    accent_.Create(*this, {105}, combo_bounds);
+    progress_.Create(*this, {106}, progress_bounds);
+    heartbeat_.Start(*this, {1}, 1s);
+}
+
+void OnCommand(const mwtl::CommandEvent&amp; event) {
+    if (event.IsClicked(greet_)) {
+        status_.SetText(L"Hello, " + name_.GetText());
+    }
+}</code></pre><a href="examples/controls/main.cpp">Open the complete controls source →</a></td>
+    <td valign="top"><a href="examples/controls/main.cpp"><img width="100%" src="docs/images/examples/controls.png" alt="Native controls form with text box, buttons, combo box and progress bar"></a></td>
   </tr>
   <tr>
-    <td valign="top"><a href="examples/paint/main.cpp"><img src="docs/images/examples/paint.png" alt="Native paint example"></a><br><strong><a href="examples/paint/main.cpp">Native paint</a></strong><br><sub>Direct GDI rendering through WM_PAINT.</sub></td>
-    <td valign="top"><a href="examples/minmax/main.cpp"><img src="docs/images/examples/minmax.png" alt="Minimum size example"></a><br><strong><a href="examples/minmax/main.cpp">Minimum size</a></strong><br><sub>Native tracking limits with WM_GETMINMAXINFO.</sub></td>
+    <th align="left">Native painting: direct GDI remains available</th>
+    <th align="left">Result</th>
   </tr>
   <tr>
-    <td valign="top"><a href="examples/close_policy/main.cpp"><img src="docs/images/examples/close-policy.png" alt="Close policy example"></a><br><strong><a href="examples/close_policy/main.cpp">Close policy</a></strong><br><sub>Intercept WM_CLOSE while preserving application ownership.</sub></td>
-    <td valign="top"><a href="examples/window_state/main.cpp"><img src="docs/images/examples/window-state.png" alt="Window state example"></a><br><strong><a href="examples/window_state/main.cpp">Window state</a></strong><br><sub>Restored, minimized, and maximized state.</sub></td>
-  </tr>
-  <tr>
-    <td valign="top"><a href="examples/dpi/main.cpp"><img src="docs/images/examples/dpi.png" alt="DPI example"></a><br><strong><a href="examples/dpi/main.cpp">DPI</a></strong><br><sub>Per-window scale and WM_DPICHANGED.</sub></td>
-    <td valign="top"><a href="examples/window_options/main.cpp"><img src="docs/images/examples/window-options.png" alt="Window options example"></a><br><strong><a href="examples/window_options/main.cpp">Window options</a></strong><br><sub>Class traits, styles, DIP sizing, and centering.</sub></td>
-  </tr>
-  <tr>
-    <td valign="top"><a href="examples/wait_aware/main.cpp"><img src="docs/images/examples/wait-aware.png" alt="Wait-aware pump example"></a><br><strong><a href="examples/wait_aware/main.cpp">Wait-aware pump</a></strong><br><sub>Messages and bounded idle work without busy polling.</sub></td>
-    <td valign="top"><a href="examples/wakeup/main.cpp"><img src="docs/images/examples/wakeup.png" alt="Safe wake-up example"></a><br><strong><a href="examples/wakeup/main.cpp">Safe wake-up</a></strong><br><sub>A C++20 jthread safely notifies the UI window.</sub></td>
-  </tr>
-  <tr>
-    <td valign="top"><a href="examples/com_sta/main.cpp"><img src="docs/images/examples/com-sta.png" alt="COM STA example"></a><br><strong><a href="examples/com_sta/main.cpp">COM STA</a></strong><br><sub>Optional application-owned COM apartment lifetime.</sub></td>
-    <td valign="top"><a href="examples/self_drawn_host/main.cpp"><img src="docs/images/examples/self-drawn-host.png" alt="Self-drawn host example"></a><br><strong><a href="examples/self_drawn_host/main.cpp">Self-drawn host</a></strong><br><sub>Worker-driven dirty frames and native GDI.</sub></td>
-  </tr>
-  <tr>
-    <td valign="top"><a href="examples/system_lifecycle/main.cpp"><img src="docs/images/examples/system-lifecycle.png" alt="System lifecycle example"></a><br><strong><a href="examples/system_lifecycle/main.cpp">System lifecycle</a></strong><br><sub>Power, display, settings, IME, session, and accessibility messages.</sub></td>
-    <td valign="top"><a href="examples/controls/main.cpp"><img src="docs/images/examples/controls.png" alt="Modern native controls example"></a><br><strong><a href="examples/controls/main.cpp">Modern native controls</a></strong><br><sub>Six common system controls, commands, and RAII timer ownership.</sub></td>
+    <td valign="top"><pre><code>void OnPaint(mwtl::PaintEvent&amp; event) {
+    ::FillRect(event.GetDC(), &amp;client, background);
+    ::DrawTextW(event.GetDC(), text, -1, &amp;client,
+                DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+}</code></pre><a href="examples/paint/main.cpp">Open the complete painting source →</a></td>
+    <td valign="top"><a href="examples/paint/main.cpp"><img width="100%" src="docs/images/examples/paint.png" alt="Native GDI paint example"></a></td>
   </tr>
 </table>
 
@@ -292,7 +313,7 @@ public:
 
     mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) {
         if (event.virtual_key == VK_ESCAPE) {
-            ::SendMessageW(GetHwnd(), WM_CLOSE, 0, 0);
+            static_cast<void>(Close());
             return mwtl::EventResult::Handled();
         }
         return mwtl::EventResult::Propagate();
@@ -306,14 +327,14 @@ public:
 using mwtl::operator""_dip;
 
 void BuildUI() {
-    name_.Create(GetHwnd(), {100}, L"Ada",
+    name_.Create(*this, {100}, L"Ada",
                  {{24.0_dip, 24.0_dip}, {280.0_dip, 32.0_dip}});
-    greet_.Create(GetHwnd(), {101}, L"Greet",
+    greet_.Create(*this, {101}, L"Greet",
                   {{320.0_dip, 24.0_dip}, {120.0_dip, 32.0_dip}});
 }
 
 void OnCommand(const mwtl::CommandEvent& event) {
-    if (event.id == mwtl::ControlId{101} && event.notification == BN_CLICKED) {
+    if (event.IsClicked(greet_)) {
         SetTitle(L"Hello, " + name_.GetText());
     }
 }
@@ -331,7 +352,7 @@ and ProgressBar expose `GetHwnd()` whenever direct Win32 access is useful.
 using namespace std::chrono_literals;
 
 void BuildUI() {
-    if (!timer_.Start(GetHwnd(), kRefreshTimer, 1s)) {
+    if (!timer_.Start(*this, kRefreshTimer, 1s)) {
         throw std::runtime_error("timer start failed");
     }
 }

@@ -90,6 +90,12 @@ public:
         return SetTitle(terminated.c_str());
     }
 
+    [[nodiscard]] LRESULT Close() noexcept {
+        return this->m_hWnd != nullptr
+            ? ::SendMessageW(this->m_hWnd, WM_CLOSE, 0, 0)
+            : 0;
+    }
+
     [[nodiscard]] DpiContext GetDpiContext() const noexcept {
         return DpiContext::FromWindow(GetHwnd());
     }

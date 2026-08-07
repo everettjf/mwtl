@@ -13,18 +13,18 @@ public:
             throw std::runtime_error("SetWindowTextW failed while building the main window");
         }
         if (!message_.Create(
-                GetHwnd(), kMessage,
+                *this, kMessage,
                 L"Hello from a native Windows UI with modern C++20 ergonomics.",
                 {{28.0_dip, 28.0_dip}, {520.0_dip, 34.0_dip}}) ||
             !button_.Create(
-                GetHwnd(), kButton, L"Make it brighter",
+                *this, kButton, L"Make it brighter",
                 {{28.0_dip, 82.0_dip}, {180.0_dip, 36.0_dip}})) {
             throw std::runtime_error("Could not create hello controls");
         }
     }
 
     void OnCommand(const mwtl::CommandEvent& event) {
-        if (event.id == kButton && event.notification == BN_CLICKED) {
+        if (event.IsClicked(button_)) {
             static_cast<void>(message_.SetText(
                 L"A real BUTTON HWND, dispatched without message-map macros."));
         }

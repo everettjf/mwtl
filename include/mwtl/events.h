@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include <compare>
+#include <concepts>
 #include <cstdint>
 
 namespace mwtl {
@@ -73,6 +74,28 @@ struct CommandEvent {
     ControlId id{};
     UINT notification = 0;
     HWND control = nullptr;  // Non-owning.
+
+    [[nodiscard]] constexpr bool Is(
+        ControlId expected_id,
+        UINT expected_notification) const noexcept {
+        return id == expected_id && notification == expected_notification;
+    }
+
+    template <typename Control>
+        requires requires(const Control& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool IsFrom(const Control& expected) const noexcept {
+        return control != nullptr && control == expected.GetHwnd();
+    }
+
+    template <typename Control>
+        requires requires(const Control& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool IsClicked(const Control& expected) const noexcept {
+        return notification == BN_CLICKED && IsFrom(expected);
+    }
 };
 
 struct MinMaxInfoEvent {

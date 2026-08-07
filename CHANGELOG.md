@@ -12,6 +12,11 @@
 - Added `RunApplication` for a one-line, ABI-safe application entry point.
 - Converted every example to the macro-free API and added a controls gallery,
   bringing the executable example catalog to 20 programs.
+- Added C++20 window-like overloads for controls and timers plus direct
+  `CommandEvent::IsClicked(control)` matching to remove routine HWND and
+  notification boilerplate.
+- Added `Window<T>::Close()` as a result-preserving convenience for the common
+  `WM_CLOSE` path.
 
 ## 0.2.0 - 2026-08-06
 

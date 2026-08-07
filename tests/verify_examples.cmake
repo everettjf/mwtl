@@ -48,8 +48,16 @@ foreach(example_name IN LISTS example_names)
     if(NOT EXISTS "${PROJECT_ROOT}/${image_path}")
         message(FATAL_ERROR "README screenshot is missing: ${image_path}")
     endif()
+endforeach()
+
+# Keep every capture on disk for reference, but feature only visually useful
+# examples in the README instead of showing nearly blank infrastructure windows.
+set(featured_images hello controls paint)
+foreach(example_name IN LISTS featured_images)
+    string(REPLACE "_" "-" image_slug "${example_name}")
+    set(image_path "docs/images/examples/${image_slug}.png")
     if(NOT root_readme MATCHES "${image_path}")
-        message(FATAL_ERROR "README does not reference screenshot: ${image_path}")
+        message(FATAL_ERROR "README does not feature screenshot: ${image_path}")
     endif()
 endforeach()
 

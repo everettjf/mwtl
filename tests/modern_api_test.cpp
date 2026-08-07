@@ -17,26 +17,25 @@ bool timer_seen = false;
 class ModernApiWindow final : public mwtl::Window<ModernApiWindow> {
 public:
     void BuildUI() {
-        const HWND parent = GetHwnd();
         if (!label_.Create(
-                parent, kLabel, L"Modern API test",
+                *this, kLabel, L"Modern API test",
                 {{8.0_dip, 8.0_dip}, {180.0_dip, 24.0_dip}}) ||
             !text_.Create(
-                parent, kText, L"native edit",
+                *this, kText, L"native edit",
                 {{8.0_dip, 40.0_dip}, {180.0_dip, 28.0_dip}}) ||
             !button_.Create(
-                parent, kButton, L"Verify",
+                *this, kButton, L"Verify",
                 {{8.0_dip, 76.0_dip}, {100.0_dip, 28.0_dip}}) ||
             !check_.Create(
-                parent, kCheck, L"Checked",
+                *this, kCheck, L"Checked",
                 {{120.0_dip, 76.0_dip}, {100.0_dip, 28.0_dip}}) ||
             !combo_.Create(
-                parent, kCombo,
+                *this, kCombo,
                 {{8.0_dip, 112.0_dip}, {180.0_dip, 120.0_dip}}) ||
             !progress_.Create(
-                parent, kProgress,
+                *this, kProgress,
                 {{8.0_dip, 148.0_dip}, {180.0_dip, 20.0_dip}}) ||
-            !timer_.Start(parent, kTimer, 1ms)) {
+            !timer_.Start(*this, kTimer, 1ms)) {
             throw std::runtime_error("modern API fixture setup failed");
         }
 
@@ -51,14 +50,12 @@ public:
         }
 
         button_.Click();
-        ::SendMessageW(parent, WM_KEYDOWN, VK_SPACE, 1);
-        ::SendMessageW(parent, kCustomMessage, 42, 0);
+        ::SendMessageW(GetHwnd(), WM_KEYDOWN, VK_SPACE, 1);
+        ::SendMessageW(GetHwnd(), kCustomMessage, 42, 0);
     }
 
     void OnCommand(const mwtl::CommandEvent& event) {
-        command_seen = event.id == kButton &&
-            event.notification == BN_CLICKED &&
-            event.control == button_.GetHwnd() &&
+        command_seen = event.IsClicked(button_) &&
             text_.GetText() == L"native edit";
     }
 

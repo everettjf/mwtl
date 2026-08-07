@@ -15,7 +15,7 @@ public:
         if (!SetTitle(L"Timer demo — waiting for WM_TIMER")) {
             throw std::runtime_error("SetTitle failed");
         }
-        if (!timer_.Start(GetHwnd(), kTimer, 1s)) {
+        if (!timer_.Start(*this, kTimer, 1s)) {
             throw std::runtime_error("UiTimer::Start failed");
         }
     }

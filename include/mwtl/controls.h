@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <commctrl.h>
 
+#include <concepts>
 #include <string>
 #include <string_view>
 
@@ -64,6 +65,19 @@ public:
         std::wstring_view text,
         RectDip bounds,
         LabelOptions options = {});
+
+    template <typename Parent>
+        requires requires(const Parent& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool Create(
+        const Parent& parent,
+        ControlId id,
+        std::wstring_view text,
+        RectDip bounds,
+        LabelOptions options = {}) {
+        return Create(parent.GetHwnd(), id, text, bounds, options);
+    }
 };
 
 struct ButtonOptions {
@@ -79,6 +93,18 @@ public:
         std::wstring_view text,
         RectDip bounds,
         ButtonOptions options = {});
+    template <typename Parent>
+        requires requires(const Parent& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool Create(
+        const Parent& parent,
+        ControlId id,
+        std::wstring_view text,
+        RectDip bounds,
+        ButtonOptions options = {}) {
+        return Create(parent.GetHwnd(), id, text, bounds, options);
+    }
     void Click() noexcept;
 };
 
@@ -95,6 +121,18 @@ public:
         std::wstring_view text,
         RectDip bounds,
         TextBoxOptions options = {});
+    template <typename Parent>
+        requires requires(const Parent& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool Create(
+        const Parent& parent,
+        ControlId id,
+        std::wstring_view text,
+        RectDip bounds,
+        TextBoxOptions options = {}) {
+        return Create(parent.GetHwnd(), id, text, bounds, options);
+    }
     void SelectAll() noexcept;
     void SetReadOnly(bool read_only) noexcept;
 };
@@ -112,6 +150,18 @@ public:
         std::wstring_view text,
         RectDip bounds,
         CheckBoxOptions options = {});
+    template <typename Parent>
+        requires requires(const Parent& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool Create(
+        const Parent& parent,
+        ControlId id,
+        std::wstring_view text,
+        RectDip bounds,
+        CheckBoxOptions options = {}) {
+        return Create(parent.GetHwnd(), id, text, bounds, options);
+    }
     [[nodiscard]] bool IsChecked() const noexcept;
     void SetChecked(bool checked) noexcept;
 };
@@ -129,6 +179,17 @@ public:
         ControlId id,
         RectDip bounds,
         ComboBoxOptions options = {});
+    template <typename Parent>
+        requires requires(const Parent& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool Create(
+        const Parent& parent,
+        ControlId id,
+        RectDip bounds,
+        ComboBoxOptions options = {}) {
+        return Create(parent.GetHwnd(), id, bounds, options);
+    }
     [[nodiscard]] int AddItem(std::wstring_view text);
     [[nodiscard]] int GetSelection() const noexcept;
     [[nodiscard]] bool SetSelection(int index) noexcept;
@@ -146,6 +207,17 @@ public:
         ControlId id,
         RectDip bounds,
         ProgressBarOptions options = {});
+    template <typename Parent>
+        requires requires(const Parent& value) {
+            { value.GetHwnd() } -> std::same_as<HWND>;
+        }
+    [[nodiscard]] bool Create(
+        const Parent& parent,
+        ControlId id,
+        RectDip bounds,
+        ProgressBarOptions options = {}) {
+        return Create(parent.GetHwnd(), id, bounds, options);
+    }
     void SetRange(int minimum, int maximum) noexcept;
     void SetValue(int value) noexcept;
     [[nodiscard]] int GetValue() const noexcept;

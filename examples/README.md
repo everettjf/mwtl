@@ -36,7 +36,7 @@ cmake --build build/x64 --config Debug --target mwtl_timer_demo
 With the repository presets, the equivalent full examples/test build is:
 
 ```powershell
-cmake --preset vs2022-x64
+cmake --preset vs2026-x64
 cmake --build --preset x64-debug
 ```
 

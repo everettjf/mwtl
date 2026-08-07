@@ -20,7 +20,7 @@
 
   <main>
     <section class="shell hero">
-      <div class="eyebrow">Native Windows - C++17 - HWND first</div>
+      <div class="eyebrow">Native Windows - C++20 - HWND first</div>
       <h1>Modern foundations.<br>Native Windows.</h1>
       <p class="lede">mwtl provides clear application lifetime management, direct Win32 message interoperability, and safe exception boundaries on top of ATL/WTL and Microsoft WIL, while preserving a small footprint, fast startup, and direct HWND access.</p>
       <div class="actions">
@@ -71,7 +71,7 @@
       <h2>Lightweight, native, and maintainable</h2>
       <div class="grid">
         <div class="card"><h3>Win32 stays visible</h3><p>Retrieve the HWND at any time and call SendMessageW, PostMessageW, or other Windows APIs directly.</p></div>
-        <div class="card"><h3>Real C++17</h3><p>The public target explicitly requires cxx_std_17 and does not depend on concepts, modules, or standard coroutines.</p></div>
+        <div class="card"><h3>Real C++20</h3><p>The public target explicitly requires <code>cxx_std_20</code> and uses concepts, spans, three-way comparison, and modern cooperative thread ownership where they improve the API.</p></div>
         <div class="card"><h3>Reproducible dependencies</h3><p>WTL and WIL come from their official repositories at immutable commit SHAs, with offline source overrides supported.</p></div>
       </div>
     </section>

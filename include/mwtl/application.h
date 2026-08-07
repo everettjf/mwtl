@@ -7,14 +7,20 @@
 #include <wil/resource.h>
 
 #include <cstdlib>
+#include <concepts>
 #include <exception>
-#include <type_traits>
 
 #include <mwtl/message_pump.h>
 #include <mwtl/window.h>
 #include <mwtl/window_options.h>
 
 namespace mwtl {
+
+template <typename T>
+concept MainWindow = std::derived_from<T, detail::WindowMarker> &&
+    std::default_initializable<T> && requires(T& window) {
+        { window.BuildUI() } -> std::same_as<void>;
+    };
 
 enum class ComApartment {
     none,
@@ -37,35 +43,32 @@ public:
     Application(Application&&) = delete;
     Application& operator=(Application&&) = delete;
 
-    template <typename MainWindow>
+    template <MainWindow MainWindowType>
     int Run(int show_command) noexcept {
-        return RunImpl<MainWindow>(show_command, WindowOptions{}, nullptr);
+        return RunImpl<MainWindowType>(show_command, WindowOptions{}, nullptr);
     }
 
-    template <typename MainWindow>
+    template <MainWindow MainWindowType>
     int Run(int show_command, const WindowOptions& options) noexcept {
-        return RunImpl<MainWindow>(show_command, options, nullptr);
+        return RunImpl<MainWindowType>(show_command, options, nullptr);
     }
 
-    template <typename MainWindow>
+    template <MainWindow MainWindowType>
     int Run(
         int show_command,
         const WindowOptions& options,
         MessagePump& message_pump) noexcept {
-        return RunImpl<MainWindow>(show_command, options, &message_pump);
+        return RunImpl<MainWindowType>(show_command, options, &message_pump);
     }
 
-    HINSTANCE GetInstance() const noexcept { return instance_; }
+    [[nodiscard]] HINSTANCE GetInstance() const noexcept { return instance_; }
 
 private:
-    template <typename MainWindow>
+    template <MainWindow MainWindowType>
     int RunImpl(
         int show_command,
         const WindowOptions& options,
         MessagePump* message_pump) noexcept {
-        static_assert(std::is_base_of_v<detail::WindowMarker, MainWindow>,
-                      "MainWindow must derive from an mwtl::Window specialization");
-
         if (!BeginRun()) {
             return EXIT_FAILURE;
         }
@@ -73,7 +76,7 @@ private:
         auto cleanup = wil::scope_exit([this]() noexcept { EndRun(); });
 
         try {
-            MainWindow main_window;
+            MainWindowType main_window;
             main_window.ConfigureWindowOptions(options);
             RECT bounds = options.use_default_bounds
                 ? ATL::CWindow::rcDefault

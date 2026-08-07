@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title description">
+  <title id="title">mwtl geometric sun mark</title>
+  <desc id="description">A bright sun behind a geometric letter M, orbited by a circle, triangle, and square.</desc>
+  <defs>
+    <linearGradient id="sky" x1="36" y1="24" x2="220" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff7d6"/>
+      <stop offset="1" stop-color="#e8fbff"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="78" y1="66" x2="176" y2="178" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd84d"/>
+      <stop offset="1" stop-color="#ff8a4c"/>
+    </linearGradient>
+    <linearGradient id="line" x1="67" y1="91" x2="190" y2="178" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#146c94"/>
+      <stop offset="1" stop-color="#17a589"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#245064" flood-opacity=".16"/>
+    </filter>
+  </defs>
+
+  <rect x="12" y="12" width="232" height="232" rx="58" fill="url(#sky)"/>
+
+  <g fill="none" stroke="#f6b93b" stroke-linecap="round" stroke-width="8">
+    <path d="M128 31v16M128 209v16M31 128h16M209 128h16"/>
+    <path d="m59 59 12 12M185 185l12 12M197 59l-12 12M71 185l-12 12"/>
+  </g>
+
+  <circle cx="128" cy="128" r="68" fill="url(#sun)" filter="url(#shadow)"/>
+  <circle cx="128" cy="128" r="88" fill="none" stroke="#53b8c9" stroke-dasharray="4 11" stroke-linecap="round" stroke-width="4"/>
+
+  <path d="M72 168V92l56 55 56-55v76" fill="none" stroke="url(#line)" stroke-linecap="round" stroke-linejoin="round" stroke-width="18"/>
+  <circle cx="72" cy="92" r="9" fill="#146c94"/>
+  <path d="m184 78 12 21h-24z" fill="#eb5e55"/>
+  <rect x="177" y="159" width="15" height="15" rx="3" fill="#17a589"/>
+</svg>

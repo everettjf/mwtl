@@ -2,7 +2,7 @@
 
 - [x] x64 Debug configure/build/link and 43 CTest cases pass locally.
 - [x] x64 Release configure/build/link and 43 CTest cases pass locally.
-- [x] C++17 library/public headers and C++20 consumer compile.
+- [x] C++20 library, public headers, examples, and consumer fixture compile.
 - [x] All public headers independently compile without a PCH.
 - [x] All 19 example manifests are extracted from the EXE and checked for PMv2.
 - [x] Seven 0.2 GUI examples created a visible HWND, accepted `WM_CLOSE`, and exited 0.

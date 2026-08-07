@@ -9,7 +9,7 @@
 | `Window<T>::GetHwnd()` | non-owning observation; null after `WM_NCDESTROY` |
 | `WindowClassTraits` icons/cursor/brush | non-owning; caller keeps resources valid for class lifetime |
 | `WindowOptions` icons/cursor/brush | non-owning; mwtl sends/assigns handles but never destroys them |
-| `WaitAwarePumpOptions::handles` | non-owning array and handles; valid until `Run` returns |
+| `WaitAwarePumpOptions::handles` | non-owning `std::span` and handles; valid until `Run` returns |
 | `WaitAwarePumpOptions::delegate` | non-owning; valid until `Run` returns |
 | `WindowWakeup` | copyable weak token; does not own the C++ object or HWND |
 | COM apartment | owned by `Application` only when explicitly requested and initialization succeeds |

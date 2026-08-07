@@ -6,6 +6,7 @@
 #include <atlapp.h>
 
 #include <cstddef>
+#include <span>
 
 namespace mwtl {
 
@@ -25,8 +26,7 @@ public:
 };
 
 struct WaitAwarePumpOptions {
-    const HANDLE* handles = nullptr;  // Non-owning.
-    std::size_t handle_count = 0;
+    std::span<const HANDLE> handles{};  // Non-owning.
     DWORD idle_timeout_ms = INFINITE;
     WaitAwarePumpDelegate* delegate = nullptr;  // Non-owning.
 };

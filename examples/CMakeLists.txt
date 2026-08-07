@@ -2,7 +2,7 @@ function(mwtl_add_example target)
     add_executable(${target} WIN32
         ${ARGN}
         "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/example.manifest")
-    target_compile_features(${target} PRIVATE cxx_std_17)
+    target_compile_features(${target} PRIVATE cxx_std_20)
     target_compile_options(${target} PRIVATE /W4 /permissive- /EHsc /utf-8)
     target_link_libraries(${target} PRIVATE mwtl::mwtl)
     set_property(

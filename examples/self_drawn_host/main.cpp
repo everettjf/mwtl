@@ -1,22 +1,17 @@
 #include <mwtl/mwtl.h>
 
-#include <atomic>
 #include <cstdlib>
+#include <chrono>
 #include <thread>
 
 class SelfDrawnWindow final : public mwtl::Window<SelfDrawnWindow> {
 public:
-    ~SelfDrawnWindow() noexcept {
-        stopping_.store(true, std::memory_order_release);
-        if (producer_.joinable()) producer_.join();
-    }
-
     void BuildUI() {
         SetTitle(L"Self-drawn host - worker-driven dirty frames");
         const mwtl::WindowWakeup wake = GetWakeup();
-        producer_ = std::thread([this, wake] {
-            while (!stopping_.load(std::memory_order_acquire)) {
-                ::Sleep(16);
+        producer_ = std::jthread([wake](std::stop_token stop) {
+            while (!stop.stop_requested()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(16));
                 if (!wake.TryWake()) break;
             }
         });
@@ -52,14 +47,13 @@ private:
         return 0;
     }
 
-    std::atomic<bool> stopping_{false};
-    std::thread producer_;
+    std::jthread producer_;
     unsigned frame_ = 0;
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
     try {
-        mwtl::WaitAwareMessagePump pump({nullptr, 0, INFINITE, nullptr});
+        mwtl::WaitAwareMessagePump pump;
         return mwtl::Application(instance).Run<SelfDrawnWindow>(
             show_command, mwtl::WindowOptions{}, pump);
     } catch (...) { return EXIT_FAILURE; }

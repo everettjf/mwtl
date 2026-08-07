@@ -11,7 +11,7 @@ Highlights:
 - pluggable default or wait-aware message pumps;
 - lifetime-safe cross-thread window wake-up;
 - optional STA/MTA COM ownership;
-- five focused examples and C++17/C++20 compatibility tests;
+- focused examples and C++20 public-header/consumer compatibility tests;
 - a liney-win host compatibility fixture and migration guide.
 - direct runtime coverage for native lifecycle, IME, accessibility-provider,
   end-session, wait-failure, and continuous-producer input paths.

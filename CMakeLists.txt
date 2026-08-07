@@ -39,7 +39,7 @@ add_library(mwtl STATIC
     src/window_options.cpp)
 add_library(mwtl::mwtl ALIAS mwtl)
 
-target_compile_features(mwtl PUBLIC cxx_std_17)
+target_compile_features(mwtl PUBLIC cxx_std_20)
 target_compile_definitions(mwtl
     PUBLIC
         UNICODE

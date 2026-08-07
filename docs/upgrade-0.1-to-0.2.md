@@ -1,5 +1,11 @@
 # Upgrade from 0.1 to 0.2
 
+The current branch requires C++20. Update consumer targets to
+`target_compile_features(your_target PRIVATE cxx_std_20)` before adopting the
+0.2 APIs. `WaitAwarePumpOptions::handles` is a non-owning `std::span<const
+HANDLE>`; arrays convert directly and empty spans represent a message-only
+wait.
+
 No source change is required for existing 0.1 applications. The original
 `Application(instance).Run<MainWindow>(show_command)` call still selects WTL's
 standard loop and default window creation behavior.

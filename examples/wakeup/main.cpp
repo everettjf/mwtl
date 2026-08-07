@@ -1,18 +1,22 @@
 #include <mwtl/mwtl.h>
 
+#include <chrono>
 #include <cstdlib>
 #include <thread>
 
 class WakeWindow final : public mwtl::Window<WakeWindow> {
 public:
-    ~WakeWindow() noexcept { if (worker_.joinable()) worker_.join(); }
-
     void BuildUI() {
         SetTitle(L"Worker thread will wake this HWND safely");
         const mwtl::WindowWakeup wake = GetWakeup();
-        worker_ = std::thread([wake] {
-            ::Sleep(1000);
-            wake.TryWake();
+        worker_ = std::jthread([wake](std::stop_token stop) {
+            using namespace std::chrono_literals;
+            if (!stop.stop_requested()) {
+                std::this_thread::sleep_for(1s);
+            }
+            if (!stop.stop_requested()) {
+                static_cast<void>(wake.TryWake());
+            }
         });
     }
 
@@ -26,7 +30,7 @@ private:
         SetTitle(L"Safe cross-thread wake-up received");
         return 0;
     }
-    std::thread worker_;
+    std::jthread worker_;
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {

@@ -28,7 +28,10 @@ private:
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
     try {
         IdleDelegate delegate;
-        mwtl::WaitAwareMessagePump pump({nullptr, 0, 500, &delegate});
+        mwtl::WaitAwareMessagePump pump({
+            .idle_timeout_ms = 500,
+            .delegate = &delegate,
+        });
         return mwtl::Application(instance).Run<WaitWindow>(
             show_command, mwtl::WindowOptions{}, pump);
     } catch (...) { return EXIT_FAILURE; }

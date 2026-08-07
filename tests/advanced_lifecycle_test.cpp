@@ -10,6 +10,8 @@
 #include <chrono>
 #include <cstdio>
 #include <cstring>
+#include <ranges>
+#include <span>
 #include <stdexcept>
 #include <thread>
 
@@ -255,14 +257,18 @@ int main(int argc, char** argv) {
         if (wait_event == nullptr) return 22;
     }
     const HANDLE handles[] = {wait_event};
+    const bool waits_on_handle = mode == Mode::wait_handle ||
+        mode == Mode::wait_callback_exception || mode == Mode::wait_failure;
+    const std::span<const HANDLE> wait_handles = waits_on_handle
+        ? std::span<const HANDLE>{handles}
+        : std::span<const HANDLE>{};
     mwtl::WaitAwareMessagePump pump({
-        (mode == Mode::wait_handle || mode == Mode::wait_callback_exception ||
-         mode == Mode::wait_failure) ? handles : nullptr,
-        (mode == Mode::wait_handle || mode == Mode::wait_callback_exception ||
-         mode == Mode::wait_failure) ? 1u : 0u,
-        (mode == Mode::pump_exception || mode == Mode::wait_failure) ? 1u :
+        .handles = wait_handles,
+        .idle_timeout_ms =
+            (mode == Mode::pump_exception || mode == Mode::wait_failure) ? 1u :
             (mode == Mode::idle_efficiency ? 20u : 5000u),
-        &delegate});
+        .delegate = &delegate,
+    });
 
     mwtl::WindowOptions window_options;
     window_options.title = L"mwtl advanced lifecycle test";
@@ -315,7 +321,7 @@ int main(int argc, char** argv) {
          !input_observed.load(std::memory_order_acquire))) return 28;
     if (mode == Mode::wake_latency) {
         if (!wake_posted.load(std::memory_order_acquire) || wake_count.load() != 500) return 33;
-        std::sort(wake_latency_us.begin(), wake_latency_us.end());
+        std::ranges::sort(wake_latency_us);
         std::printf("wake p95=%lld us, median=%lld us\n",
                     wake_latency_us[474], wake_latency_us[249]);
         if (wake_latency_us[474] > 16000) return 34;

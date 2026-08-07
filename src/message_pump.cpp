@@ -11,8 +11,7 @@ WaitAwareMessagePump::WaitAwareMessagePump(WaitAwarePumpOptions options) noexcep
     : options_(options) {}
 
 int WaitAwareMessagePump::Run(WTL::CMessageLoop& wtl_loop) noexcept {
-    if (options_.handle_count > MAXIMUM_WAIT_OBJECTS - 1 ||
-        (options_.handle_count != 0 && options_.handles == nullptr)) {
+    if (options_.handles.size() > MAXIMUM_WAIT_OBJECTS - 1) {
         detail::ReportWin32(L"wait-aware message pump options", ERROR_INVALID_PARAMETER, false);
         return EXIT_FAILURE;
     }
@@ -42,8 +41,8 @@ int WaitAwareMessagePump::Run(WTL::CMessageLoop& wtl_loop) noexcept {
             }
 
             const DWORD result = ::MsgWaitForMultipleObjectsEx(
-                static_cast<DWORD>(options_.handle_count),
-                options_.handles,
+                static_cast<DWORD>(options_.handles.size()),
+                options_.handles.data(),
                 timeout,
                 QS_ALLINPUT,
                 MWMO_INPUTAVAILABLE);
@@ -60,7 +59,7 @@ int WaitAwareMessagePump::Run(WTL::CMessageLoop& wtl_loop) noexcept {
             }
             const DWORD first_handle = WAIT_OBJECT_0;
             const DWORD after_handles = first_handle +
-                static_cast<DWORD>(options_.handle_count);
+                static_cast<DWORD>(options_.handles.size());
             if (result >= first_handle && result < after_handles) {
                 if (options_.delegate != nullptr) {
                     options_.delegate->OnHandleSignaled(

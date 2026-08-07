@@ -68,9 +68,9 @@ public:
         return info;
     }
 
-    HWND GetHwnd() const noexcept { return this->m_hWnd; }
+    [[nodiscard]] HWND GetHwnd() const noexcept { return this->m_hWnd; }
 
-    bool IsWindow() const noexcept {
+    [[nodiscard]] bool IsWindow() const noexcept {
         return this->m_hWnd != nullptr && ::IsWindow(this->m_hWnd) != FALSE;
     }
 
@@ -78,11 +78,11 @@ public:
         return this->m_hWnd != nullptr && ::SetWindowTextW(this->m_hWnd, title) != FALSE;
     }
 
-    DpiContext GetDpiContext() const noexcept {
+    [[nodiscard]] DpiContext GetDpiContext() const noexcept {
         return DpiContext::FromWindow(GetHwnd());
     }
 
-    WindowWakeup GetWakeup() const noexcept { return WindowWakeup(wake_state_); }
+    [[nodiscard]] WindowWakeup GetWakeup() const noexcept { return WindowWakeup(wake_state_); }
 
     void ConfigureWindowOptions(const WindowOptions& options) noexcept {
         apply_suggested_dpi_rect_ = options.apply_suggested_dpi_rect;

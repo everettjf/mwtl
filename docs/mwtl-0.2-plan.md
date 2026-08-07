@@ -29,9 +29,9 @@ The intended boundary is:
 - Windows 10 version 1809 and newer, and Windows 11.
 - MSVC with Visual Studio 2022 or a later toolset explicitly verified by CI.
 - x64 and ARM64.
-- C++17 remains the public minimum and default language standard.
-- A C++20 consumer such as liney-win can link mwtl without raising mwtl's public
-  language requirement.
+- C++20 is the public minimum and default language standard.
+- C++20 consumers such as liney-win can use concepts, spans, designated
+  initializers, and standard stop tokens without an adapter layer.
 - Unicode only.
 - Per-Monitor DPI Awareness V2.
 - WTL and WIL remain pinned to immutable official commits.
@@ -133,7 +133,7 @@ Requirements:
 - conversion and rounding are centralized and documented;
 - invalid/null HWND input has deterministic behavior;
 - no process-global mutable DPI state;
-- arithmetic remains C++17-compatible;
+- arithmetic remains constexpr and C++20-compatible;
 - the public API distinguishes DIP values from physical pixels.
 
 ### 4.2 Window configuration
@@ -191,8 +191,7 @@ struct StandardMessagePump {
 };
 
 struct WaitAwarePumpOptions {
-    const HANDLE* handles = nullptr; // non-owning
-    std::size_t handle_count = 0;
+    std::span<const HANDLE> handles{}; // non-owning
     DWORD idle_timeout_ms = INFINITE;
 };
 ```
@@ -286,7 +285,7 @@ Requirements:
 Deliverables:
 
 - record 0.1 API and behavior baselines;
-- add build-only consumer fixtures for C++17 and C++20;
+- add build-only C++20 consumer fixtures;
 - capture current hello startup, idle CPU, and shutdown measurements;
 - create a small self-drawn reference application that mimics liney-win's
   outer window without terminal code.
@@ -418,7 +417,7 @@ Deliverables:
 Exit gate:
 
 - a new consumer can build each example from README commands;
-- public headers independently compile under C++17;
+- public headers independently compile under C++20;
 - package/add_subdirectory/FetchContent consumer checks pass;
 - all required CI and manual gates have recorded evidence.
 
@@ -448,7 +447,7 @@ large patch.
 |---|---|
 | x64 | Debug and Release configure, compile, link, and CTest |
 | ARM64 | Debug and Release configure, compile, and link |
-| Language | Public library and headers compile with `/std:c++17`; C++20 consumer fixture also builds |
+| Language | Public library, headers, examples, and consumer fixture compile with `/std:c++20` |
 | Headers | Every public header independently compiles without a PCH |
 | DPI | Conversion unit tests plus actual monitor-transition smoke tests |
 | Window creation | Default and custom class/style/icon/cursor/background cases |
@@ -527,7 +526,7 @@ implemented without importing terminal/workspace semantics.
   for runtime verification;
 - x64 Debug and Release are green locally and in CI;
 - ARM64 Debug and Release compile/link in CI;
-- C++17 evidence is present in build logs;
+- C++20 evidence is present in build logs;
 - all public headers independently compile;
 - the wait-aware pump passes stress and lost-wakeup tests;
 - all injected failure paths demonstrate paired WTL/COM cleanup;

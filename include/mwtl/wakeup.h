@@ -23,9 +23,9 @@ class WindowWakeup final {
 public:
     WindowWakeup() noexcept = default;
 
-    static UINT Message() noexcept { return detail::GetWindowWakeMessage(); }
+    [[nodiscard]] static UINT Message() noexcept { return detail::GetWindowWakeMessage(); }
 
-    bool TryWake() const noexcept {
+    [[nodiscard]] bool TryWake() const noexcept {
         const std::shared_ptr<detail::WindowWakeState> state = state_.lock();
         if (!state) {
             return false;

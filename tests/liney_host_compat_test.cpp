@@ -144,7 +144,7 @@ int main() {
     options.initial_bounds = {{0.0_dip, 0.0_dip}, {960.0_dip, 640.0_dip}};
     options.bounds_are_client_size = true;
     options.center_in_work_area = true;
-    mwtl::WaitAwareMessagePump pump({nullptr, 0, 16, nullptr});
+    mwtl::WaitAwareMessagePump pump({.idle_timeout_ms = 16});
     const int result = mwtl::Application(::GetModuleHandleW(nullptr)).Run<LineyHost>(
         SW_HIDE, options, pump);
     return result == 0 && observed_messages.load(std::memory_order_acquire) ==

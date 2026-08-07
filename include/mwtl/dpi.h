@@ -2,6 +2,8 @@
 
 #include <windows.h>
 
+#include <compare>
+
 namespace mwtl {
 
 struct Dip {
@@ -9,15 +11,9 @@ struct Dip {
 
     constexpr Dip() noexcept = default;
     constexpr explicit Dip(float input) noexcept : value(input) {}
+
+    constexpr auto operator<=>(const Dip&) const noexcept = default;
 };
-
-constexpr bool operator==(Dip left, Dip right) noexcept {
-    return left.value == right.value;
-}
-
-constexpr bool operator!=(Dip left, Dip right) noexcept {
-    return !(left == right);
-}
 
 constexpr Dip operator+(Dip left, Dip right) noexcept {
     return Dip(left.value + right.value);
@@ -74,16 +70,16 @@ public:
         return DpiContext(dpi);
     }
 
-    constexpr UINT GetDpi() const noexcept { return dpi_; }
-    constexpr float GetScale() const noexcept {
+    [[nodiscard]] constexpr UINT GetDpi() const noexcept { return dpi_; }
+    [[nodiscard]] constexpr float GetScale() const noexcept {
         return static_cast<float>(dpi_) / static_cast<float>(kDefaultDpi);
     }
 
-    int ToPixels(Dip value) const noexcept;
-    Dip FromPixels(int value) const noexcept;
-    POINT ToPixels(PointDip value) const noexcept;
-    SIZE ToPixels(SizeDip value) const noexcept;
-    RECT ToPixels(RectDip value) const noexcept;
+    [[nodiscard]] int ToPixels(Dip value) const noexcept;
+    [[nodiscard]] Dip FromPixels(int value) const noexcept;
+    [[nodiscard]] POINT ToPixels(PointDip value) const noexcept;
+    [[nodiscard]] SIZE ToPixels(SizeDip value) const noexcept;
+    [[nodiscard]] RECT ToPixels(RectDip value) const noexcept;
 
 private:
     UINT dpi_ = kDefaultDpi;

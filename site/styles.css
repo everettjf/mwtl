@@ -81,10 +81,11 @@ code:not(pre code) { padding: .12rem .35rem; border-radius: .3rem; background: v
 .code-panel pre { height: 100%; margin: 0; border: 0; border-radius: 0; }
 .code-panel.compact { max-width: 800px; }
 .panel-label { padding: .55rem 1rem; border-bottom: 1px solid var(--line); color: var(--muted); font: 600 .75rem/1.5 "Cascadia Code", monospace; }
-.preview-panel { display: flex; flex-direction: column; margin: 0; overflow: hidden; background: #f4f6f9; }
-.preview-panel img { display: block; width: 100%; height: 100%; min-height: 260px; object-fit: cover; object-position: top left; }
+.preview-panel { display: flex; align-self: start; flex-direction: column; margin: 0; overflow: hidden; background: #f4f6f9; }
+.preview-panel img { display: block; width: 100%; height: auto; object-fit: contain; object-position: top left; }
 .preview-panel figcaption { padding: .7rem 1rem; color: #536079; background: #fff; font-size: .82rem; }
 .common-preview img { object-fit: contain; background: #fff; }
+.docs-content pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .result-note, .native-note { display: grid; align-content: center; gap: .45rem; padding: 1.4rem; color: var(--muted); }
 .result-note strong, .native-note strong { color: var(--text); }
 .source-link { margin: 1.5rem 0 0; }
@@ -95,6 +96,7 @@ code:not(pre code) { padding: .12rem .35rem; border-radius: .3rem; background: v
   .hero { padding-top: 4rem; }
   .quick-code, .home-strip, .doc-heading, .example-grid { grid-template-columns: 1fr; }
   .docs-topbar { padding: 0 1rem; }
+  .docs-topbar .nav-links { flex-direction: row; gap: .8rem; font-size: .84rem; }
   .docs-layout { display: block; }
   .docs-sidebar { position: static; width: 100%; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
   .docs-sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }

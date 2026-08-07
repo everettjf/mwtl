@@ -1,6 +1,7 @@
 foreach(required IN ITEMS
         index.html
         building.html
+        components/index.html
         components/application.html
         components/controls.html
         components/common-controls.html

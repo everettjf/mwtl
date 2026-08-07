@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browse mwtl components, complete code, and native Windows UI results.">
+  <link rel="canonical" href="https://everettjf.github.io/mwtl/components/">
+  <title>Components — mwtl</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="docs-body">
+  <header class="docs-topbar">
+    <a class="brand" href="../index.html">mwtl</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a class="active" href="index.html">Components</a>
+      <a href="../building.html">Build</a>
+      <a href="https://github.com/everettjf/mwtl">GitHub</a>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="sidebar-title">Components</div>
+      <nav aria-label="Component navigation">
+        <span>Foundation</span>
+        <a href="#application">Application</a>
+        <a href="#window">Window</a>
+        <a href="#timer">Timer</a>
+        <span>Basic controls</span>
+        <a href="#form-controls">Form controls</a>
+        <a href="#events">Command events</a>
+        <span>Common Controls</span>
+        <a href="#data-navigation">Data &amp; navigation</a>
+        <a href="#date-input">Date &amp; input</a>
+        <a href="#commands">Commands &amp; containers</a>
+        <a href="#resources">Resources &amp; dialogs</a>
+      </nav>
+    </aside>
+
+    <main class="docs-content">
+      <header class="docs-intro">
+        <div class="eyebrow">Component reference</div>
+        <h1>Code and result,<br>side by side.</h1>
+        <p>Every wrapper owns or observes a real Windows object. The concise path is shown first; native handles, messages, styles, and return values remain available.</p>
+      </header>
+
+      <section id="application" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Foundation</span><h2>Application</h2></div><p>Initializes WTL, creates the stack-owned main window, runs the message loop, and guarantees cleanup.</p></div>
+        <div class="example-grid single-code">
+          <div class="code-panel"><div class="panel-label">Complete entry point</div><pre><code>int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
+    return mwtl::RunApplication&lt;MainWindow&gt;(instance, show);
+}</code></pre></div>
+          <div class="result-note"><strong>No application subclass.</strong><span>Failures become non-zero process exit codes. Exceptions are contained before crossing <code>wWinMain</code>.</span></div>
+        </div>
+      </section>
+
+      <section id="window" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Foundation</span><h2>Window</h2></div><p>Use <code>WindowBase</code> for the concise API. The CRTP form remains available for advanced WTL integration.</p></div>
+        <div class="example-grid">
+          <div class="code-panel"><div class="panel-label">C++20</div><pre><code>class MainWindow final : public mwtl::WindowBase {
+public:
+    void BuildUI() override {
+        SetTitle(L"My app");
+    }
+
+    mwtl::EventResult OnKeyDown(const mwtl::KeyEvent&amp; event) override {
+        if (event.virtual_key == VK_ESCAPE) Close();
+        return mwtl::EventResult::Handled();
+    }
+};</code></pre></div>
+          <figure class="preview-panel"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/hello.png" alt="mwtl Hello native window"><figcaption>A real Unicode, Per-Monitor V2 HWND window.</figcaption></figure>
+        </div>
+      </section>
+
+      <section id="timer" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Foundation</span><h2>Timer</h2></div><p>A move-only RAII timer with chrono intervals and typed IDs.</p></div>
+        <div class="code-panel compact"><pre><code>heartbeat_.Start(*this, {1}, 1s);
+
+mwtl::EventResult OnTimer(mwtl::TimerId id) override {
+    status_.SetText(L"Tick");
+    return mwtl::EventResult::Handled();
+}</code></pre></div>
+      </section>
+
+      <section id="form-controls" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Basic controls</span><h2>Native form controls</h2></div><p>Label, Button, TextBox, CheckBox, RadioButton, GroupBox, ComboBox, ListBox, ProgressBar, Slider, and ScrollBar.</p></div>
+        <div class="example-grid">
+          <div class="code-panel"><div class="panel-label">Create and configure</div><pre><code>name_.Create(*this, {102}, L"mwtl developer", name_bounds);
+greet_.Create(*this, {103}, L"Say hello", button_bounds);
+enabled_.Create(*this, {104}, L"Button enabled", check_bounds);
+accent_.Create(*this, {105}, combo_bounds);
+progress_.Create(*this, {106}, progress_bounds);
+
+accent_.AddItem(L"Sky blue");
+progress_.SetRange(0, 100);
+progress_.SetValue(64);</code></pre></div>
+          <figure class="preview-panel"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="mwtl native form controls example"><figcaption>System controls retain native keyboard, IME, accessibility, and theme behavior.</figcaption></figure>
+        </div>
+      </section>
+
+      <section id="events" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Basic controls</span><h2>Command events</h2></div><p>Match the originating control without message-map macros or manual HWND comparisons.</p></div>
+        <div class="code-panel compact"><pre><code>mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
+    if (event.IsClicked(greet_)) {
+        status_.SetText(L"Hello, " + name_.GetText());
+        return mwtl::EventResult::Handled();
+    }
+    return mwtl::EventResult::Propagate();
+}</code></pre></div>
+      </section>
+
+      <section id="data-navigation" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Data and navigation</h2></div><p><code>TreeView</code>, <code>ListView</code>, <code>Header</code>, <code>TabControl</code>, and <code>ComboBoxEx</code>.</p></div>
+        <div class="example-grid">
+          <div class="code-panel"><div class="panel-label">TreeView + ListView</div><pre><code>tree_.Create(*this, {202}, tree_bounds);
+list_.Create(*this, {203}, list_bounds);
+
+const auto root = tree_.AddItem(L"Common Controls");
+tree_.AddItem(L"Navigation", root);
+tree_.Expand(root);
+
+list_.AddColumn(L"Control", 170);
+list_.AddColumn(L"Ownership", 150);
+const int row = list_.AddItem(L"ListView");
+list_.SetSubItem(row, 1, L"Native HWND");</code></pre></div>
+          <figure class="preview-panel common-preview"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="Complete Windows Common Controls gallery"><figcaption>The complete populated gallery. Continue below for the other families.</figcaption></figure>
+        </div>
+      </section>
+
+      <section id="date-input" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Date and input</h2></div><p><code>DateTimePicker</code>, <code>MonthCalendar</code>, <code>HotKey</code>, <code>IpAddress</code>, <code>UpDown</code>, and <code>SysLink</code>.</p></div>
+        <div class="code-panel compact"><pre><code>date_.Create(*this, {207}, date_bounds);
+calendar_.Create(*this, {208}, calendar_bounds);
+hot_key_.Create(*this, {209}, hotkey_bounds);
+ip_.Create(*this, {210}, ip_bounds);
+spin_.Create(*this, {212}, spin_bounds);
+
+hot_key_.SetValue('K', HOTKEYF_CONTROL | HOTKEYF_ALT);
+ip_.SetValue(127, 0, 0, 1);
+spin_.SetBuddy(number_);
+spin_.SetRange(0, 100);</code></pre></div>
+      </section>
+
+      <section id="commands" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Commands and containers</h2></div><p><code>Toolbar</code>, <code>StatusBar</code>, <code>Rebar</code>, <code>Pager</code>, and <code>Animation</code>.</p></div>
+        <div class="code-panel compact"><pre><code>rebar_.Create(*this, {200}, rebar_bounds);
+toolbar_.Create(rebar_, {201}, toolbar_bounds);
+toolbar_.AddTextButton({500}, L"Task Dialog");
+toolbar_.AutoSize();
+rebar_.AddBand(toolbar_, L"", 360);
+
+status_.Create(*this, {219}, status_bounds);
+status_.SetParts({700, 980, -1});
+status_.SetPartText(0, L"Native controls ready");</code></pre></div>
+      </section>
+
+      <section id="resources" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Common Controls</span><h2>Resources and dialogs</h2></div><p>Move-only <code>ImageList</code>, owned <code>Tooltip</code>, modal <code>TaskDialog</code>, and explicit Flat Scroll Bar integration.</p></div>
+        <div class="code-panel compact"><pre><code>images_.Create(16, 16);
+images_.AddIcon(::LoadIconW(nullptr, IDI_INFORMATION));
+
+tooltip_.Create(GetHwnd());
+tooltip_.AddTool(button_.GetHwnd(), L"Native tooltip");
+
+const auto result = mwtl::ShowTaskDialog(
+    GetHwnd(), L"mwtl", L"Native Task Dialog", L"Real Common Controls UI.");</code></pre></div>
+        <div class="native-note"><strong>Need more Win32?</strong> Call <code>::SendMessageW(control.GetHwnd(), ...)</code>. Thin wrappers do not close the native API surface.</div>
+        <p class="source-link"><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Open the complete gallery source on GitHub →</a></p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

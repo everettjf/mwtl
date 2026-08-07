@@ -3,92 +3,59 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="mwtl is a lightweight modern native Windows C++ UI foundation built on WTL and WIL.">
+  <meta name="description" content="mwtl is a small C++20 library for modern native Windows applications.">
   <link rel="canonical" href="https://everettjf.github.io/mwtl/">
-  <title>mwtl - modern WTL foundations</title>
+  <title>mwtl — modern native Windows UI</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="shell nav">
     <a class="brand" href="index.html">mwtl</a>
     <nav class="nav-links" aria-label="Main navigation">
-      <a href="#components">Components</a>
+      <a href="components/index.html">Components</a>
       <a href="building.html">Build</a>
       <a href="https://github.com/everettjf/mwtl">GitHub</a>
     </nav>
   </header>
 
   <main>
-    <section class="shell hero">
-      <div class="eyebrow">Native Windows - C++20 - HWND first</div>
-      <h1>Modern foundations.<br>Native Windows.</h1>
-      <p class="lede">mwtl provides clear application lifetime management, direct Win32 message interoperability, and safe exception boundaries on top of ATL/WTL and Microsoft WIL, while preserving a small footprint, fast startup, and direct HWND access.</p>
+    <section class="shell hero home-hero">
+      <div class="eyebrow">C++20 · Win32 · WTL · WIL</div>
+      <h1>Native Windows UI,<br>with less ceremony.</h1>
+      <p class="lede">Small modern wrappers around real HWND controls. Direct messages, native behavior, predictable ownership.</p>
       <div class="actions">
-        <a class="button primary" href="components/application.html">Start with Application</a>
+        <a class="button primary" href="components/index.html">Explore components</a>
         <a class="button" href="building.html">Build the examples</a>
       </div>
     </section>
 
-    <section id="components" class="shell section">
-      <div class="eyebrow">Version 0.2 components</div>
-      <h2>Every public component has an independent buildable example</h2>
-      <div class="grid">
-        <article class="card">
-          <span class="tag">lifecycle</span>
-          <h3>mwtl::Application</h3>
-          <p>Manages the single WTL CAppModule, message loop, stack-owned main window, and reverse-order cleanup.</p>
-          <a href="components/application.html">View the complete API example</a>
-        </article>
-        <article class="card">
-          <span class="tag">HWND + messages</span>
-          <h3>mwtl::Window&lt;T&gt;</h3>
-          <p>A concise WindowBase for normal apps, plus an advanced CRTP path with native HWND access, typed handlers, WM_APP interoperability, and exception containment.</p>
-          <a href="components/window.html">View the complete API example</a>
-        </article>
-        <article class="card">
-          <span class="tag">quick start</span>
-          <h3>Hello</h3>
-          <p>Create, show, and close a Unicode Per-Monitor V2 main window with minimal code.</p>
-          <a href="components/hello.html">View the minimal example</a>
-        </article>
-        <article class="card">
-          <span class="tag">21 executables</span>
-          <h3>Complete example catalog</h3>
-          <p>Covers keyboard, mouse, sizing, timers, native painting, custom messages, close policy, and window state.</p>
-          <a href="https://github.com/everettjf/mwtl/tree/main/examples">Browse all examples</a>
-        </article>
-        <article class="card">
-          <span class="tag">native controls</span>
-          <h3>Modern control wrappers</h3>
-          <p>Native RAII wrappers covering standard forms, choices, lists, progress, sliders, scroll bars, and chrono timers.</p>
-          <a href="components/controls.html">Build a native form</a>
-        </article>
-        <article class="card">
-          <span class="tag">complete native gallery</span>
-          <h3>Windows Common Controls</h3>
-          <p>TreeView, ListView, Toolbar, DateTimePicker, MonthCalendar, Rebar, TaskDialog, and the remaining specialized Control Library families.</p>
-          <a href="components/common-controls.html">Browse the specialized controls</a>
-        </article>
-        <article class="card">
-          <span class="tag">new in 0.2</span>
-          <h3>Advanced native host</h3>
-          <p>DPI, configurable window creation, a wait-aware pump, safe cross-thread wake-up, and optional COM lifetime management.</p>
-          <a href="components/advanced-host.html">Explore the 0.2 capabilities</a>
-        </article>
+    <section class="shell quick-code" aria-labelledby="hello-title">
+      <div>
+        <div class="eyebrow">Hello World</div>
+        <h2 id="hello-title">One window. One class.</h2>
+        <p>No message-map macros or generated application object.</p>
       </div>
+      <pre><code>#include &lt;mwtl/mwtl.h&gt;
+
+class HelloWindow final : public mwtl::WindowBase {
+public:
+    void BuildUI() override {
+        SetTitle(L"Hello, world!");
+    }
+};
+
+int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
+    return mwtl::RunApplication&lt;HelloWindow&gt;(instance, show);
+}</code></pre>
     </section>
 
-    <section class="shell section">
-      <div class="eyebrow">Project boundary</div>
-      <h2>Lightweight, native, and maintainable</h2>
-      <div class="grid">
-        <div class="card"><h3>Win32 stays visible</h3><p>Retrieve the HWND at any time and call SendMessageW, PostMessageW, or other Windows APIs directly.</p></div>
-        <div class="card"><h3>Real C++20</h3><p>The public target explicitly requires <code>cxx_std_20</code> and uses concepts, spans, three-way comparison, and modern cooperative thread ownership where they improve the API.</p></div>
-        <div class="card"><h3>Reproducible dependencies</h3><p>WTL and WIL come from their official repositories at immutable commit SHAs, with offline source overrides supported.</p></div>
-      </div>
+    <section class="shell home-strip">
+      <div><strong>Native</strong><span>Real HWND controls and Win32 messages</span></div>
+      <div><strong>Modern</strong><span>C++20 concepts, RAII, typed events</span></div>
+      <div><strong>Focused</strong><span>No rendering engine or closed abstraction</span></div>
     </section>
   </main>
 
-  <footer class="shell footer">mwtl is an independent MIT-licensed project. Microsoft and upstream projects do not endorse mwtl.</footer>
+  <footer class="shell footer">MIT licensed · Windows 10 1809+ · x64 and ARM64</footer>
 </body>
 </html>

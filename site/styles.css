@@ -48,8 +48,57 @@ code:not(pre code) { padding: .12rem .35rem; border-radius: .3rem; background: v
 .callout { padding: 1rem 1.2rem; border-left: 3px solid var(--cyan); background: var(--surface); color: var(--muted); }
 .footer { padding: 2rem 0 3rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
 
+.home-hero { padding-bottom: 3.5rem; }
+.home-hero h1 { max-width: 1080px; font-size: clamp(3rem, 7vw, 5.7rem); }
+.quick-code { display: grid; grid-template-columns: minmax(220px, .65fr) minmax(0, 1.35fr); gap: 3rem; align-items: start; padding: 2.5rem 0; border-top: 1px solid var(--line); }
+.quick-code p { color: var(--muted); }
+.quick-code pre { margin: 0; }
+.home-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 3rem auto 5rem; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; background: var(--line); }
+.home-strip div { display: grid; gap: .25rem; padding: 1.25rem; background: var(--surface); }
+.home-strip span { color: var(--muted); font-size: .9rem; }
+
+.docs-body { background: var(--bg); }
+.docs-topbar { position: sticky; z-index: 20; top: 0; display: flex; align-items: center; justify-content: space-between; height: 4rem; padding: 0 2rem; border-bottom: 1px solid var(--line); background: rgba(11, 16, 32, .92); backdrop-filter: blur(18px); }
+.nav-links .active { color: var(--text); }
+.docs-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); width: min(1440px, 100%); margin: 0 auto; }
+.docs-sidebar { position: sticky; top: 4rem; height: calc(100vh - 4rem); padding: 2rem 1.5rem; overflow-y: auto; border-right: 1px solid var(--line); }
+.sidebar-title { margin-bottom: 1.5rem; font-size: 1.05rem; font-weight: 750; }
+.docs-sidebar nav { display: grid; }
+.docs-sidebar nav span { margin: 1.35rem 0 .4rem; color: #6f82a7; font: 700 .7rem/1.2 "Cascadia Code", monospace; letter-spacing: .09em; text-transform: uppercase; }
+.docs-sidebar nav a { padding: .38rem .65rem; border-left: 1px solid var(--line); color: var(--muted); text-decoration: none; }
+.docs-sidebar nav a:hover { border-color: var(--blue); color: var(--text); background: rgba(103, 166, 255, .06); }
+.docs-content { min-width: 0; max-width: 1120px; padding: 0 3.5rem 6rem; }
+.docs-intro { padding: 5rem 0 4rem; border-bottom: 1px solid var(--line); }
+.docs-intro h1 { max-width: 780px; font-size: clamp(3rem, 7vw, 5.4rem); }
+.docs-intro p { max-width: 760px; color: var(--muted); font-size: 1.08rem; }
+.doc-section { scroll-margin-top: 5rem; padding: 4rem 0; border-bottom: 1px solid var(--line); }
+.doc-heading { display: grid; grid-template-columns: minmax(220px, .75fr) minmax(260px, 1.25fr); gap: 2rem; margin-bottom: 1.5rem; align-items: end; }
+.doc-heading h2 { margin: .65rem 0 0; }
+.doc-heading p { margin: 0; color: var(--muted); }
+.example-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr); gap: 1rem; align-items: stretch; }
+.code-panel, .preview-panel, .result-note, .native-note { border: 1px solid var(--line); border-radius: .75rem; background: var(--surface); }
+.code-panel { min-width: 0; overflow: hidden; }
+.code-panel pre { height: 100%; margin: 0; border: 0; border-radius: 0; }
+.code-panel.compact { max-width: 800px; }
+.panel-label { padding: .55rem 1rem; border-bottom: 1px solid var(--line); color: var(--muted); font: 600 .75rem/1.5 "Cascadia Code", monospace; }
+.preview-panel { display: flex; flex-direction: column; margin: 0; overflow: hidden; background: #f4f6f9; }
+.preview-panel img { display: block; width: 100%; height: 100%; min-height: 260px; object-fit: cover; object-position: top left; }
+.preview-panel figcaption { padding: .7rem 1rem; color: #536079; background: #fff; font-size: .82rem; }
+.common-preview img { object-fit: contain; background: #fff; }
+.result-note, .native-note { display: grid; align-content: center; gap: .45rem; padding: 1.4rem; color: var(--muted); }
+.result-note strong, .native-note strong { color: var(--text); }
+.source-link { margin: 1.5rem 0 0; }
+
 @media (max-width: 620px) {
   .nav { align-items: flex-start; padding: 1rem 0; gap: 1rem; }
   .nav-links { flex-direction: column; gap: .35rem; }
   .hero { padding-top: 4rem; }
+  .quick-code, .home-strip, .doc-heading, .example-grid { grid-template-columns: 1fr; }
+  .docs-topbar { padding: 0 1rem; }
+  .docs-layout { display: block; }
+  .docs-sidebar { position: static; width: 100%; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+  .docs-sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .docs-sidebar nav span { grid-column: 1 / -1; }
+  .docs-content { padding: 0 1rem 4rem; }
+  .docs-intro { padding-top: 3rem; }
 }

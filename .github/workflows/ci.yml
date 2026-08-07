@@ -48,7 +48,7 @@ jobs:
           -DMWTL_WARNINGS_AS_ERRORS=ON
       - name: Analyze
         run: >-
-          msbuild build/analyze/mwtl.vcxproj
+          cmake --build build/analyze --config Debug --target mwtl --
           /p:Configuration=Debug
           /p:RunCodeAnalysis=true
           /p:CodeAnalysisRuleSet=NativeRecommendedRules.ruleset

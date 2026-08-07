@@ -1,33 +1,36 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>构建 mwtl · mwtl</title><link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="canonical" href="https://everettjf.github.io/mwtl/building.html">
+  <title>Build mwtl - mwtl</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="shell nav"><a class="brand" href="index.html">mwtl</a><nav class="nav-links"><a href="index.html#components">组件</a><a href="https://github.com/everettjf/mwtl">GitHub</a></nav></header>
+  <header class="shell nav"><a class="brand" href="index.html">mwtl</a><nav class="nav-links"><a href="index.html#components">Components</a><a href="https://github.com/everettjf/mwtl">GitHub</a></nav></header>
   <main class="shell prose">
-    <div class="eyebrow">Build guide</div><h1>构建与运行</h1>
-    <p>需要 Windows 10 1809+、Visual Studio 2022、MSVC、Windows SDK、C++ ATL 组件和 CMake 3.21+。</p>
+    <div class="eyebrow">Build guide</div><h1>Build and run</h1>
+    <p>Requirements: Windows 10 version 1809 or newer, Visual Studio 2022, MSVC, a Windows SDK, the C++ ATL component, and CMake 3.21 or newer.</p>
     <h2>x64 Debug</h2>
     <pre><code>cmake -S . -B build/x64 -G "Visual Studio 17 2022" -A x64 \
   -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
 cmake --build build/x64 --config Debug --verbose
 ctest --test-dir build/x64 -C Debug --output-on-failure</code></pre>
-    <h2>运行组件示例</h2>
+    <h2>Run component examples</h2>
     <pre><code>build\x64\examples\application\Debug\mwtl_application_demo.exe
 build\x64\examples\window\Debug\mwtl_window_demo.exe
 build\x64\examples\hello\Debug\mwtl_hello.exe</code></pre>
-    <h2>ARM64 编译</h2>
+    <h2>ARM64 build</h2>
     <pre><code>cmake -S . -B build/arm64 -G "Visual Studio 17 2022" -A ARM64 \
   -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=OFF
 cmake --build build/arm64 --config Release --verbose</code></pre>
-    <div class="callout">ARM64 目标需要安装 MSVC ARM64 编译器、ARM64 ATL 和对应 Windows SDK 库。x64 主机通常只能交叉编译，不能直接运行 ARM64 GUI 示例。</div>
-    <h2>离线依赖</h2>
+    <div class="callout">The ARM64 target requires the MSVC ARM64 compiler, ARM64 ATL, and matching Windows SDK libraries. An x64 host can normally cross-compile these executables but cannot run the ARM64 GUI examples directly.</div>
+    <h2>Offline dependencies</h2>
     <pre><code>cmake -S . -B build/x64 -G "Visual Studio 17 2022" -A x64 \
   -DMWTL_WTL_SOURCE_DIR=C:/deps/wtl \
   -DMWTL_WIL_SOURCE_DIR=C:/deps/wil</code></pre>
   </main>
-  <footer class="shell footer">返回 <a href="index.html">mwtl 首页</a></footer>
+  <footer class="shell footer">Return to the <a href="index.html">mwtl home page</a></footer>
 </body>
 </html>

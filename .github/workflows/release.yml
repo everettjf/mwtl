@@ -46,5 +46,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $files = Get-ChildItem artifacts -Filter *.zip | ForEach-Object { $_.FullName }
+          $files = Get-ChildItem artifacts -Filter *.zip | ForEach-Object { Resolve-Path -Relative $_.FullName }
+          if (-not $files) { throw "No release package found" }
           gh release create "${{ github.ref_name }}" @files --generate-notes --verify-tag

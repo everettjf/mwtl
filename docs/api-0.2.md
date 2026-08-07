@@ -5,6 +5,7 @@
 | API/value | Ownership and lifetime |
 |---|---|
 | `Application::GetInstance()` | non-owning process `HINSTANCE` observation |
+| `WindowBase` C++ object | recommended stack-owned window with virtual event hooks; alive through HWND destruction |
 | `Window<T>` C++ object | stack-owned by `Application::Run`; alive through HWND destruction |
 | `Window<T>::GetHwnd()` | non-owning observation; null after `WM_NCDESTROY` |
 | `WindowClassTraits` icons/cursor/brush | non-owning; caller keeps resources valid for class lifetime |
@@ -28,6 +29,19 @@ overflow/infinity, and maps NaN to zero. Rectangle edge addition is saturating.
 The one-argument `Run<Window>(show_command)` remains the explicit lifetime form.
 `RunApplication<Window>(instance, show_command)` is the concise process-entry
 helper and retains the same cleanup and exception boundary.
+For ordinary applications, inherit `WindowBase` so the class name appears only
+once:
+
+```cpp
+class MainWindow final : public mwtl::WindowBase {
+public:
+    void BuildUI() override;
+};
+```
+
+Its virtual event hooks default to `EventResult::Propagate()`. The CRTP
+`Window<T>` form remains available for compile-time dispatch, custom class
+traits, and derived WTL message maps.
 Pass `WindowOptions` for title, window style, extended style, DIP bounds,
 client-versus-outer sizing, centering, resources, and the suggested-DPI-rect
 policy. Pass class identity and `CS_*` flags at compile time:

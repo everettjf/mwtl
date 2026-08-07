@@ -4,20 +4,21 @@
 <body>
   <header class="shell nav"><a class="brand" href="../index.html">mwtl</a><nav class="nav-links"><a href="controls.html">Controls</a><a href="../building.html">Build</a></nav></header>
   <main class="shell prose">
-    <div class="eyebrow">Component</div><h1>mwtl::Window&lt;T&gt;</h1>
-    <p>Window is the WTL CRTP top-level window base. C++20 <code>requires</code> expressions discover common typed handlers, while HWND access and legacy WTL message maps remain available.</p>
+    <div class="eyebrow">Component</div><h1>WindowBase and Window&lt;T&gt;</h1>
+    <p><code>WindowBase</code> is the concise default: the class name appears once and virtual hooks propagate to Win32 unless overridden. <code>Window&lt;T&gt;</code> remains the advanced CRTP path for compile-time dispatch, custom class traits, and legacy WTL message maps.</p>
     <h2>Macro-free message interoperability</h2>
     <pre><code>constexpr UINT kRefresh = WM_APP + 1;
 
-class MainWindow final : public mwtl::Window&lt;MainWindow&gt; {
+class MainWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() { SetTitle(L"Window demo"); }
+    void BuildUI() override { SetTitle(L"Window demo"); }
 
-    void OnLeftButtonDown(const mwtl::MouseEvent&amp;) {
+    mwtl::EventResult OnLeftButtonDown(const mwtl::MouseEvent&amp;) override {
         ::SendMessageW(GetHwnd(), kRefresh, 0, 0);
+        return mwtl::EventResult::Handled();
     }
 
-    mwtl::EventResult OnMessage(const mwtl::WindowMessage&amp; message) {
+    mwtl::EventResult OnMessage(const mwtl::WindowMessage&amp; message) override {
         if (message.id == kRefresh) {
             SetTitle(L"Native message received");
             return mwtl::EventResult::Handled();
@@ -26,7 +27,7 @@ public:
     }
 };</code></pre>
     <h2>Key behavior</h2>
-    <ul><li><code>BuildUI()</code> runs during WM_CREATE after the HWND is attached.</li><li><code>GetHwnd()</code> returns the native handle.</li><li>A void convention handler consumes its message; <code>EventResult::Propagate()</code> continues default processing.</li><li>Existing WTL message maps can still override and chain to the mwtl base.</li><li>All paths remain inside the same noexcept WindowProc boundary.</li></ul>
+    <ul><li><code>BuildUI()</code> runs during WM_CREATE after the HWND is attached.</li><li><code>GetHwnd()</code> returns the native handle.</li><li><code>EventResult::Propagate()</code> continues default processing.</li><li>The advanced <code>Window&lt;T&gt;</code> form supports existing WTL maps and void convention handlers.</li><li>Both paths remain inside the same noexcept WindowProc boundary.</li></ul>
     <p>Repository source: <a href="https://github.com/everettjf/mwtl/tree/main/examples/window">examples/window</a></p>
   </main>
   <footer class="shell footer">Return to the <a href="../index.html#components">component catalog</a></footer>

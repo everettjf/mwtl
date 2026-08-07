@@ -6,9 +6,9 @@
 
 using mwtl::operator""_dip;
 
-class MainWindow final : public mwtl::Window<MainWindow> {
+class MainWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         if (!SetTitle(L"mwtl hello")) {
             throw std::runtime_error("SetWindowTextW failed while building the main window");
         }
@@ -23,11 +23,13 @@ public:
         }
     }
 
-    void OnCommand(const mwtl::CommandEvent& event) {
+    mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {
         if (event.IsClicked(button_)) {
             static_cast<void>(message_.SetText(
                 L"A real BUTTON HWND, dispatched without message-map macros."));
+            return mwtl::EventResult::Handled();
         }
+        return mwtl::EventResult::Propagate();
     }
 
 private:

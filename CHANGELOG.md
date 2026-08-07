@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added `WindowBase`, a concise inheritance path that hides WTL's repeated CRTP
+  class name while preserving `Window<T>` for compile-time and message-map use.
 - Raised the required language level to C++20 and added convention-based message
   handlers with typed event objects, while retaining compatibility with existing
   WTL message maps.

@@ -434,4 +434,26 @@ private:
     std::shared_ptr<detail::WindowWakeState> wake_state_;
 };
 
+// Concise inheritance for ordinary applications. The WTL-required CRTP type is
+// fixed here; use Window<T> directly for compile-time dispatch or WTL maps.
+class WindowBase : public Window<WindowBase> {
+public:
+    virtual ~WindowBase() = default;
+
+    virtual void BuildUI() = 0;
+
+    virtual EventResult OnClose() { return EventResult::Propagate(); }
+    virtual EventResult OnKeyDown(const KeyEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnMouseMove(const MouseEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnLeftButtonDown(const MouseEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnResize(const ResizeEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnTimer(TimerId) { return EventResult::Propagate(); }
+    virtual EventResult OnDpiChanged(const DpiChangedEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnCommand(const CommandEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnMinMaxInfo(MinMaxInfoEvent) { return EventResult::Propagate(); }
+    virtual EventResult OnPaint(PaintEvent&) { return EventResult::Propagate(); }
+    virtual EventResult OnWakeup() { return EventResult::Propagate(); }
+    virtual EventResult OnMessage(const WindowMessage&) { return EventResult::Propagate(); }
+};
+
 }  // namespace mwtl

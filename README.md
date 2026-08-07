@@ -34,9 +34,9 @@ This is a complete native Windows application:
 ```cpp
 #include <mwtl/mwtl.h>
 
-class HelloWindow final : public mwtl::Window<HelloWindow> {
+class HelloWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         SetTitle(L"Hello, world!");
     }
 };
@@ -67,10 +67,12 @@ windows stay in the full catalog instead of taking over the front page.
     button_.Create(*this, {101}, L"Try it", button_bounds);
 }
 
-void OnCommand(const mwtl::CommandEvent&amp; event) {
+mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
     if (event.IsClicked(button_)) {
         message_.SetText(L"No message-map macros.");
+        return mwtl::EventResult::Handled();
     }
+    return mwtl::EventResult::Propagate();
 }</code></pre><a href="examples/hello/main.cpp">Open the complete Hello source &rarr;</a></td>
     <td valign="top"><a href="examples/hello/main.cpp"><img width="100%" src="docs/images/examples/hello.png" alt="Hello window with a native label and button"></a></td>
   </tr>
@@ -133,7 +135,8 @@ Build and runtime foundations include:
 - a CMake static library target named `mwtl::mwtl`;
 - pinned official WTL and WIL dependencies;
 - `mwtl::Application` with WTL `CAppModule` and message-loop lifetime management;
-- a CRTP `mwtl::Window<T>` main-window base with native HWND access;
+- a concise `mwtl::WindowBase` for ordinary windows and CRTP `Window<T>` for
+  advanced compile-time/WTL message-map integration;
 - exception containment around real WTL window-message dispatch and `wWinMain`;
 - Unicode-only compilation and a Per-Monitor DPI Awareness V2 manifest for the hello executable;
 - an interactive native-control `examples/hello` quick start;
@@ -215,7 +218,7 @@ The repository contains **20 independently buildable GUI examples**. They are al
 |---|---|---|---|
 | Quick start | [`examples/hello`](examples/hello/main.cpp) | `mwtl_hello` | Smallest complete program |
 | `mwtl::Application` | [`examples/application`](examples/application/main.cpp) | `mwtl_application_demo` | HINSTANCE observation, Run, exit code, and wWinMain boundary |
-| `mwtl::Window<T>` | [`examples/window`](examples/window/main.cpp) | `mwtl_window_demo` | HWND access, typed convention handlers, WM_APP messages, and `Close()` |
+| Window APIs | [`examples/window`](examples/window/main.cpp) | `mwtl_window_demo` | `WindowBase`, advanced `Window<T>`, HWND access, WM_APP messages, and `Close()` |
 | Native message | [`examples/native_message`](examples/native_message/main.cpp) | `mwtl_native_message_demo` | Typed `WM_APP` constant, payload, `PostMessageW`, and `OnMessage` |
 | Keyboard | [`examples/keyboard`](examples/keyboard/main.cpp) | `mwtl_keyboard_demo` | `WM_KEYDOWN`, virtual-key values, and Escape-to-close |
 | Mouse | [`examples/mouse`](examples/mouse/main.cpp) | `mwtl_mouse_demo` | Client coordinates from `WM_MOUSEMOVE` and `WM_LBUTTONDOWN` |
@@ -280,31 +283,32 @@ material: [development plan](docs/mwtl-0.2-plan.md),
 
 ## Modern event handlers
 
-Common events are discovered at compile time. No registration table, virtual
-event interface, or message-map macro is needed:
+`WindowBase` exposes ordinary virtual event overrides and is the recommended
+default. There is no registration table or message-map macro:
 
 ```cpp
-void OnKeyDown(const mwtl::KeyEvent& event);
-void OnMouseMove(const mwtl::MouseEvent& event);
-mwtl::EventResult OnResize(const mwtl::ResizeEvent& event);
-void OnCommand(const mwtl::CommandEvent& event);
-void OnTimer(mwtl::TimerId id);
-void OnPaint(mwtl::PaintEvent& event);
-mwtl::EventResult OnMessage(const mwtl::WindowMessage& message);
+mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) override;
+mwtl::EventResult OnMouseMove(const mwtl::MouseEvent& event) override;
+mwtl::EventResult OnResize(const mwtl::ResizeEvent& event) override;
+mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override;
+mwtl::EventResult OnTimer(mwtl::TimerId id) override;
+mwtl::EventResult OnPaint(mwtl::PaintEvent& event) override;
+mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) override;
 ```
 
-A `void` handler consumes its message. Return `EventResult::Propagate()` when
-WTL/default processing should continue, or `EventResult::Handled(value)` when a
-specific native result is required.
+Return `EventResult::Propagate()` when WTL/default processing should continue,
+or `EventResult::Handled(value)` when a specific native result is required.
+The advanced `Window<T>` form instead discovers handlers at compile time with
+C++20 `requires` and also permits consuming `void` handlers.
 
 ### Typed keyboard input
 
 ```cpp
-class KeyboardWindow final : public mwtl::Window<KeyboardWindow> {
+class KeyboardWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() { SetTitle(L"Press Escape to close"); }
+    void BuildUI() override { SetTitle(L"Press Escape to close"); }
 
-    mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) {
+    mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) override {
         if (event.virtual_key == VK_ESCAPE) {
             static_cast<void>(Close());
             return mwtl::EventResult::Handled();

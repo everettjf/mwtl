@@ -5,21 +5,23 @@
   <header class="shell nav"><a class="brand" href="../index.html">mwtl</a><nav class="nav-links"><a href="application.html">Application</a><a href="window.html">Window</a></nav></header>
   <main class="shell prose">
     <div class="eyebrow">Quick start</div><h1>Hello, native window.</h1>
-    <p>The shortest example uses a CRTP window class, native controls, and a one-line application entry point. Common messages are ordinary C++20 member functions—no message-map macros are required.</p>
+    <p>The shortest example names its window class once, uses native controls, and has a one-line application entry point. Common messages are ordinary C++20 overrides—no CRTP repetition or message-map macros are required.</p>
     <pre><code>#include &lt;mwtl/mwtl.h&gt;
 
-class MainWindow final : public mwtl::Window&lt;MainWindow&gt; {
+class MainWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         SetTitle(L"mwtl hello");
         label_.Create(*this, mwtl::ControlId{100}, L"Hello from modern WTL", {24, 24, 260, 28});
         close_.Create(*this, mwtl::ControlId{101}, L"Close", {24, 64, 100, 32});
     }
 
-    void OnCommand(const mwtl::CommandEvent&amp; event) {
-        if (event.IsClicked(mwtl::ControlId{101})) {
-            Close();
+    mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
+        if (event.IsClicked(close_)) {
+            static_cast&lt;void&gt;(Close());
+            return mwtl::EventResult::Handled();
         }
+        return mwtl::EventResult::Propagate();
     }
 
 private:

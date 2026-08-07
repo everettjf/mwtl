@@ -14,9 +14,9 @@ bool key_seen = false;
 bool custom_seen = false;
 bool timer_seen = false;
 
-class ModernApiWindow final : public mwtl::Window<ModernApiWindow> {
+class ModernApiWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         if (!label_.Create(
                 *this, kLabel, L"Modern API test",
                 {{8.0_dip, 8.0_dip}, {180.0_dip, 24.0_dip}}) ||
@@ -54,16 +54,18 @@ public:
         ::SendMessageW(GetHwnd(), kCustomMessage, 42, 0);
     }
 
-    void OnCommand(const mwtl::CommandEvent& event) {
+    mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override {
         command_seen = event.IsClicked(button_) &&
             text_.GetText() == L"native edit";
+        return mwtl::EventResult::Handled();
     }
 
-    void OnKeyDown(const mwtl::KeyEvent& event) {
+    mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) override {
         key_seen = event.virtual_key == VK_SPACE && event.repeat_count == 1;
+        return mwtl::EventResult::Handled();
     }
 
-    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) {
+    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) override {
         if (message.id == kCustomMessage) {
             custom_seen = message.wparam == 42;
             return mwtl::EventResult::Handled(77);
@@ -71,12 +73,14 @@ public:
         return mwtl::EventResult::Propagate();
     }
 
-    void OnTimer(mwtl::TimerId id) {
+    mwtl::EventResult OnTimer(mwtl::TimerId id) override {
         if (id == kTimer) {
             timer_seen = true;
             timer_.Stop();
             ::PostMessageW(GetHwnd(), WM_CLOSE, 0, 0);
+            return mwtl::EventResult::Handled();
         }
+        return mwtl::EventResult::Propagate();
     }
 
 private:

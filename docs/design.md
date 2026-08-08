@@ -1,6 +1,6 @@
 # Design and scope
 
-mwtl is a small C++20 foundation for native Windows applications. It removes
+mwtl (Modern Windows Thin Layer) is a small C++20 foundation for native Windows applications. It removes
 repeated setup and lifetime code while preserving HWNDs, messages, styles,
 return values, and direct Win32 interoperation. It is not a cross-platform UI
 toolkit, retained renderer, or MVVM framework.

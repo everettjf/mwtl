@@ -4,7 +4,9 @@
 
 <h1 align="center">mwtl</h1>
 
-<p align="center"><strong>Native Windows UI, without the Win32 ceremony.</strong></p>
+<p align="center"><strong>Modern Windows Thin Layer</strong></p>
+
+<p align="center">Native Windows UI, without the Win32 ceremony.</p>
 
 <p align="center">
   Build real HWND applications with typed C++20 events, responsive DPI-aware
@@ -26,8 +28,8 @@
   <a href="https://everettjf.github.io/mwtl/">Documentation</a>
 </p>
 
-mwtl wraps real HWND controls with clear ownership, typed events, checked setup
-helpers, and DPI-aware responsive layout. It reduces Win32 ceremony without
+mwtl, the Modern Windows Thin Layer, wraps real HWND controls with clear
+ownership, typed events, checked setup helpers, and DPI-aware responsive layout. It reduces Win32 ceremony without
 hiding native handles, messages, styles, or return values.
 
 <p align="center">

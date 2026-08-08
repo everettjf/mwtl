@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(mwtl VERSION 0.6.0 LANGUAGES CXX)
+project(mwtl VERSION 0.6.0 DESCRIPTION "Modern Windows Thin Layer" LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -155,6 +155,7 @@ install(EXPORT mwtlTargets
 
 set(CPACK_PACKAGE_NAME "mwtl")
 set(CPACK_PACKAGE_VENDOR "mwtl contributors")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Modern Windows Thin Layer")
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_FILE_NAME "mwtl-${PROJECT_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
 set(CPACK_GENERATOR "ZIP")

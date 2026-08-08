@@ -2,8 +2,8 @@
   "use strict";
 
   /* ---------- Theme toggle ----------
-     The site is light (sunny) by default, independent of the system
-     preference. An inline head script applies a persisted dark choice before
+     The site is light by default, independent of the system preference.
+     An inline head script applies a persisted dark choice before
      first paint; this wires the header button and keeps the choice in
      localStorage. */
   const root = document.documentElement;

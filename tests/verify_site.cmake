@@ -32,8 +32,8 @@ endif()
 file(GLOB_RECURSE html_files "${SITE_ROOT}/*.html")
 foreach(html_file IN LISTS html_files)
     file(READ "${html_file}" html)
-    if(NOT html MATCHES "styles\\.css\\?v=20260808d" OR
-       NOT html MATCHES "assets/site\\.js\\?v=20260808d")
+    if(NOT html MATCHES "styles\\.css\\?v=20260808e" OR
+       NOT html MATCHES "assets/site\\.js\\?v=20260808e")
         message(FATAL_ERROR "stale or inconsistent site asset version in ${html_file}")
     endif()
     string(REGEX MATCHALL "href=\"[^\"]+\"" hrefs "${html}")

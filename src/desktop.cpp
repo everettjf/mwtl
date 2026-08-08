@@ -110,7 +110,8 @@ FileDialogResult ShowFileDialog(const FileDialogOptions& options, bool save) {
 
 RECT ClampRectToWorkArea(RECT rect) noexcept {
     const HMONITOR monitor = ::MonitorFromRect(&rect, MONITOR_DEFAULTTONEAREST);
-    MONITORINFO info{sizeof(info)};
+    MONITORINFO info{};
+    info.cbSize = sizeof(info);
     if (monitor == nullptr || ::GetMonitorInfoW(monitor, &info) == FALSE) {
         return rect;
     }
@@ -319,7 +320,8 @@ UiFont::UiFont(UiFont&& other) noexcept : font_(std::exchange(other.font_, nullp
 UiFont& UiFont::operator=(UiFont&& other) noexcept { if (this != &other) { Reset(); font_ = std::exchange(other.font_, nullptr); } return *this; }
 bool UiFont::CreateMessageFont(UINT dpi) noexcept {
     Reset();
-    NONCLIENTMETRICSW metrics{sizeof(metrics)};
+    NONCLIENTMETRICSW metrics{};
+    metrics.cbSize = sizeof(metrics);
     if (::SystemParametersInfoForDpi(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0, dpi == 0 ? 96 : dpi) == FALSE) return false;
     font_ = ::CreateFontIndirectW(&metrics.lfMessageFont);
     return font_ != nullptr;

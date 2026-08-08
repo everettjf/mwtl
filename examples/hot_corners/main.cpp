@@ -75,7 +75,8 @@ void SendAction(hot_corners::Action action) noexcept {
 
 BOOL CALLBACK CollectMonitor(HMONITOR monitor, HDC, LPRECT, LPARAM data) {
     auto& areas = *reinterpret_cast<std::vector<RECT>*>(data);
-    MONITORINFO info{sizeof(info)};
+    MONITORINFO info{};
+    info.cbSize = sizeof(info);
     if (::GetMonitorInfoW(monitor, &info) != FALSE) areas.push_back(info.rcMonitor);
     return TRUE;
 }
@@ -330,7 +331,7 @@ private:
     }
 
     void AddTrayIcon() {
-        NOTIFYICONDATAW data{sizeof(data)}; data.hWnd = GetHwnd(); data.uID = 1;
+        NOTIFYICONDATAW data{}; data.cbSize = sizeof(data); data.hWnd = GetHwnd(); data.uID = 1;
         data.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP; data.uCallbackMessage = kTrayMessage;
         data.hIcon = ::LoadIconW(nullptr, IDI_APPLICATION);
         wcscpy_s(data.szTip, L"mwtl Hot Corners");
@@ -339,7 +340,7 @@ private:
 
     void RemoveTrayIcon() noexcept {
         if (!tray_added_) return;
-        NOTIFYICONDATAW data{sizeof(data)}; data.hWnd = GetHwnd(); data.uID = 1;
+        NOTIFYICONDATAW data{}; data.cbSize = sizeof(data); data.hWnd = GetHwnd(); data.uID = 1;
         ::Shell_NotifyIconW(NIM_DELETE, &data); tray_added_ = false;
     }
 

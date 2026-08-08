@@ -30,7 +30,8 @@ bool Toolbar::UpdateCommand(const Command& command) noexcept {
     const LRESULT checked = ::SendMessageW(
         GetHwnd(), TB_CHECKBUTTON, id, MAKELPARAM(command.IsChecked(), 0));
     const std::wstring text{command.GetText()};
-    TBBUTTONINFOW info{sizeof(info)};
+    TBBUTTONINFOW info{};
+    info.cbSize = sizeof(info);
     info.dwMask = TBIF_TEXT;
     info.pszText = const_cast<wchar_t*>(text.c_str());
     const LRESULT named = ::SendMessageW(
@@ -44,7 +45,7 @@ bool StatusBar::SetParts(std::span<const int> right_edges) noexcept { return IsW
 bool StatusBar::SetPartText(int part, std::wstring_view text) { if (!IsWindow()) return false; std::wstring value{text}; return ::SendMessageW(GetHwnd(), SB_SETTEXTW, part, reinterpret_cast<LPARAM>(value.c_str())) != FALSE; }
 
 bool Rebar::Create(HWND parent, ControlId id, RectDip bounds, RebarOptions options) { return Initialize(ICC_COOL_CLASSES) && CreateNative(REBARCLASSNAMEW, parent, id, L"", bounds, options.style, options.extended_style); }
-bool Rebar::AddBand(const NativeControl& child, std::wstring_view text, int minimum_width) { if (!IsWindow() || !child.IsWindow()) return false; RECT child_bounds{}; if (::GetWindowRect(child.GetHwnd(), &child_bounds) == FALSE) return false; std::wstring value{text}; REBARBANDINFOW band{sizeof(band)}; band.fMask = RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE; if (!value.empty()) { band.fMask |= RBBIM_TEXT; band.lpText = value.data(); } band.hwndChild = child.GetHwnd(); band.cxMinChild = minimum_width; band.cyMinChild = child_bounds.bottom - child_bounds.top; band.cx = minimum_width; return ::SendMessageW(GetHwnd(), RB_INSERTBANDW, static_cast<WPARAM>(-1), reinterpret_cast<LPARAM>(&band)) != FALSE; }
+bool Rebar::AddBand(const NativeControl& child, std::wstring_view text, int minimum_width) { if (!IsWindow() || !child.IsWindow()) return false; RECT child_bounds{}; if (::GetWindowRect(child.GetHwnd(), &child_bounds) == FALSE) return false; std::wstring value{text}; REBARBANDINFOW band{}; band.cbSize = sizeof(band); band.fMask = RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE; if (!value.empty()) { band.fMask |= RBBIM_TEXT; band.lpText = value.data(); } band.hwndChild = child.GetHwnd(); band.cxMinChild = minimum_width; band.cyMinChild = child_bounds.bottom - child_bounds.top; band.cx = minimum_width; return ::SendMessageW(GetHwnd(), RB_INSERTBANDW, static_cast<WPARAM>(-1), reinterpret_cast<LPARAM>(&band)) != FALSE; }
 
 bool Pager::Create(HWND parent, ControlId id, RectDip bounds, PagerOptions options) { return Initialize(ICC_PAGESCROLLER_CLASS) && CreateNative(WC_PAGESCROLLERW, parent, id, L"", bounds, options.style, options.extended_style); }
 Pager& Pager::SetChild(const NativeControl& child) noexcept { if (IsWindow()) ::SendMessageW(GetHwnd(), PGM_SETCHILD, 0, reinterpret_cast<LPARAM>(child.GetHwnd())); return *this; }

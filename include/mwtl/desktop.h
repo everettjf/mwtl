@@ -114,7 +114,11 @@ void EnableFileDrop(HWND window, bool enabled = true) noexcept;
 std::vector<std::wstring> ReadDroppedFiles(HDROP drop);
 
 struct SavedWindowPlacement {
-    WINDOWPLACEMENT placement{sizeof(WINDOWPLACEMENT)};
+    WINDOWPLACEMENT placement = [] {
+        WINDOWPLACEMENT value{};
+        value.length = sizeof(value);
+        return value;
+    }();
 };
 
 bool CaptureWindowPlacement(HWND window,

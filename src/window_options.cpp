@@ -40,7 +40,8 @@ RECT ResolveWindowBounds(const WindowOptions& options) noexcept {
         monitor_point,
         options.center_in_work_area ? MONITOR_DEFAULTTOPRIMARY
                                     : MONITOR_DEFAULTTONEAREST);
-    MONITORINFO monitor_info{sizeof(monitor_info)};
+    MONITORINFO monitor_info{};
+    monitor_info.cbSize = sizeof(monitor_info);
     if (::GetMonitorInfoW(monitor, &monitor_info) == FALSE) {
         monitor_info.rcWork = RECT{0, 0, 1280, 800};
     }

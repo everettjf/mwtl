@@ -1,7 +1,10 @@
 #pragma once
 
+#include <mwtl/appearance.h>
+#include <mwtl/binding.h>
 #include <mwtl/application.h>
 #include <mwtl/command_controls.h>
+#include <mwtl/command.h>
 #include <mwtl/concepts.h>
 #include <mwtl/control_host.h>
 #include <mwtl/control_batch.h>
@@ -10,6 +13,7 @@
 #include <mwtl/dpi.h>
 #include <mwtl/desktop.h>
 #include <mwtl/events.h>
+#include <mwtl/error.h>
 #include <mwtl/input_controls.h>
 #include <mwtl/layout.h>
 #include <mwtl/message_pump.h>

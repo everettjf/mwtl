@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.6.0 - 2026-08-07
+
+- Defined pre-1.0 stability, compatibility, ownership, and evolution policy.
+- Unified checked failures under `mwtl::Error` while retaining raw operations.
+- Added the provisional `Command` and `CommandSet` application action model.
+- Integrated commands with native menu and toolbar creation/state
+  synchronization plus command-declared accelerator tables.
+- Added high-contrast-aware dark/light appearance, Windows 11 backdrop and
+  rounded-corner options, plus basic native accessibility helpers.
+- Added automatic, fetched, and system dependency resolution modes.
+- Made installed-package regression tests reuse pinned local dependency trees,
+  proving offline consumption without a second network fetch.
+- Added maintained ARM64 and clang-cl jobs, AddressSanitizer validation, GUI/GDI
+  resource leak detection, and a required public API surface gate.
+- Added regression ceilings for static-library size, public-header footprint,
+  and the core window template alongside the runtime layout benchmark.
+- Split message decoding and accelerator plumbing out of the public window
+  template, with constexpr decoder regression tests.
+- Updated the Hot Corners reference application to exercise shared commands and
+  high-contrast-aware system appearance in a persistent multi-monitor utility.
+- Added non-owning lightweight value bindings with validation and nested-safe
+  programmatic-change suppression, plus common text/check/selection factories.
+- Added migration/design documentation and command regression coverage.
+- Added deterministic packed-message property tests and a 75% native source
+  coverage floor with a downloadable Cobertura report.
+
 ## 0.5.0 - 2026-08-07
 
 - Removed public `[[nodiscard]]` annotations so concise application code can

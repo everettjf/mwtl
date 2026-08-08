@@ -16,7 +16,15 @@ permissions:
 
 jobs:
   package:
-    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: x64
+            runner: windows-2022
+          - architecture: ARM64
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Verify tag and project version
@@ -26,7 +34,7 @@ jobs:
           $project = Select-String -Path CMakeLists.txt -Pattern 'project\(mwtl VERSION ([0-9.]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value }
           if ("v$project" -ne "${{ github.ref_name }}") { throw "Tag does not match project version v$project" }
       - name: Configure
-        run: cmake -S . -B build/release -G "Visual Studio 17 2022" -A x64 -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
+        run: cmake -S . -B build/release -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
       - name: Build and test
         run: |
           cmake --build build/release --config Release --verbose
@@ -43,20 +51,29 @@ jobs:
           $packages | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
             "$hash  $($_.Name)"
-          } | Set-Content artifacts/SHA256SUMS.txt
-      - name: Upload dry-run package
-        if: github.event_name == 'workflow_dispatch' && !inputs.publish
+          } | Set-Content "artifacts/SHA256SUMS-${{ matrix.architecture }}.txt"
+      - name: Upload package
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: mwtl-${{ github.sha }}-x64
+          name: mwtl-${{ github.sha }}-${{ matrix.architecture }}
           path: artifacts/*
           if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'push' || inputs.publish
+    needs: package
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: mwtl-${{ github.sha }}-*
+          path: artifacts
+          merge-multiple: true
       - name: Publish GitHub release
-        if: github.event_name == 'push' || inputs.publish
-        shell: pwsh
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $files = Get-ChildItem artifacts -File | ForEach-Object { "artifacts/$($_.Name)" }
-          if (-not $files) { throw "No release package found" }
-          gh release create "${{ github.ref_name }}" @files --generate-notes --verify-tag
+          test -n "$(find artifacts -maxdepth 1 -type f -print -quit)"
+          gh release create "${{ github.ref_name }}" artifacts/* --generate-notes --verify-tag --repo "${{ github.repository }}"

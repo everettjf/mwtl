@@ -10,14 +10,14 @@
   <a href="https://github.com/everettjf/mwtl/actions/workflows/ci.yml"><img src="https://github.com/everettjf/mwtl/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-17a589.svg" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/C%2B%2B-20-146c94.svg" alt="C++20">
-  <img src="https://img.shields.io/badge/platform-Windows%20x64-ff9f43.svg" alt="Windows x64">
+  <img src="https://img.shields.io/badge/platform-Windows%20x64%20%7C%20ARM64-ff9f43.svg" alt="Windows x64 and ARM64">
 </p>
 
 <p align="center">
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#installation">Installation</a> ·
-  <a href="#examples">Examples</a> ·
-  <a href="https://everettjf.github.io/mwtl/components/">Components</a> ·
+  <a href="#quick-start">Quick start</a> &middot;
+  <a href="#installation">Installation</a> &middot;
+  <a href="#examples">Examples</a> &middot;
+  <a href="https://everettjf.github.io/mwtl/components/">Components</a> &middot;
   <a href="https://everettjf.github.io/mwtl/">Documentation</a>
 </p>
 
@@ -164,7 +164,7 @@ its screenshot and source link.
 
 ## Build this repository
 
-Requirements: Windows 10 1809 or newer, x64, Visual Studio 2022 or newer with
+Requirements: Windows 10 1809 or newer, x64 or ARM64, Visual Studio 2022 or newer with
 MSVC, a Windows SDK and C++ ATL, CMake 3.21 or newer, and C++20.
 
 ```powershell
@@ -173,6 +173,9 @@ cmake --build --preset x64-debug
 ctest --preset x64-debug
 ```
 
+On an ARM64 development machine use `vs2026-arm64`, `arm64-debug`, and the
+matching `arm64-debug` test preset.
+
 Build and test Release:
 
 ```powershell
@@ -180,9 +183,11 @@ cmake --build --preset x64-release
 ctest --preset x64-release
 ```
 
-The project intentionally rejects non-Windows, non-MSVC, 32-bit, and ARM64
-configurations. CI validates x64 Debug, Release, public-header independence,
-package consumption, manifests, examples, and documentation coverage.
+The project rejects non-Windows, non-MSVC-compatible ABI, and 32-bit
+configurations. CI validates MSVC x64 and ARM64, clang-cl, AddressSanitizer,
+Debug/Release, public-header independence, package consumption, manifests,
+examples, resource lifetime, API surface, deterministic property cases, and a
+75% native source-coverage floor with an archived Cobertura report.
 
 ## Dependencies
 
@@ -196,6 +201,11 @@ For controlled environments, see the
 - [Get started](https://everettjf.github.io/mwtl/building.html)
 - [Component reference](https://everettjf.github.io/mwtl/components/)
 - [Current API notes](docs/api.md)
+- [Public header reference](docs/reference.md)
+- [Design and scope](docs/design.md)
+- [API stability](docs/stability.md)
+- [Migrating from 0.5 to 0.6](docs/migration-0.6.md)
+- [Accessibility and keyboard checklist](docs/accessibility.md)
 - [System-message recipes](docs/system-message-recipes.md)
 - [Contributing](CONTRIBUTING.md)
 

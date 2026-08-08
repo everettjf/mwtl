@@ -11,6 +11,7 @@
 
 #include <mwtl/concepts.h>
 #include <mwtl/controls.h>
+#include <mwtl/command.h>
 
 namespace mwtl {
 
@@ -21,6 +22,8 @@ public:
     template <WindowLike Parent>
     bool Create(const Parent& parent, ControlId id, RectDip bounds, ToolbarOptions options = {}) { return Create(parent.GetHwnd(), id, bounds, options); }
     bool AddTextButton(ControlId command, std::wstring_view text);
+    bool AddCommand(const Command& command);
+    bool UpdateCommand(const Command& command) noexcept;
     Toolbar& AutoSize() noexcept;
 };
 

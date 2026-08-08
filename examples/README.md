@@ -1,6 +1,6 @@
 # mwtl examples
 
-The repository includes 22 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and recommended `mwtl::WindowBase` path. Common messages use typed C++20 event handlers rather than message-map macros.
+The repository includes 22 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and recommended `mwtl::WindowBase` path. Common messages use typed C++20 event handlers rather than message-map macros. Hot Corners is the complete reference application: it combines commands, persistence, background polling, tray integration, accessibility-aware appearance, multi-monitor state, and DPI behavior.
 
 | Directory | Target | Focus |
 |---|---|---|

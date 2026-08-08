@@ -26,16 +26,42 @@ foreach(mode IN ITEMS
 endforeach()
 
 foreach(header IN ITEMS application command_controls concepts control_batch control_host control_resources controls desktop dpi events input_controls layout message_pump must navigation_controls timer window window_options wakeup umbrella)
+    # Every public header must remain independently includable.
     add_library(mwtl_header_${header} OBJECT header_${header}.cpp)
     target_compile_features(mwtl_header_${header} PRIVATE cxx_std_20)
     target_compile_options(mwtl_header_${header} PRIVATE /W4 /permissive- /EHsc /utf-8)
     target_link_libraries(mwtl_header_${header} PRIVATE mwtl::mwtl)
 endforeach()
 
+add_library(mwtl_header_appearance OBJECT header_appearance.cpp)
+target_compile_features(mwtl_header_appearance PRIVATE cxx_std_20)
+target_compile_options(mwtl_header_appearance PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_header_appearance PRIVATE mwtl::mwtl)
+
+add_library(mwtl_header_binding OBJECT header_binding.cpp)
+target_compile_features(mwtl_header_binding PRIVATE cxx_std_20)
+target_compile_options(mwtl_header_binding PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_header_binding PRIVATE mwtl::mwtl)
+
+add_library(mwtl_header_command OBJECT header_command.cpp)
+target_compile_features(mwtl_header_command PRIVATE cxx_std_20)
+target_compile_options(mwtl_header_command PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_header_command PRIVATE mwtl::mwtl)
+
+add_library(mwtl_header_error OBJECT header_error.cpp)
+target_compile_features(mwtl_header_error PRIVATE cxx_std_20)
+target_compile_options(mwtl_header_error PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_header_error PRIVATE mwtl::mwtl)
+
 add_library(mwtl_consumer_cpp20 OBJECT consumer_cpp20.cpp)
 target_compile_features(mwtl_consumer_cpp20 PRIVATE cxx_std_20)
 target_compile_options(mwtl_consumer_cpp20 PRIVATE /W4 /permissive- /EHsc /utf-8)
 target_link_libraries(mwtl_consumer_cpp20 PRIVATE mwtl::mwtl)
+
+add_library(mwtl_05_compat OBJECT consumer_05_compat.cpp)
+target_compile_features(mwtl_05_compat PRIVATE cxx_std_20)
+target_compile_options(mwtl_05_compat PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_05_compat PRIVATE mwtl::mwtl)
 
 add_library(mwtl_direct_create_test OBJECT direct_create_test.cpp)
 target_compile_features(mwtl_direct_create_test PRIVATE cxx_std_20)
@@ -76,6 +102,60 @@ target_compile_options(mwtl_event_matching_test PRIVATE /W4 /permissive- /EHsc /
 target_link_libraries(mwtl_event_matching_test PRIVATE mwtl::mwtl)
 add_test(NAME mwtl.event_matching COMMAND mwtl_event_matching_test)
 set_tests_properties(mwtl.event_matching PROPERTIES TIMEOUT 20)
+
+add_executable(mwtl_message_decode_test message_decode_test.cpp)
+target_compile_features(mwtl_message_decode_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_message_decode_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_message_decode_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.message_decode COMMAND mwtl_message_decode_test)
+set_tests_properties(mwtl.message_decode PROPERTIES TIMEOUT 20)
+
+add_executable(mwtl_command_test command_test.cpp)
+target_compile_features(mwtl_command_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_command_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_command_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.command COMMAND mwtl_command_test)
+set_tests_properties(mwtl.command PROPERTIES TIMEOUT 20)
+
+add_executable(mwtl_binding_test binding_test.cpp)
+target_compile_features(mwtl_binding_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_binding_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_binding_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.binding COMMAND mwtl_binding_test)
+set_tests_properties(mwtl.binding PROPERTIES TIMEOUT 20)
+
+add_executable(mwtl_resource_leak_test resource_leak_test.cpp)
+target_compile_features(mwtl_resource_leak_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_resource_leak_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_resource_leak_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.resource_leak COMMAND mwtl_resource_leak_test)
+set_tests_properties(mwtl.resource_leak PROPERTIES TIMEOUT 20)
+
+add_executable(mwtl_appearance_test appearance_test.cpp)
+target_compile_features(mwtl_appearance_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_appearance_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_appearance_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.appearance COMMAND mwtl_appearance_test)
+set_tests_properties(mwtl.appearance PROPERTIES TIMEOUT 20)
+
+add_executable(mwtl_layout_quality_test layout_quality_test.cpp)
+target_compile_features(mwtl_layout_quality_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_layout_quality_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_layout_quality_test PRIVATE mwtl::mwtl)
+add_test(NAME mwtl.layout_quality COMMAND mwtl_layout_quality_test)
+set_tests_properties(mwtl.layout_quality PROPERTIES TIMEOUT 20)
+
+add_test(NAME mwtl.api_surface
+    COMMAND "${CMAKE_COMMAND}" "-DPROJECT_ROOT=${PROJECT_SOURCE_DIR}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_api_surface.cmake")
+set_tests_properties(mwtl.api_surface PROPERTIES TIMEOUT 20)
+
+add_test(NAME mwtl.build_budget
+    COMMAND "${CMAKE_COMMAND}"
+        "-DPROJECT_ROOT=${PROJECT_SOURCE_DIR}"
+        "-DLIBRARY=$<TARGET_FILE:mwtl>"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_build_budget.cmake")
+set_tests_properties(mwtl.build_budget PROPERTIES TIMEOUT 20)
 
 add_executable(mwtl_advanced_lifecycle_test advanced_lifecycle_test.cpp)
 target_compile_features(mwtl_advanced_lifecycle_test PRIVATE cxx_std_20)
@@ -189,6 +269,9 @@ add_test(
         "-DMWTL_CONFIGURATION=$<CONFIG>"
         "-DMWTL_GENERATOR=${CMAKE_GENERATOR}"
         "-DMWTL_PLATFORM=${CMAKE_GENERATOR_PLATFORM}"
+        "-DMWTL_ENABLE_ASAN=${MWTL_ENABLE_ASAN}"
+        "-DMWTL_WTL_SOURCE_DIR=${MWTL_RESOLVED_WTL_SOURCE_DIR}"
+        "-DMWTL_WIL_SOURCE_DIR=${MWTL_RESOLVED_WIL_SOURCE_DIR}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_package_consumer.cmake")
 set_tests_properties(mwtl.package_consumer PROPERTIES TIMEOUT 120)
 

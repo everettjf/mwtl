@@ -23,5 +23,14 @@ int main() {
     }
 
     if (!mwtl::MustInvoke([] { return true; }, "success")) return 5;
+
+    try {
+        mwtl::Must(false, ERROR_INVALID_DATA, "explicit failure");
+        return 6;
+    } catch (const mwtl::Error& error) {
+        if (error.code().value() != ERROR_INVALID_DATA ||
+            error.Operation() != "explicit failure" ||
+            error.Location().line() == 0) return 7;
+    }
     return EXIT_SUCCESS;
 }

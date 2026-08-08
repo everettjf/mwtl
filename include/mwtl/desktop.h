@@ -12,6 +12,8 @@
 #include <string_view>
 #include <vector>
 
+#include <mwtl/command.h>
+
 namespace mwtl {
 
 class Menu final {
@@ -27,6 +29,8 @@ public:
     bool CreatePopup() noexcept;
     bool AppendCommand(UINT id, std::wstring_view text,
                                      bool enabled = true);
+    bool AppendCommand(const Command& command);
+    bool UpdateCommand(const Command& command) noexcept;
     bool AppendSeparator() noexcept;
     bool AppendSubmenu(Menu&& submenu, std::wstring_view text,
                                      bool enabled = true);
@@ -50,6 +54,7 @@ public:
     AcceleratorTable& operator=(AcceleratorTable&& other) noexcept;
 
     bool Create(std::span<const ACCEL> entries) noexcept;
+    bool Create(const CommandSet& commands);
     template <std::ranges::input_range Range>
         requires std::convertible_to<std::ranges::range_reference_t<Range>, ACCEL>
     bool Create(Range&& entries) {

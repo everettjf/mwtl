@@ -52,3 +52,92 @@ jobs:
           /p:Configuration=Debug
           /p:RunCodeAnalysis=true
           /p:CodeAnalysisRuleSet=NativeRecommendedRules.ruleset
+
+  clang-cl:
+    name: clang-cl x64 Debug
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Configure
+        run: >-
+          cmake -S . -B build/clang-cl
+          -G "Visual Studio 17 2022" -A x64 -T ClangCL
+          -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build build/clang-cl --config Debug --parallel
+      - name: Test
+        run: ctest --test-dir build/clang-cl -C Debug --output-on-failure
+
+  address-sanitizer:
+    name: MSVC AddressSanitizer
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Configure
+        run: >-
+          cmake -S . -B build/asan
+          -G "Visual Studio 17 2022" -A x64
+          -DMWTL_BUILD_EXAMPLES=OFF -DMWTL_BUILD_TESTS=ON
+          -DMWTL_ENABLE_ASAN=ON
+      - name: Build
+        run: cmake --build build/asan --config Debug --parallel
+      - name: Test
+        run: ctest --test-dir build/asan -C Debug --output-on-failure
+
+  coverage:
+    name: Native source coverage
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Configure
+        run: >-
+          cmake -S . -B build/coverage
+          -G "Visual Studio 17 2022" -A x64
+          -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build build/coverage --config Debug --parallel
+      - name: Locate coverage collector
+        shell: pwsh
+        run: |
+          $collector = Get-ChildItem "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise" `
+            -Recurse -Filter Microsoft.CodeCoverage.Console.exe | Select-Object -First 1
+          if (-not $collector) { throw 'Microsoft native code coverage collector was not found.' }
+          "MWTL_COVERAGE_COLLECTOR=$($collector.FullName)" | Out-File $env:GITHUB_ENV -Append
+      - name: Collect coverage
+        shell: pwsh
+        run: >-
+          & $env:MWTL_COVERAGE_COLLECTOR collect ctest
+          --test-dir build/coverage -C Debug
+          -E "mwtl\.(desktop|package_consumer)"
+          --output-on-failure
+          --output build/coverage/coverage.xml
+          --output-format cobertura
+      - name: Enforce coverage floor
+        shell: pwsh
+        run: >-
+          ./tests/verify_coverage.ps1
+          -Report build/coverage/coverage.xml
+          -ProjectRoot .
+          -MinimumPercent 75
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: native-coverage
+          path: build/coverage/coverage.xml
+          if-no-files-found: error
+
+  arm64:
+    name: ARM64 Debug
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Configure
+        run: >-
+          cmake -S . -B build/arm64
+          -G "Visual Studio 17 2022" -A ARM64
+          -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build build/arm64 --config Debug --parallel
+      - name: Test
+        run: ctest --test-dir build/arm64 -C Debug --output-on-failure

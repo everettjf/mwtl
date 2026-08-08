@@ -18,6 +18,25 @@ bool Toolbar::AddTextButton(ControlId command, std::wstring_view text) {
     TBBUTTON button{}; button.iBitmap = I_IMAGENONE; button.idCommand = command.value; button.fsState = TBSTATE_ENABLED; button.fsStyle = BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_SHOWTEXT; button.iString = string_index;
     return ::SendMessageW(GetHwnd(), TB_ADDBUTTONSW, 1, reinterpret_cast<LPARAM>(&button)) != FALSE;
 }
+bool Toolbar::AddCommand(const Command& command) {
+    return AddTextButton(command.GetId(), command.GetText()) &&
+        UpdateCommand(command);
+}
+bool Toolbar::UpdateCommand(const Command& command) noexcept {
+    if (!IsWindow()) return false;
+    const WPARAM id = static_cast<WPARAM>(command.GetId().value);
+    const LRESULT enabled = ::SendMessageW(
+        GetHwnd(), TB_ENABLEBUTTON, id, MAKELPARAM(command.IsEnabled(), 0));
+    const LRESULT checked = ::SendMessageW(
+        GetHwnd(), TB_CHECKBUTTON, id, MAKELPARAM(command.IsChecked(), 0));
+    const std::wstring text{command.GetText()};
+    TBBUTTONINFOW info{sizeof(info)};
+    info.dwMask = TBIF_TEXT;
+    info.pszText = const_cast<wchar_t*>(text.c_str());
+    const LRESULT named = ::SendMessageW(
+        GetHwnd(), TB_SETBUTTONINFOW, id, reinterpret_cast<LPARAM>(&info));
+    return enabled != FALSE && checked != FALSE && named != FALSE;
+}
 Toolbar& Toolbar::AutoSize() noexcept { if (IsWindow()) ::SendMessageW(GetHwnd(), TB_AUTOSIZE, 0, 0); return *this; }
 
 bool StatusBar::Create(HWND parent, ControlId id, RectDip bounds, StatusBarOptions options) { return Initialize(ICC_BAR_CLASSES) && CreateNative(STATUSCLASSNAMEW, parent, id, L"", bounds, options.style, options.extended_style); }

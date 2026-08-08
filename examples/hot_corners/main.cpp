@@ -136,12 +136,7 @@ public:
             settings_.tolerance = kToleranceValues[static_cast<std::size_t>((std::max)(0, tolerance_.GetSelection()))];
             tracker_.Reset(); SaveSettings(); UpdateStatus(); return EventResult::Handled();
         }
-        if (event.control == nullptr && event.id.value == static_cast<int>(kToggleCommand)) {
-            manual_paused_ = !manual_paused_; tracker_.Reset(); UpdateStatus(); return EventResult::Handled();
-        }
-        if (event.control == nullptr && event.id.value == static_cast<int>(kExitCommand)) {
-            Close(); return EventResult::Handled();
-        }
+        if (event.control == nullptr) return commands_.Dispatch(event);
         return EventResult::Propagate();
     }
 
@@ -197,16 +192,24 @@ public:
 
 private:
     void BuildMenu() {
+        commands_.Add(Command({static_cast<int>(kToggleCommand)},
+            L"&Pause / Resume\tCtrl+E", [this] {
+                manual_paused_ = !manual_paused_;
+                tracker_.Reset();
+                UpdateStatus();
+            }).SetShortcut({FVIRTKEY | FCONTROL, 'E'}));
+        commands_.Add(Command({static_cast<int>(kExitCommand)},
+            L"E&xit\tCtrl+Q", [this] { static_cast<void>(Close()); })
+            .SetShortcut({FVIRTKEY | FCONTROL, 'Q'}));
         Menu bar; Menu app;
         if (!bar.Create() || !app.CreatePopup() ||
-            !app.AppendCommand(kToggleCommand, L"&Pause / Resume\tCtrl+E") ||
-            !app.AppendSeparator() || !app.AppendCommand(kExitCommand, L"E&xit\tCtrl+Q") ||
+            !app.AppendCommand(*commands_.Find({static_cast<int>(kToggleCommand)})) ||
+            !app.AppendSeparator() ||
+            !app.AppendCommand(*commands_.Find({static_cast<int>(kExitCommand)})) ||
             !bar.AppendSubmenu(std::move(app), L"&Hot Corners") || !bar.AttachToWindow(GetHwnd()))
             throw std::runtime_error("menu creation failed");
-        const std::array<ACCEL, 2> keys{{
-            ACCEL{FVIRTKEY | FCONTROL, 'E', static_cast<WORD>(kToggleCommand)},
-            ACCEL{FVIRTKEY | FCONTROL, 'Q', static_cast<WORD>(kExitCommand)}}};
-        if (!accelerators_.Create(keys)) throw std::runtime_error("accelerator creation failed");
+        if (!accelerators_.Create(commands_))
+            throw std::runtime_error("accelerator creation failed");
         SetAccelerators(accelerators_.GetHandle());
     }
 
@@ -341,12 +344,15 @@ private:
     }
 
     void ShowTrayMenu() {
-        HMENU menu = ::CreatePopupMenu(); if (menu == nullptr) return;
-        ::AppendMenuW(menu, MF_STRING, kToggleCommand, manual_paused_ ? L"Resume" : L"Pause");
-        ::AppendMenuW(menu, MF_SEPARATOR, 0, nullptr); ::AppendMenuW(menu, MF_STRING, kExitCommand, L"Exit");
+        Command* toggle = commands_.Find({static_cast<int>(kToggleCommand)});
+        Command* exit = commands_.Find({static_cast<int>(kExitCommand)});
+        if (toggle == nullptr || exit == nullptr) return;
+        toggle->SetText(manual_paused_ ? L"Resume" : L"Pause");
+        Menu menu; if (!menu.CreatePopup() || !menu.AppendCommand(*toggle) ||
+            !menu.AppendSeparator() || !menu.AppendCommand(*exit)) return;
         POINT point{}; ::GetCursorPos(&point); ::SetForegroundWindow(GetHwnd());
-        const UINT command = ::TrackPopupMenu(menu, TPM_RETURNCMD | TPM_RIGHTBUTTON, point.x, point.y, 0, GetHwnd(), nullptr);
-        ::DestroyMenu(menu); if (command != 0) ::PostMessageW(GetHwnd(), WM_COMMAND, command, 0);
+        const UINT command = menu.Track(GetHwnd(), point);
+        if (command != 0) ::PostMessageW(GetHwnd(), WM_COMMAND, command, 0);
     }
 
     void ApplyFont(UINT dpi) {
@@ -364,6 +370,7 @@ private:
     UiTimer poll_;
     UiFont font_;
     AcceleratorTable accelerators_;
+    CommandSet commands_;
     std::vector<RECT> monitors_;
     hot_corners::Settings settings_;
     hot_corners::DwellTracker tracker_;
@@ -380,5 +387,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
     options.title = L"mwtl Hot Corners";
     options.initial_bounds = {{0_dip, 0_dip}, {700_dip, 410_dip}};
     options.use_default_bounds = false;
+    options.appearance.color_mode = ColorMode::system;
+    options.appearance.backdrop = Backdrop::mica;
     return RunApplication<HotCornersWindow>(instance, show, options);
 }

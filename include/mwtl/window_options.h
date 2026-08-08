@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include <mwtl/dpi.h>
+#include <mwtl/appearance.h>
 
 namespace mwtl {
 
@@ -26,6 +27,7 @@ struct WindowOptions {
     bool center_in_work_area = true;
     bool bounds_are_client_size = true;
     bool apply_suggested_dpi_rect = true;
+    AppearanceOptions appearance{};
     HICON icon = nullptr;        // Non-owning; applied with WM_SETICON.
     HICON small_icon = nullptr;  // Non-owning; applied with WM_SETICON.
     HCURSOR cursor = nullptr;    // Non-owning; applied to the registered class.

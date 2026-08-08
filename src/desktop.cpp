@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <limits>
 #include <utility>
 
 namespace mwtl {
@@ -193,6 +194,45 @@ FileDialogResult ShowFolderDialog(const FolderDialogOptions& options) {
     if (shown == HRESULT_FROM_WIN32(ERROR_CANCELLED)) return {};
     if (FAILED(shown)) return {{}, static_cast<DWORD>(shown), false};
     return DialogResult(*dialog.Get());
+}
+bool AcceleratorTable::Create(const CommandSet& commands) {
+    std::vector<ACCEL> entries;
+    entries.reserve(commands.GetCount());
+    for (const Command& command : commands.GetCommands()) {
+        if (!command.GetShortcut()) continue;
+        if (command.GetId().value <= 0 || command.GetId().value >
+                static_cast<int>((std::numeric_limits<WORD>::max)())) {
+            return false;
+        }
+        const CommandShortcut shortcut = *command.GetShortcut();
+        entries.push_back(ACCEL{shortcut.modifiers, shortcut.key,
+            static_cast<WORD>(command.GetId().value)});
+    }
+    return Create(std::span<const ACCEL>{entries});
+}
+
+bool Menu::AppendCommand(const Command& command) {
+    if (!AppendCommand(static_cast<UINT>(command.GetId().value),
+                       command.GetText(), command.IsEnabled())) {
+        return false;
+    }
+    if (command.IsChecked()) {
+        return ::CheckMenuItem(menu_, static_cast<UINT>(command.GetId().value),
+            MF_BYCOMMAND | MF_CHECKED) != static_cast<DWORD>(-1);
+    }
+    return true;
+}
+
+bool Menu::UpdateCommand(const Command& command) noexcept {
+    if (menu_ == nullptr || command.GetId().value < 0) return false;
+    const UINT id = static_cast<UINT>(command.GetId().value);
+    const UINT enabled = command.IsEnabled() ? MF_ENABLED : MF_GRAYED;
+    const UINT checked = command.IsChecked() ? MF_CHECKED : MF_UNCHECKED;
+    const bool enabled_ok = ::EnableMenuItem(menu_, id, MF_BYCOMMAND | enabled) !=
+        static_cast<UINT>(-1);
+    const bool checked_ok = ::CheckMenuItem(menu_, id, MF_BYCOMMAND | checked) !=
+        static_cast<DWORD>(-1);
+    return enabled_ok && checked_ok;
 }
 
 bool SetClipboardText(HWND owner, std::wstring_view text) noexcept {

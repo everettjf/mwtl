@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Install and use mwtl with CMake, Visual Studio, or VS Code on Windows x64.">
+  <meta name="description" content="Install and use mwtl with CMake, Visual Studio, or VS Code on Windows x64 and ARM64.">
   <link rel="canonical" href="https://everettjf.github.io/mwtl/building.html">
   <title>Get started with mwtl</title>
   <link rel="stylesheet" href="styles.css?v=20260808">
@@ -14,12 +14,12 @@
   <main class="shell prose guide">
     <div class="eyebrow">Installation guide</div>
     <h1>From zero to a native window.</h1>
-    <p class="lede">Choose the workflow you already use. Every path builds the same C++20 x64 library and links the exported <code>mwtl::mwtl</code> target.</p>
+    <p class="lede">Choose the workflow you already use. Every path builds the same C++20 x64 or ARM64 library and links the exported <code>mwtl::mwtl</code> target.</p>
 
     <div class="requirements">
       <div><strong>OS</strong><span>Windows 10 1809+ or Windows 11</span></div>
       <div><strong>Toolchain</strong><span>MSVC, Windows SDK, C++ ATL</span></div>
-      <div><strong>Language</strong><span>C++20, x64</span></div>
+      <div><strong>Language</strong><span>C++20, x64 / ARM64</span></div>
       <div><strong>Build</strong><span>CMake 3.21+</span></div>
     </div>
 
@@ -65,7 +65,7 @@ cmake -S . -B build -A x64 -DCMAKE_PREFIX_PATH=C:/deps/mwtl</code></pre>
       <ol>
         <li>Install the <strong>Desktop development with C++</strong> workload.</li>
         <li>In Individual components, enable <strong>C++ ATL for the current MSVC toolset</strong> and a Windows 10/11 SDK.</li>
-        <li>Select an <strong>x64-Debug</strong> configuration; x86 and ARM64 are intentionally rejected.</li>
+        <li>Select an <strong>x64-Debug</strong> or <strong>ARM64-Debug</strong> configuration; x86 is intentionally rejected.</li>
         <li>Choose the application target and press <strong>F5</strong>.</li>
       </ol>
       <p>For an existing CMake-based Visual Studio solution, add the FetchContent block above. No manual include directory, library directory, or preprocessor configuration is required.</p>
@@ -134,9 +134,13 @@ ctest --preset x64-debug</code></pre>
       <pre><code>cmake -S . -B build -A x64 \
   -DMWTL_WTL_SOURCE_DIR=C:/deps/wtl \
   -DMWTL_WIL_SOURCE_DIR=C:/deps/wil</code></pre>
+      <p>Set <code>MWTL_DEPENDENCY_MODE=SYSTEM</code> to prohibit downloads and
+      locate preinstalled WTL/WIL trees, or <code>FETCH</code> to require the
+      pinned upstream revisions. <code>AUTO</code> is the default. Explicit
+      source directories always take priority.</p>
       <p>You can also define <code>WTL::WTL</code> and <code>WIL::WIL</code> before adding mwtl. The build never silently selects an unidentified system copy.</p>
     </section>
   </main>
-  <footer class="shell footer">MIT licensed · Windows 10 1809+ · x64 · <a href="https://github.com/everettjf/mwtl">Source on GitHub</a></footer>
+  <footer class="shell footer">MIT licensed · Windows 10 1809+ · x64 / ARM64 · <a href="https://github.com/everettjf/mwtl">Source on GitHub</a></footer>
 </body>
 </html>

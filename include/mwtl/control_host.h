@@ -9,6 +9,7 @@
 #include <mwtl/dpi.h>
 #include <mwtl/concepts.h>
 #include <mwtl/events.h>
+#include <mwtl/error.h>
 
 namespace mwtl {
 
@@ -102,9 +103,7 @@ public:
         if (!control.Create(parent_, std::forward<Arguments>(arguments)...)) {
             DWORD error = ::GetLastError();
             if (error == ERROR_SUCCESS) error = ERROR_CANNOT_MAKE;
-            throw std::system_error(
-                static_cast<int>(error), std::system_category(),
-                "mwtl control creation");
+            throw Error(error, "mwtl control creation");
         }
         return control;
     }

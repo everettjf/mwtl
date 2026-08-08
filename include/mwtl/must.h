@@ -11,18 +11,11 @@
 #include <string_view>
 #include <system_error>
 
+#include <mwtl/error.h>
+
 namespace mwtl {
 
 namespace detail {
-
-inline std::string DescribeOperation(
-    std::string_view operation,
-    const std::source_location& where) {
-    std::ostringstream stream;
-    stream << (operation.empty() ? "mwtl operation" : operation)
-           << " at " << where.file_name() << ':' << where.line();
-    return stream.str();
-}
 
 template <typename Result>
 concept DetailedCheckResult = requires(const Result& result) {
@@ -39,9 +32,7 @@ inline void Must(
     std::string_view operation = {},
     const std::source_location where = std::source_location::current()) {
     if (succeeded) return;
-    throw std::system_error(
-        static_cast<int>(ERROR_GEN_FAILURE), std::system_category(),
-        detail::DescribeOperation(operation, where));
+    throw Error(ERROR_GEN_FAILURE, operation, where);
 }
 
 template <typename Operation>
@@ -55,10 +46,17 @@ auto MustInvoke(
     auto result = std::invoke(std::forward<Operation>(operation));
     if (static_cast<bool>(result)) return result;
     DWORD error = ::GetLastError();
-    if (error == ERROR_SUCCESS) error = ERROR_GEN_FAILURE;
-    throw std::system_error(
-        static_cast<int>(error), std::system_category(),
-        detail::DescribeOperation(description, where));
+    throw Error(detail::NormalizeLastError(error), description, where);
+}
+
+inline void Must(
+    bool succeeded,
+    DWORD native_error,
+    std::string_view operation,
+    const std::source_location where = std::source_location::current()) {
+    if (!succeeded) {
+        throw Error(detail::NormalizeLastError(native_error), operation, where);
+    }
 }
 
 template <detail::DetailedCheckResult Result>
@@ -68,11 +66,11 @@ Result Must(
     const std::source_location where = std::source_location::current()) {
     if (result.Succeeded()) return result;
     std::ostringstream stream;
-    stream << detail::DescribeOperation(operation, where)
+    stream << (operation.empty() ? "mwtl batch operation" : operation)
            << " failed at item " << result.failed_at
            << " after " << result.completed
            << " completed; native result " << result.native_result;
-    throw std::runtime_error(stream.str());
+    throw Error(ERROR_GEN_FAILURE, stream.str(), where);
 }
 
 }  // namespace mwtl

@@ -1,5 +1,35 @@
 # Current mwtl API
 
+> This document describes 0.6. Stability guarantees and evolution rules are in
+> [stability.md](stability.md); 0.5 users should read
+> [migration-0.6.md](migration-0.6.md).
+
+## Commands and appearance
+
+`Command` owns an application action's ID, display text, enabled/checked state,
+optional shortcut, and callback. `CommandSet::Dispatch` can be returned directly
+from `OnCommand`.
+`Menu::AppendCommand` and `Menu::UpdateCommand` project the same state into a
+native menu without taking ownership of the command. `Toolbar::AddCommand` and
+`UpdateCommand` do the same for toolbar buttons, while
+`AcceleratorTable::Create(CommandSet)` builds native shortcuts from all commands
+that declare one.
+
+`WindowOptions::appearance` applies system/light/dark color preference, optional
+Mica/Acrylic/Tabbed backdrops, and corner policy after HWND creation. Unsupported
+DWM attributes are best-effort, and high-contrast mode always takes priority.
+`SetAccessibleName` names a native control without visible text, while
+`SetDialogDefaultButton` establishes keyboard default-button behavior.
+
+## Lightweight value binding
+
+`ValueBinding<Control, Value>` synchronizes an explicitly owned control and
+model value through caller-provided read/write functions. `Pull` validates a
+candidate before changing the model; `Push` uses a nested-safe `ChangeGate` so
+programmatic updates can be ignored by change handlers. `BindText`,
+`BindChecked`, and `BindSelection` cover common native controls. Bindings are
+non-owning and non-copyable; both referenced objects must outlive them.
+
 The API prioritizes concise, safe application code over historical source
 compatibility.
 

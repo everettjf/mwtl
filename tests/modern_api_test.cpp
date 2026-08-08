@@ -139,10 +139,13 @@ public:
         hot_key_.SetValue(mwtl::HotKeyValue{'K', HOTKEYF_CONTROL});
         ip_.SetValue(mwtl::IpAddressValue{{127, 0, 0, 1}});
         spin_.SetBuddy(spin_text_).SetRange(0, 100).SetValue(42);
-        const std::array toolbar_buttons{
-            mwtl::ToolbarButtonSpec{{600}, L"Tool"}};
-        mwtl::Must(mwtl::AddButtons(toolbar_, toolbar_buttons),
-                   "populate toolbar");
+        mwtl::Command toolbar_command({600}, L"Tool");
+        toolbar_command.SetChecked(true);
+        if (!toolbar_.AddCommand(toolbar_command))
+            throw std::runtime_error("populate toolbar command failed");
+        toolbar_command.SetChecked(false).SetEnabled(false).SetText(L"Disabled");
+        if (!toolbar_.UpdateCommand(toolbar_command))
+            throw std::runtime_error("update toolbar command failed");
         toolbar_.AutoSize();
         static_cast<void>(rebar_.AddBand(toolbar_, L"Band", 120));
         pager_.SetChild(pager_label_);

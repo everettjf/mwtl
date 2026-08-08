@@ -23,19 +23,10 @@
 #include <mwtl/layout.h>
 #include <mwtl/wakeup.h>
 #include <mwtl/window_options.h>
+#include <mwtl/detail/message_decode.h>
+#include <mwtl/detail/window_support.h>
 
 extern WTL::CAppModule _Module;
-
-namespace mwtl::detail {
-
-void ReportException(
-    const wchar_t* stage,
-    UINT message,
-    const char* description,
-    bool show_user) noexcept;
-void ReportUnknownException(const wchar_t* stage, UINT message, bool show_user) noexcept;
-
-}  // namespace mwtl::detail
 
 namespace mwtl {
 
@@ -45,20 +36,6 @@ struct WindowMarker {};
 
 template <typename T, typename ClassTraits = DefaultWindowClassTraits>
 class Window : public WTL::CFrameWindowImpl<T>, public detail::WindowMarker {
-    class AcceleratorFilter final : public WTL::CMessageFilter {
-    public:
-        explicit AcceleratorFilter(Window* owner) noexcept : owner_(owner) {}
-        BOOL PreTranslateMessage(MSG* message) override {
-            return message != nullptr && owner_->m_hWnd != nullptr &&
-                    owner_->m_hAccel != nullptr
-                ? ::TranslateAcceleratorW(owner_->m_hWnd, owner_->m_hAccel, message)
-                : FALSE;
-        }
-
-    private:
-        Window* owner_;
-    };
-
 public:
     using Base = WTL::CFrameWindowImpl<T>;
 
@@ -97,6 +74,7 @@ public:
     }
 
     HWND GetHwnd() const noexcept { return this->m_hWnd; }
+    HACCEL GetAccelerators() const noexcept { return this->m_hAccel; }
 
     bool IsWindow() const noexcept {
         return this->m_hWnd != nullptr && ::IsWindow(this->m_hWnd) != FALSE;
@@ -178,6 +156,7 @@ public:
                 window, GCLP_HBRBACKGROUND,
                 reinterpret_cast<LONG_PTR>(options.background));
         }
+        static_cast<void>(ApplyWindowAppearance(window, options.appearance));
     }
 
     BOOL ProcessWindowMessage(
@@ -234,25 +213,13 @@ private:
             if constexpr (requires(T& value, const KeyEvent& event) {
                               value.OnKeyDown(event);
                           }) {
-                const KeyEvent event{
-                    .virtual_key = static_cast<UINT>(wparam),
-                    .repeat_count = static_cast<std::uint16_t>(lparam & 0xFFFF),
-                    .scan_code = static_cast<std::uint8_t>((lparam >> 16) & 0xFF),
-                    .extended = (lparam & (1LL << 24)) != 0,
-                    .was_down = (lparam & (1LL << 30)) != 0,
-                };
+                const KeyEvent event = detail::DecodeKeyEvent(wparam, lparam);
                 return InvokeModernHandler(
                     [&target, &event] { return target.OnKeyDown(event); }, result);
             }
         }
         if (message == WM_MOUSEMOVE || message == WM_LBUTTONDOWN) {
-            const MouseEvent event{
-                .position = POINT{
-                    static_cast<short>(LOWORD(lparam)),
-                    static_cast<short>(HIWORD(lparam)),
-                },
-                .key_state = wparam,
-            };
+            const MouseEvent event = detail::DecodeMouseEvent(wparam, lparam);
             if (message == WM_MOUSEMOVE) {
                 if constexpr (requires(T& value, const MouseEvent& input) {
                                   value.OnMouseMove(input);
@@ -277,12 +244,8 @@ private:
             if constexpr (requires(T& value, const ScrollEvent& event) {
                               value.OnScroll(event);
                           }) {
-                const ScrollEvent event{
-                    .control = reinterpret_cast<HWND>(lparam),
-                    .request = LOWORD(wparam),
-                    .position = HIWORD(wparam),
-                    .horizontal = message == WM_HSCROLL,
-                };
+                const ScrollEvent event =
+                    detail::DecodeScrollEvent(message, wparam, lparam);
                 return InvokeModernHandler(
                     [&target, &event] { return target.OnScroll(event); },
                     result);
@@ -295,13 +258,8 @@ private:
             if constexpr (requires(T& value, const ResizeEvent& event) {
                               value.OnResize(event);
                           }) {
-                const ResizeEvent event{
-                    .client_size = SIZE{
-                        static_cast<LONG>(LOWORD(lparam)),
-                        static_cast<LONG>(HIWORD(lparam)),
-                    },
-                    .state = detail::DecodeWindowSizeState(wparam),
-                };
+                const ResizeEvent event =
+                    detail::DecodeResizeEvent(wparam, lparam);
                 return InvokeModernHandler(
                     [&target, &event] { return target.OnResize(event); }, result);
             }
@@ -335,11 +293,8 @@ private:
             if constexpr (requires(T& value, const CommandEvent& event) {
                               value.OnCommand(event);
                           }) {
-                const CommandEvent event{
-                    .id = ControlId{LOWORD(wparam)},
-                    .notification = HIWORD(wparam),
-                    .control = reinterpret_cast<HWND>(lparam),
-                };
+                const CommandEvent event =
+                    detail::DecodeCommandEvent(wparam, lparam);
                 return InvokeModernHandler(
                     [&target, &event] { return target.OnCommand(event); }, result);
             }
@@ -384,7 +339,8 @@ private:
             if constexpr (requires(T& value, const WindowMessage& event) {
                               value.OnMessage(event);
                           }) {
-                const WindowMessage event{message, wparam, lparam};
+                const WindowMessage event =
+                    detail::DecodeWindowMessage(message, wparam, lparam);
                 return InvokeModernHandler(
                     [&target, &event] { return target.OnMessage(event); },
                     result);
@@ -510,7 +466,7 @@ private:
         return 0;
     }
 
-    AcceleratorFilter accelerator_filter_;
+    detail::AcceleratorFilter<Window> accelerator_filter_;
     bool creation_complete_ = false;
     bool accelerator_filter_registered_ = false;
     bool recovery_requested_ = false;

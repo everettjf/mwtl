@@ -20,6 +20,10 @@ execute_process(
             -B "${MWTL_BUILD_DIR}/package-consumer-build"
             -G "${MWTL_GENERATOR}" -A "${MWTL_PLATFORM}"
             "-DCMAKE_PREFIX_PATH=${MWTL_INSTALL_DIR}"
+            "-DMWTL_ENABLE_ASAN=${MWTL_ENABLE_ASAN}"
+            "-DMWTL_WTL_SOURCE_DIR=${MWTL_WTL_SOURCE_DIR}"
+            "-DMWTL_WIL_SOURCE_DIR=${MWTL_WIL_SOURCE_DIR}"
+            "-DMWTL_DEPENDENCY_MODE=SYSTEM"
     RESULT_VARIABLE configure_result)
 if(NOT configure_result EQUAL 0)
     message(FATAL_ERROR "Installed-package consumer configure failed: ${configure_result}")

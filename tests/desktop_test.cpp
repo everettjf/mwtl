@@ -15,16 +15,21 @@ bool accelerator_seen = false;
 class AcceleratorWindow final : public mwtl::Window<AcceleratorWindow> {
 public:
     void BuildUI() {
+        command_set_.Add(mwtl::Command({701}, L"Verify\tF6", [this] {
+            accelerator_seen = true;
+            ::KillTimer(GetHwnd(), 1);
+            ::KillTimer(GetHwnd(), 2);
+            static_cast<void>(Close());
+        }).SetShortcut({FVIRTKEY, VK_F6}));
         mwtl::Menu bar;
         mwtl::Menu commands;
         if (!bar.Create() || !commands.CreatePopup() ||
-            !commands.AppendCommand(701, L"Verify\tF6") ||
+            !commands.AppendCommand(*command_set_.Find({701})) ||
             !bar.AppendSubmenu(std::move(commands), L"Test") ||
             !bar.AttachToWindow(GetHwnd())) {
             throw std::runtime_error("menu fixture failed");
         }
-        const std::array<ACCEL, 1> entries{{ACCEL{FVIRTKEY, VK_F6, 701}}};
-        if (!accelerators_.Create(entries)) {
+        if (!accelerators_.Create(command_set_)) {
             throw std::runtime_error("accelerator fixture failed");
         }
         SetAccelerators(accelerators_.GetHandle());
@@ -44,18 +49,12 @@ public:
     }
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) {
-        if (event.control == nullptr && event.id.value == 701) {
-            accelerator_seen = true;
-            ::KillTimer(GetHwnd(), 1);
-            ::KillTimer(GetHwnd(), 2);
-            (void)Close();
-            return mwtl::EventResult::Handled();
-        }
-        return mwtl::EventResult::Propagate();
+        return command_set_.Dispatch(event);
     }
 
 private:
     mwtl::AcceleratorTable accelerators_;
+    mwtl::CommandSet command_set_;
 };
 
 bool VerifyClipboardRoundTrip() {

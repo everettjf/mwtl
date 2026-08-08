@@ -1,276 +1,90 @@
 <p align="center">
-  <img src="docs/images/mwtl-mark.svg" width="144" alt="mwtl celestial geometry logo">
+  <img src="docs/images/mwtl-mark.svg" width="128" alt="mwtl logo">
 </p>
 
 <h1 align="center">mwtl</h1>
 
-<p align="center">
-  A bright, lightweight C++20 foundation for native Windows desktop applications.
-</p>
+<p align="center">A lightweight C++20 foundation for native Windows desktop applications.</p>
 
 <p align="center">
   <a href="https://github.com/everettjf/mwtl/actions/workflows/ci.yml"><img src="https://github.com/everettjf/mwtl/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/API-0.5-6278f5.svg" alt="API 0.5">
-  <a href="https://github.com/everettjf/mwtl/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-17a589.svg" alt="MIT license"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-17a589.svg" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/C%2B%2B-20-146c94.svg" alt="C++20">
-  <img src="https://img.shields.io/badge/platform-Windows-ff9f43.svg" alt="Windows">
+  <img src="https://img.shields.io/badge/platform-Windows%20x64-ff9f43.svg" alt="Windows x64">
 </p>
 
 <p align="center">
-  <a href="#hello-world">Hello World</a> &middot;
-  <a href="#visual-quick-start">Examples</a> &middot;
-  <a href="#build-and-run">Build</a> &middot;
-  <a href="https://everettjf.github.io/mwtl/">Documentation</a> &middot;
-  <a href="docs/api-0.5.md">API 0.5</a>
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#installation">Installation</a> ·
+  <a href="#examples">Examples</a> ·
+  <a href="https://everettjf.github.io/mwtl/components/">Components</a> ·
+  <a href="https://everettjf.github.io/mwtl/">Documentation</a>
 </p>
 
-Start with the [complete setup guide](https://everettjf.github.io/mwtl/building.html),
-then use the [component gallery](https://everettjf.github.io/mwtl/components/)
-and [0.5 API direction](docs/api-0.5.md) as current references.
+mwtl wraps real HWND controls with clear ownership, typed events, checked setup
+helpers, and DPI-aware responsive layout. It reduces Win32 ceremony without
+hiding native handles, messages, styles, or return values.
 
-`mwtl` is a lightweight, Windows-only modern C++ foundation built on ATL/WTL and Microsoft WIL. It keeps native HWND and Win32 message interoperability while reducing application/bootstrap boilerplate and making lifetime and error boundaries explicit.
-
-The project is not a replacement for Qt, WinUI, XAML/QML, or a cross-platform/full-visual UI framework. It favors native Windows controls and does not hide HWNDs.
-
-## Hello World
-
-This is a complete native Windows application:
+## Quick start
 
 ```cpp
 #include <mwtl/mwtl.h>
 
-class HelloWindow final : public mwtl::WindowBase {
-public:
-    void BuildUI() override {
-        SetTitle(L"Hello, world!");
-    }
-};
-
-int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
-    return mwtl::RunApplication<HelloWindow>(instance, show);
-}
-```
-
-No message-map macros, generated code, framework-owned application object, or
-hidden HWND abstraction is required. Start with one class and add native
-controls only when the window needs them.
-
-## API 0.5 at a glance
-
-Version 0.5 makes the concise path consistent without hiding Win32. All 27
-native child-control wrappers use the same parent-bound creation API and
-dynamic intrinsic measurement; checked batches accept ranges and report
-partial failures; typed events match their source control; and the DPI-aware
-layout rearranges real HWNDs on resize. Main windows support constructor
-injection, while dialogs use structured filters and `std::filesystem::path`.
-
-```cpp
 using mwtl::operator""_dip;
 
-mwtl::ControlHost ui{*this};
-ui.Add(name_, L"Developer");
-ui.Add(save_, L"Save");
-ui.Add(progress_).SetRange(0, 100).SetValue(64);
-mwtl::Must(mwtl::AddItems(
-    theme_, {L"System", L"Light", L"Dark"}));
+class MainWindow final : public mwtl::WindowBase {
+public:
+    void BuildUI() override {
+        SetTitle(L"Hello, mwtl");
 
-SetLayout(
-    mwtl::Row()
-        .Gap(8_dip)
-        .Add(name_, mwtl::Stretch(1.0f, 160_dip))
-        .Add(save_, 96_dip));
+        mwtl::ControlHost ui{*this};
+        ui.Add(message_, L"A native Windows UI with modern C++20 ergonomics.");
+        ui.Add(close_, L"Close");
+
+        SetLayout(
+            mwtl::Column()
+                .Margin(24_dip)
+                .Gap(12_dip)
+                .Add(message_, mwtl::Auto())
+                .Add(close_, mwtl::Fixed(36_dip)));
+    }
+
+    mwtl::EventResult OnCommand(
+        const mwtl::CommandEvent& event) override {
+        if (event.IsClicked(close_)) {
+            Close();
+            return mwtl::EventResult::Handled();
+        }
+        return mwtl::EventResult::Propagate();
+    }
+
+private:
+    mwtl::Label message_;
+    mwtl::Button close_;
+};
+
+int WINAPI wWinMain(
+    HINSTANCE instance, HINSTANCE, PWSTR, int show_command) {
+    return mwtl::RunApplication<MainWindow>(instance, show_command);
+}
 ```
 
-Typed controls expose intrinsic DPI-aware measurement, so `Auto()` works with
-zero provisional creation bounds. Infallible setters are chainable. For a
-Win32 call whose last-error value matters, use `MustInvoke([&] { return ...; })`;
-plain `Must(bool)` never reports a stale thread-local error code.
+`ControlHost` allocates control IDs automatically. `SetLayout` owns the layout
+tree and rearranges native controls on resize. Event handlers override only the
+messages the window needs.
 
-Direct `Create(...)`, `GetHwnd()`, native messages, styles, and return values
-remain available when application code needs lower-level control.
+## Installation
 
-## Visual quick start
-
-The most useful visual examples put the essential code on the left and the
-actual x64 Debug window on the right. Infrastructure demos with visually empty
-windows stay in the full catalog instead of taking over the front page.
-
-<table>
-  <tr>
-    <th width="54%" align="left">Hello: native label and button</th>
-    <th width="46%" align="left">Result</th>
-  </tr>
-  <tr>
-    <td valign="top"><pre><code>void BuildUI() {
-    mwtl::ControlHost ui{*this};
-    ui.Add(message_, L"Hello, mwtl");
-    ui.Add(button_, L"Try it");
-    SetLayout(
-        mwtl::Column()
-            .Margin(20_dip).Gap(8_dip)
-            .Add(message_, mwtl::Fixed(28_dip))
-            .Add(button_, mwtl::Fixed(36_dip)));
-}
-
-mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
-    if (event.IsClicked(button_)) {
-        message_.SetText(L"No message-map macros.");
-        return mwtl::EventResult::Handled();
-    }
-    return mwtl::EventResult::Propagate();
-}</code></pre><a href="examples/hello/main.cpp">Open the complete Hello source &rarr;</a></td>
-    <td valign="top"><a href="examples/hello/main.cpp"><img width="100%" src="docs/images/examples/hello.png" alt="Hello window with a native label and button"></a></td>
-  </tr>
-  <tr>
-    <th align="left">Windows Common Controls: the complete specialized gallery</th>
-    <th align="left">Result</th>
-  </tr>
-  <tr>
-    <td valign="top"><pre><code>void BuildUI() override {
-    mwtl::ControlHost ui{*this};
-    ui.Add(tree_, {202}, tree_bounds);
-    ui.Add(list_, {203}, list_bounds);
-    ui.Add(date_, {207}, date_bounds);
-    ui.Add(calendar_, {208}, calendar_bounds);
-
-    const auto root = tree_.AddItem(L"Common Controls");
-    tree_.AddItem(L"Navigation", root);
-    mwtl::AddColumns(list_, {{L"Control", 170}});
-    mwtl::AddItems(list_, {L"ListView"});
-}</code></pre><a href="examples/common_controls/main.cpp">Open the complete Common Controls source &rarr;</a></td>
-    <td valign="top"><a href="examples/common_controls/main.cpp"><img width="100%" src="docs/images/examples/common-controls.png" alt="Windows Common Controls gallery with TreeView, ListView, Toolbar, DateTimePicker, MonthCalendar and other native controls"></a></td>
-  </tr>
-  <tr>
-    <th align="left">Native controls: a complete responsive form</th>
-    <th align="left">Result</th>
-  </tr>
-  <tr>
-    <td valign="top"><pre><code>void BuildUI() {
-    mwtl::ControlHost ui{*this};
-    ui.Add(name_, L"mwtl developer");
-    ui.Add(greet_, L"Say hello");
-    ui.Add(enabled_, L"Button enabled");
-    ui.Add(accent_);
-    ui.Add(progress_);
-    ui.Add(group_, L"Choices");
-    ui.Add(radio_, L"Sky blue");
-    ui.Add(list_);
-    ui.Add(slider_);
-    heartbeat_.Start(*this, {1}, 1s);
-}
-
-mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
-    if (event.IsClicked(greet_)) {
-        status_.SetText(L"Hello, " + name_.GetText());
-        return mwtl::EventResult::Handled();
-    }
-    return mwtl::EventResult::Propagate();
-}</code></pre><a href="examples/controls/main.cpp">Open the complete controls source &rarr;</a></td>
-    <td valign="top"><a href="examples/controls/main.cpp"><img width="100%" src="docs/images/examples/controls.png" alt="Native controls form with text box, buttons, combo box and progress bar"></a></td>
-  </tr>
-  <tr>
-    <th align="left">Native painting: direct GDI remains available</th>
-    <th align="left">Result</th>
-  </tr>
-  <tr>
-    <td valign="top"><pre><code>void OnPaint(mwtl::PaintEvent&amp; event) {
-    ::FillRect(event.GetDC(), &amp;client, background);
-    ::DrawTextW(event.GetDC(), text, -1, &amp;client,
-                DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-}</code></pre><a href="examples/paint/main.cpp">Open the complete painting source &rarr;</a></td>
-    <td valign="top"><a href="examples/paint/main.cpp"><img width="100%" src="docs/images/examples/paint.png" alt="Native GDI paint example"></a></td>
-  </tr>
-</table>
-
-The `hot_corners` reference is a complete utility rather than a control
-gallery. It watches all monitor rectangles in virtual-desktop coordinates, so
-secondary displays, negative origins, mixed resolutions, and display changes
-do not fall back to primary-monitor edge assumptions.
-
-[![Multi-monitor Hot Corners utility](docs/images/examples/hot-corners.png)](examples/hot_corners/main.cpp)
-
-## Capabilities and project scope
-
-The current library provides:
-
-- macro-free C++20 convention handlers discovered with `requires`;
-- typed keyboard, mouse, resize, DPI, command, timer, paint, min/max, and raw-message events;
-- RAII `UiTimer` with `std::chrono` intervals;
-- the full Microsoft Control Library family surface: standard form controls plus
-  TreeView, ListView, Header, TabControl, ComboBoxEx, DateTimePicker,
-  MonthCalendar, HotKey, IpAddress, UpDown, SysLink, Toolbar, StatusBar, Rebar,
-  Pager, Animation, Tooltip, ScrollBar, ImageList, TaskDialog, and Flat Scroll Bar;
-- one-line `RunApplication<MainWindow>()` process startup;
-- concise parent-bound creation for all native child controls, checked batch
-  population, and control-aware command/notify matching;
-- four-value DIP geometry, per-window `DpiContext`, and responsive nested
-  row/column/overlay layout with automatic resize handling;
-- configurable class traits, styles, icons/cursor/background, and initial bounds;
-- automatic `WM_DPICHANGED` suggested-rectangle handling (opt-out is explicit);
-- a `MsgWaitForMultipleObjectsEx` pump preserving WTL message filters;
-- a lifetime-safe, non-owning `WindowWakeup` token for worker-to-UI notification;
-- optional application-owned STA/MTA COM initialization;
-- a C++20 public API using concepts, `std::span`, three-way comparison,
-  designated initializers, and `std::jthread` in the focused examples;
-- independent C++20 consumer and public-header compile checks;
-- installable `find_package` exports and CPack ZIP packages;
-- native menus/accelerators, system file and folder dialogs, Unicode clipboard,
-  shell file drops, persistent monitor-safe placement, DPI fonts, focus
-  navigation, and typed `WM_NOTIFY` dispatch.
-
-Build and runtime foundations include:
-
-- a CMake static library target named `mwtl::mwtl`;
-- pinned official WTL and WIL dependencies;
-- `mwtl::Application` with WTL `CAppModule` and message-loop lifetime management;
-- a concise `mwtl::WindowBase` with typed virtual event handlers;
-- exception containment around real WTL window-message dispatch and `wWinMain`;
-- Unicode-only compilation and a Per-Monitor DPI Awareness V2 manifest for the hello executable;
-- an interactive native-control `examples/hello` quick start;
-- focused `Application` and `WindowBase` component demos under `examples/`;
-- CTest coverage for normal exit, creation failure cleanup, message-handler exceptions, public-header independence, and the embedded DPI manifest;
-- a static component documentation site under `site/`, ready for GitHub Pages deployment.
-
-There is currently no ownership-hiding declarative control DSL, binding/theme
-system, general task dispatcher, Mica/backdrop, Direct2D, DirectWrite, terminal,
-or ConPTY abstraction. The controls remain thin owners of real system HWNDs;
-layout nodes only keep non-owning handles.
-
-## Requirements
-
-- Windows 10 version 1809 or newer, or Windows 11;
-- x64;
-- Visual Studio 2022 or newer with the MSVC C++ desktop tools, Windows SDK, and C++ ATL component;
-- CMake 3.21 or newer;
-- C++20 (`/std:c++20`) is the required and publicly propagated language standard.
-
-mwtl intentionally fails during CMake configuration on non-Windows, non-MSVC,
-and 32-bit targets. MinGW and clang-cl are not supported.
-
-## Dependencies
-
-The default configuration fetches immutable commits from the official WTL SourceForge repository and Microsoft WIL GitHub repository. Exact tags, commits, and licenses are recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-For offline builds, provide both checked-out source trees:
-
-```powershell
-cmake -S . -B build/x64 `
-  -G "Visual Studio 17 2022" -A x64 `
-  -DMWTL_WTL_SOURCE_DIR=C:/deps/wtl `
-  -DMWTL_WIL_SOURCE_DIR=C:/deps/wil
-```
-
-An embedding project may instead define `WTL::WTL` and `WIL::WIL` targets before calling `add_subdirectory(mwtl)`. If either target is already present, mwtl uses it and does not fetch that dependency. It never searches silently for an unidentified system copy.
-
-## Install and consume
-
-The complete setup guide covers [CMake, Visual Studio, and VS Code](https://everettjf.github.io/mwtl/building.html). The recommended application integration is CMake `FetchContent`:
+The recommended integration is CMake `FetchContent`:
 
 ```cmake
+cmake_minimum_required(VERSION 3.21)
+project(my_app LANGUAGES CXX)
+
 include(FetchContent)
 FetchContent_Declare(mwtl
   GIT_REPOSITORY https://github.com/everettjf/mwtl.git
-  GIT_TAG v0.5.0
+  GIT_TAG main
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(mwtl)
 
@@ -278,36 +92,80 @@ add_executable(my_app WIN32 main.cpp)
 target_link_libraries(my_app PRIVATE mwtl::mwtl)
 ```
 
-Configure x64 with Visual Studio 2026:
-
 ```powershell
 cmake -S . -B build -G "Visual Studio 18 2026" -A x64
 cmake --build build --config Debug
 ```
 
-Use generator `Visual Studio 17 2022` when building with Visual Studio 2022.
+Use `Visual Studio 17 2022` with Visual Studio 2022. The complete
+[setup guide](https://everettjf.github.io/mwtl/building.html) also covers an
+installed `find_package` package, the Visual Studio folder workflow, VS Code,
+offline WTL/WIL sources, and building this repository.
 
-Install a Release build to a prefix:
+## What is included
 
-```powershell
-cmake --build build/x64 --config Release
-cmake --install build/x64 --config Release --prefix C:/deps/mwtl
-```
+- application and message-loop lifetime management;
+- `WindowBase` with typed keyboard, mouse, resize, timer, DPI, command,
+  notification, paint, and native-message events;
+- 27 native child-control wrappers;
+- automatic control IDs and source-located checked operations;
+- C++20 range-based batch population;
+- DPI-aware row, column, and overlay layout;
+- menus, accelerators, modern file/folder dialogs, clipboard, shell drops,
+  window placement, task dialogs, image lists, and tooltips;
+- wait-aware message pumping and lifetime-safe worker wakeups.
 
-An installed consumer uses the exported package target:
+The [component reference](https://everettjf.github.io/mwtl/components/) shows
+every control with current code, a native screenshot, and its runnable example.
+Detailed API notes live in [docs/api.md](docs/api.md).
 
-```cmake
-find_package(mwtl 0.5 CONFIG REQUIRED)
-target_link_libraries(my_app PRIVATE mwtl::mwtl)
-```
+## Examples
 
-Set `CMAKE_PREFIX_PATH=C:/deps/mwtl` when configuring the consumer. The package
-retains the same immutable WTL and WIL dependency policy as a source build.
-Tagged releases also produce a ZIP package through CPack.
+The repository contains 22 independently buildable programs. Each link opens
+the complete source.
 
-## Build and run
+| Example | Source | Focus |
+|---|---|---|
+| Hello | [examples/hello/main.cpp](examples/hello/main.cpp) | Smallest complete native application |
+| Application | [examples/application/main.cpp](examples/application/main.cpp) | Startup, message loop, and exit lifecycle |
+| Window | [examples/window/main.cpp](examples/window/main.cpp) | HWND access, typed events, and native messages |
+| Native message | [examples/native_message/main.cpp](examples/native_message/main.cpp) | Application-defined `WM_APP` messages |
+| Keyboard | [examples/keyboard/main.cpp](examples/keyboard/main.cpp) | Typed key input |
+| Mouse | [examples/mouse/main.cpp](examples/mouse/main.cpp) | Client coordinates and clicks |
+| Resize | [examples/resize/main.cpp](examples/resize/main.cpp) | Client size and window state |
+| Timer | [examples/timer/main.cpp](examples/timer/main.cpp) | RAII timers with `std::chrono` |
+| Paint | [examples/paint/main.cpp](examples/paint/main.cpp) | Native GDI drawing |
+| Minimum size | [examples/minmax/main.cpp](examples/minmax/main.cpp) | `WM_GETMINMAXINFO` |
+| Close policy | [examples/close_policy/main.cpp](examples/close_policy/main.cpp) | Typed close interception |
+| Window state | [examples/window_state/main.cpp](examples/window_state/main.cpp) | Restore, minimize, and maximize |
+| DPI | [examples/dpi/main.cpp](examples/dpi/main.cpp) | Per-monitor DPI behavior |
+| Window options | [examples/window_options/main.cpp](examples/window_options/main.cpp) | Styles, resources, and DIP bounds |
+| Wait-aware pump | [examples/wait_aware/main.cpp](examples/wait_aware/main.cpp) | Handles and efficient idle work |
+| Wakeup | [examples/wakeup/main.cpp](examples/wakeup/main.cpp) | Safe worker-to-window notification |
+| COM STA | [examples/com_sta/main.cpp](examples/com_sta/main.cpp) | COM apartment lifecycle |
+| Controls | [examples/controls/main.cpp](examples/controls/main.cpp) | Complete form-control gallery |
+| Common Controls | [examples/common_controls/main.cpp](examples/common_controls/main.cpp) | Complete specialized-control gallery |
+| Self-drawn host | [examples/self_drawn_host/main.cpp](examples/self_drawn_host/main.cpp) | Worker-driven native drawing |
+| System lifecycle | [examples/system_lifecycle/main.cpp](examples/system_lifecycle/main.cpp) | Power, display, IME, and session messages |
+| Hot corners | [examples/hot_corners/main.cpp](examples/hot_corners/main.cpp) | Complete multi-monitor utility |
 
-The checked-in presets provide the shortest path when dependencies can be fetched:
+<p align="center">
+  <a href="examples/hello/main.cpp"><img width="48%" src="docs/images/examples/hello.png" alt="Hello example"></a>
+  <a href="examples/controls/main.cpp"><img width="48%" src="docs/images/examples/controls.png" alt="Controls example"></a>
+</p>
+<p align="center">
+  <a href="examples/common_controls/main.cpp"><img width="48%" src="docs/images/examples/common-controls.png" alt="Common Controls example"></a>
+  <a href="examples/paint/main.cpp"><img width="48%" src="docs/images/examples/paint.png" alt="Paint example"></a>
+</p>
+
+The [examples catalog](examples/README.md) lists target names and run commands.
+The [website](https://everettjf.github.io/mwtl/) displays every example with
+its screenshot and source link.
+
+## Build this repository
+
+Requirements: Windows 10 1809 or newer, x64, Visual Studio 2022 or newer with
+MSVC, a Windows SDK and C++ ATL, CMake 3.21 or newer, and C++20.
 
 ```powershell
 cmake --preset vs2026-x64
@@ -315,193 +173,33 @@ cmake --build --preset x64-debug
 ctest --preset x64-debug
 ```
 
-From a Visual Studio 2026 Developer PowerShell, configure once and build Debug x64:
+Build and test Release:
 
 ```powershell
-cmake -S . -B build/x64 -G "Visual Studio 18 2026" -A x64 `
-  -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
-cmake --build build/x64 --config Debug --verbose
-ctest --test-dir build/x64 -C Debug --output-on-failure
-./build/x64/examples/hello/Debug/mwtl_hello.exe
+cmake --build --preset x64-release
+ctest --preset x64-release
 ```
 
-Build Release x64:
+The project intentionally rejects non-Windows, non-MSVC, 32-bit, and ARM64
+configurations. CI validates x64 Debug, Release, public-header independence,
+package consumption, manifests, examples, and documentation coverage.
 
-```powershell
-cmake --build build/x64 --config Release --verbose
-ctest --test-dir build/x64 -C Release --output-on-failure
-./build/x64/examples/hello/Release/mwtl_hello.exe
-```
+## Dependencies
 
-When mwtl is included with `add_subdirectory`, examples and tests default to off. Set `MWTL_BUILD_EXAMPLES=ON` or `MWTL_BUILD_TESTS=ON` explicitly when the parent wants them.
+CMake fetches pinned official WTL and Microsoft WIL revisions. Exact sources
+and licenses are recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+For controlled environments, see the
+[offline setup instructions](https://everettjf.github.io/mwtl/building.html#offline).
 
-## Component examples
+## Documentation
 
-The repository contains **22 independently buildable GUI examples**. They are all managed by [examples/CMakeLists.txt](examples/CMakeLists.txt) and share the same Unicode, C++20, warning, and Per-Monitor V2 manifest setup. Every name and screenshot below links directly to its complete `main.cpp`.
-
-| Component | Directory | CMake target | Demonstrates |
-|---|---|---|---|
-| Quick start | [`examples/hello`](examples/hello/main.cpp) | `mwtl_hello` | Smallest complete program |
-| `mwtl::Application` | [`examples/application`](examples/application/main.cpp) | `mwtl_application_demo` | HINSTANCE observation, Run, exit code, and wWinMain boundary |
-| Window APIs | [`examples/window`](examples/window/main.cpp) | `mwtl_window_demo` | `WindowBase`, HWND access, WM_APP messages, and `Close()` |
-| Native message | [`examples/native_message`](examples/native_message/main.cpp) | `mwtl_native_message_demo` | Typed `WM_APP` constant, payload, `PostMessageW`, and `OnMessage` |
-| Keyboard | [`examples/keyboard`](examples/keyboard/main.cpp) | `mwtl_keyboard_demo` | `WM_KEYDOWN`, virtual-key values, and Escape-to-close |
-| Mouse | [`examples/mouse`](examples/mouse/main.cpp) | `mwtl_mouse_demo` | Client coordinates from `WM_MOUSEMOVE` and `WM_LBUTTONDOWN` |
-| Resize | [`examples/resize`](examples/resize/main.cpp) | `mwtl_resize_demo` | Width, height, and state from `WM_SIZE` |
-| Timer | [`examples/timer`](examples/timer/main.cpp) | `mwtl_timer_demo` | `UiTimer`, `std::chrono`, typed timer IDs, and RAII cleanup |
-| Native paint | [`examples/paint`](examples/paint/main.cpp) | `mwtl_paint_demo` | Direct HWND/GDI interoperability through `WM_PAINT` |
-| Minimum size | [`examples/minmax`](examples/minmax/main.cpp) | `mwtl_minmax_demo` | A native minimum tracking size through `WM_GETMINMAXINFO` |
-| Close policy | [`examples/close_policy`](examples/close_policy/main.cpp) | `mwtl_close_policy_demo` | Intercepting `WM_CLOSE` without changing `Application` lifetime policy |
-| Window state | [`examples/window_state`](examples/window_state/main.cpp) | `mwtl_window_state_demo` | Restored, minimized, and maximized state from `WM_SIZE` |
-| DPI | [`examples/dpi`](examples/dpi/main.cpp) | `mwtl_dpi_demo` | Per-window DPI and `WM_DPICHANGED` |
-| Window options | [`examples/window_options`](examples/window_options/main.cpp) | `mwtl_window_options_demo` | Class traits, styles, DIP client size and centering |
-| Hot corners | [`examples/hot_corners`](examples/hot_corners/main.cpp) | `mwtl_hot_corners_demo` | Correct per-monitor corner detection across the virtual desktop |
-| Wait-aware pump | [`examples/wait_aware`](examples/wait_aware/main.cpp) | `mwtl_wait_aware_demo` | Non-busy message/timer waiting |
-| Safe wake-up | [`examples/wakeup`](examples/wakeup/main.cpp) | `mwtl_wakeup_demo` | Worker-to-HWND lifetime-safe wake notification |
-| COM STA | [`examples/com_sta`](examples/com_sta/main.cpp) | `mwtl_com_sta_demo` | Optional COM apartment lifecycle |
-| Native controls | [`examples/controls`](examples/controls/main.cpp) | `mwtl_controls_demo` | Every supported control: text, buttons, choices, lists, progress, slider, commands, and timer |
-| Common Controls | [`examples/common_controls`](examples/common_controls/main.cpp) | `mwtl_common_controls_demo` | All specialized Windows Common Controls families in one populated native gallery |
-| Self-drawn host | [`examples/self_drawn_host`](examples/self_drawn_host/main.cpp) | `mwtl_self_drawn_host_demo` | Dirty-frame wake-up, native GDI and wait-aware pumping |
-| System lifecycle | [`examples/system_lifecycle`](examples/system_lifecycle/main.cpp) | `mwtl_system_lifecycle_demo` | Power/display/settings/IME/end-session/accessibility messages |
-
-Build any one directly, for example:
-
-```powershell
-cmake --build build/x64 --config Debug --target mwtl_native_message_demo
-./build/x64/examples/native_message/Debug/mwtl_native_message_demo.exe
-```
-
-See [examples/README.md](examples/README.md) for the complete target and run-command index.
-
-## Tests
-
-`MWTL_BUILD_TESTS` defaults on for a top-level build and off when mwtl is embedded. The test suite covers:
-
-- successful main-window creation and normal loop exit;
-- deterministic module-initialization and message-loop-registration failure cleanup;
-- `BuildUI` exception causing Create failure and nonzero Run result;
-- a WTL message-handler exception being contained by the real WindowProc boundary;
-- exact `CAppModule`/message-loop cleanup counts on each path;
-- independent C++20 compilation of every public header;
-- macro-free convention dispatch and common native-control/timer lifecycle;
-- extraction and inspection of the final hello EXE manifest with the Windows SDK manifest tool.
-- DPI conversion edge cases, C++20 consumption, custom class traits, COM STA,
-  wait-handle dispatch, callback exception containment, 2,000-message wake-up
-  bursts, idle CPU behavior, and native host lifecycle behavior.
-
-The repository CI workflow builds and tests x64 Debug and Release. ARM64 is intentionally deferred until it has a maintained validation environment.
-
-## GitHub Pages
-
-The documentation site source is in [site/](site/). It includes a landing page, build guide, and one usage page for every current public component. The pinned-action workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) uploads that directory directly to GitHub Pages.
-
-After the repository is public, open **Settings → Pages**, select **GitHub Actions** as the source, then run the **Deploy GitHub Pages** workflow or push a change under `site/` to `main`. No Jekyll or Node build is required.
-
-## Current documentation
-
-- [0.5 API direction](docs/api-0.5.md)
-- [system-message recipes](docs/system-message-recipes.md)
-- [0.5 release checklist](docs/release-checklist-0.5.0.md)
-- [complete web guide](https://everettjf.github.io/mwtl/)
-
-## Modern event handlers
-
-`WindowBase` exposes ordinary virtual event overrides and is the recommended
-default. There is no registration table or message-map macro:
-
-```cpp
-mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) override;
-mwtl::EventResult OnMouseMove(const mwtl::MouseEvent& event) override;
-mwtl::EventResult OnResize(const mwtl::ResizeEvent& event) override;
-mwtl::EventResult OnCommand(const mwtl::CommandEvent& event) override;
-mwtl::EventResult OnTimer(mwtl::TimerId id) override;
-mwtl::EventResult OnPaint(mwtl::PaintEvent& event) override;
-mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) override;
-```
-
-Return `EventResult::Propagate()` when WTL/default processing should continue,
-or `EventResult::Handled(value)` when a specific native result is required.
-
-### Typed keyboard input
-
-```cpp
-class KeyboardWindow final : public mwtl::WindowBase {
-public:
-    void BuildUI() override { SetTitle(L"Press Escape to close"); }
-
-    mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) override {
-        if (event.virtual_key == VK_ESCAPE) {
-            Close();
-            return mwtl::EventResult::Handled();
-        }
-        return mwtl::EventResult::Propagate();
-    }
-};
-```
-
-### Common native controls
-
-```cpp
-using mwtl::operator""_dip;
-
-void BuildUI() {
-    mwtl::ControlHost ui{*this};
-    ui.Add(name_, L"Ada");
-    ui.Add(greet_, L"Greet");
-    SetLayout(mwtl::Row().Margin(24.0_dip).Gap(16.0_dip)
-        .Add(name_, mwtl::Stretch())
-        .Add(greet_, mwtl::Fixed(120.0_dip)));
-}
-
-void OnCommand(const mwtl::CommandEvent& event) {
-    if (event.IsClicked(greet_)) {
-        SetTitle(L"Hello, " + name_.GetText());
-    }
-}
-
-mwtl::TextBox name_;
-mwtl::Button greet_;
-```
-
-The wrappers own real child HWNDs. The controls gallery creates every supported
-wrapper: Label, Button, TextBox, CheckBox, RadioButton, GroupBox, ComboBox,
-ListBox, ProgressBar, and Slider. Each exposes `GetHwnd()` whenever direct
-Win32 access is useful.
-
-### RAII timer with chrono
-
-```cpp
-using namespace std::chrono_literals;
-
-void BuildUI() {
-    if (!timer_.Start(*this, kRefreshTimer, 1s)) {
-        throw std::runtime_error("timer start failed");
-    }
-}
-
-void OnTimer(mwtl::TimerId id) {
-    if (id == kRefreshTimer) {
-        Refresh();
-    }
-}
-
-static constexpr mwtl::TimerId kRefreshTimer{1};
-mwtl::UiTimer timer_;  // KillTimer is automatic.
-```
-
-### Raw messages
-
-```cpp
-static constexpr UINT kRefresh = WM_APP + 1;
-
-mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) {
-    if (message.id == kRefresh) {
-        return mwtl::EventResult::Handled(42);
-    }
-    return mwtl::EventResult::Propagate();
-}
-```
+- [Get started](https://everettjf.github.io/mwtl/building.html)
+- [Component reference](https://everettjf.github.io/mwtl/components/)
+- [Current API notes](docs/api.md)
+- [System-message recipes](docs/system-message-recipes.md)
+- [Contributing](CONTRIBUTING.md)
 
 ## License
 
-mwtl is licensed under the MIT License. See [LICENSE](LICENSE). Third-party dependencies retain their own licenses and do not imply Microsoft or upstream endorsement.
+[MIT](LICENSE). WTL, WIL, and other third-party dependencies retain their own
+licenses.

@@ -1,7 +1,7 @@
-# mwtl 0.5 API direction
+# Current mwtl API
 
-Version 0.5 treats the pre-1.0 API as unfrozen and prioritizes concise, safe
-application code over historical source compatibility.
+The API prioritizes concise, safe application code over historical source
+compatibility.
 
 ## Concise ownership defaults
 

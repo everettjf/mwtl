@@ -15,7 +15,7 @@ if(NOT EXISTS "${PROJECT_ROOT}/cmake/mwtlConfig.cmake.in" OR
     message(FATAL_ERROR "Release package metadata is incomplete")
 endif()
 foreach(package_document IN ITEMS
-        README.md CHANGELOG.md SECURITY.md docs/api-0.5.md)
+        README.md CHANGELOG.md SECURITY.md docs/api.md)
     if(NOT cmake_text MATCHES "install\\([^)]*${package_document}")
         message(FATAL_ERROR
             "Release package does not install ${package_document}")

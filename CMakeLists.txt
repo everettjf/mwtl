@@ -104,7 +104,7 @@ install(FILES
     README.md
     CHANGELOG.md
     SECURITY.md
-    docs/api-0.5.md
+    docs/api.md
     DESTINATION ${CMAKE_INSTALL_DATADIR}/mwtl)
 install(FILES cmake/Dependencies.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mwtl)

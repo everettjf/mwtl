@@ -246,9 +246,16 @@ if(TARGET mwtl_hello)
     endforeach()
     get_filename_component(
         mwtl_test_compiler_directory "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    set(mwtl_test_runtime_path "${mwtl_test_compiler_directory}")
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        file(GLOB mwtl_clang_runtime_directories LIST_DIRECTORIES true
+            "${mwtl_test_compiler_directory}/../lib/clang/*/lib/windows")
+        list(APPEND mwtl_test_runtime_path ${mwtl_clang_runtime_directories})
+    endif()
+    list(JOIN mwtl_test_runtime_path ";" mwtl_test_runtime_path)
     add_test(NAME mwtl.hot_corners_self_test
         COMMAND "${CMAKE_COMMAND}" -E env
-            "PATH=${mwtl_test_compiler_directory};$ENV{PATH}"
+            "PATH=${mwtl_test_runtime_path};$ENV{PATH}"
             $<TARGET_FILE:mwtl_hot_corners_demo> --self-test)
     set_tests_properties(mwtl.hot_corners_self_test PROPERTIES TIMEOUT 10)
 endif()

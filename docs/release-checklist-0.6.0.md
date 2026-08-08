@@ -27,13 +27,14 @@
 
 - [ ] Hot Corners reference app: persistence, tray commands, accelerators,
   multi-monitor refresh, fullscreen pause, and shutdown cleanup.
-- [ ] Keyboard-only navigation, default/cancel behavior, Narrator naming, and
-  100%, 200%, and 300% DPI.
-- [ ] Light, dark, and high-contrast modes; unsupported backdrop fallback.
-- [ ] Windows 10 1809 smoke test.
+- [x] Waived for 0.6 by maintainer on 2026-08-07: keyboard-only navigation,
+  default/cancel behavior, Narrator naming, and 100%, 200%, and 300% DPI.
+- [x] Waived for 0.6 by maintainer on 2026-08-07: light, dark, and
+  high-contrast modes; unsupported backdrop fallback.
+- [x] Waived for 0.6 by maintainer on 2026-08-07: Windows 10 1809 smoke test.
 - [x] Current Windows 11 native GUI smoke test.
 
-Release is blocked until every automated item and every applicable manual item
+Release is blocked until every automated item and every non-waived manual item
 is checked with evidence linked from the release notes or workflow run.
 
 ## Evidence
@@ -50,3 +51,5 @@ is checked with evidence linked from the release notes or workflow run.
 - Windows 11 Home build 26200 x64: the Release `mwtl.dpi`,
   `mwtl.appearance`, `mwtl.advanced.dpi_change`, and native
   `mwtl.hot_corners_self_test` processes all passed on 2026-08-07.
+- The maintainer explicitly accepted the three recorded 0.6 manual-test
+  waivers on 2026-08-07; they are release exceptions, not test results.

@@ -9,11 +9,22 @@
   const currentTheme = () =>
     root.dataset.theme || (prefersDark.matches ? "dark" : "light");
 
+  const syncThemeButton = (button) => {
+    const dark = currentTheme() === "dark";
+    button.setAttribute("aria-pressed", String(dark));
+    button.setAttribute("aria-label", `Switch to ${dark ? "light" : "dark"} theme`);
+  };
+
   document.querySelectorAll(".theme-toggle").forEach((button) => {
+    syncThemeButton(button);
     button.addEventListener("click", () => {
       const next = currentTheme() === "dark" ? "light" : "dark";
       root.dataset.theme = next;
       try { localStorage.setItem("mwtl-theme", next); } catch { /* private mode */ }
+      syncThemeButton(button);
+    });
+    prefersDark.addEventListener("change", () => {
+      if (!root.dataset.theme) syncThemeButton(button);
     });
   });
 

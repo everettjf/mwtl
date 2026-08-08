@@ -215,6 +215,7 @@ pre {
 code:not(pre code) {
   padding: .1rem .35rem; border-radius: .3rem;
   background: var(--surface-2); color: var(--accent); font-size: .92em;
+  overflow-wrap: anywhere;
 }
 
 .window {
@@ -428,6 +429,17 @@ code:not(pre code) {
   .docs-sidebar nav span { grid-column: 1 / -1; }
   .docs-content { padding: 0 1.25rem 4rem; }
   .docs-intro { padding-top: 2.5rem; }
+}
+
+@media (max-width: 480px) {
+  .nav { flex-wrap: wrap; }
+  .nav-links {
+    flex: 1 0 100%;
+    justify-content: space-between;
+    border-top: 1px solid var(--line);
+    padding-top: .35rem;
+  }
+  .nav-links a { white-space: nowrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {

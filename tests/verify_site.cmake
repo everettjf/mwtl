@@ -16,9 +16,26 @@ foreach(required IN ITEMS
     endif()
 endforeach()
 
+file(READ "${SITE_ROOT}/styles.css" site_css)
+if(NOT site_css MATCHES "@media \\(max-width: 480px\\)" OR
+   NOT site_css MATCHES "flex: 1 0 100%" OR
+   NOT site_css MATCHES "overflow-wrap: anywhere")
+    message(FATAL_ERROR "narrow-screen layout guard is missing")
+endif()
+
+file(READ "${SITE_ROOT}/assets/site.js" site_script)
+if(NOT site_script MATCHES "aria-pressed" OR
+   NOT site_script MATCHES "Switch to.*theme")
+    message(FATAL_ERROR "theme toggle state is not accessible")
+endif()
+
 file(GLOB_RECURSE html_files "${SITE_ROOT}/*.html")
 foreach(html_file IN LISTS html_files)
     file(READ "${html_file}" html)
+    if(NOT html MATCHES "styles\\.css\\?v=20260808c" OR
+       NOT html MATCHES "assets/site\\.js\\?v=20260808c")
+        message(FATAL_ERROR "stale or inconsistent site asset version in ${html_file}")
+    endif()
     string(REGEX MATCHALL "href=\"[^\"]+\"" hrefs "${html}")
     get_filename_component(html_directory "${html_file}" DIRECTORY)
 

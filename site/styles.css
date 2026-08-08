@@ -153,7 +153,7 @@ h3 { margin-bottom: .35rem; font-weight: 650; }
   gap: 2.25rem; align-items: center; padding: 4.5rem 0 3.5rem;
 }
 .home-hero h1 { font-size: clamp(2.5rem, 5.6vw, 4.2rem); }
-.hero-demo { min-width: 0; }
+.hero-demo { min-width: 0; margin: 0; }
 .hero-demo pre {
   overflow-x: hidden;
   white-space: pre-wrap;
@@ -436,6 +436,16 @@ code:not(pre code) {
   .nav-links a { padding: .36rem .5rem; font-size: .88rem; }
   .theme-toggle { width: 2rem; height: 2rem; margin-left: .1rem; }
   .hero { padding-top: 3rem; }
+  .hero-demo pre {
+    overflow-x: auto;
+    white-space: pre;
+    overflow-wrap: normal;
+    font-size: .78rem;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hero-demo pre::-webkit-scrollbar { display: none; }
   .quick-code, .home-strip, .doc-heading, .example-grid, .requirements { grid-template-columns: 1fr; }
   .cta-band { padding: 1.5rem 1.3rem; }
   .docs-topbar { padding: 0 1rem; }

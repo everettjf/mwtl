@@ -5,20 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="The complete mwtl Windows Common Controls gallery.">
   <link rel="canonical" href="https://everettjf.github.io/mwtl/components/common-controls.html">
-  <title>Windows Common Controls - mwtl</title>
-  <link rel="stylesheet" href="../styles.css?v=20260807d">
-  <script defer src="../assets/site.js?v=20260807d"></script>
+  <title>Windows Common Controls — mwtl</title>
+  <meta name="theme-color" content="#f6f8fd" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0e1d" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/svg+xml" href="../assets/mwtl-mark.svg">
+  <link rel="stylesheet" href="../styles.css?v=20260808b">
+  <script>try{const t=localStorage.getItem("mwtl-theme");if(t)document.documentElement.dataset.theme=t}catch{}</script>
+  <script defer src="../assets/site.js?v=20260808b"></script>
 </head>
 <body>
-  <header class="shell nav">
-    <a class="brand" href="../index.html"><img src="../assets/mwtl-mark.svg" alt=""><span>mwtl</span></a>
-    <nav class="nav-links" aria-label="Main navigation">
-      <a class="active" href="index.html">Components</a>
-      <a href="../building.html">Build</a>
-      <a href="https://github.com/everettjf/mwtl">GitHub</a>
-    </nav>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell nav">
+      <a class="brand" href="../index.html"><img src="../assets/mwtl-mark.svg" alt=""><span>mwtl</span></a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="active" href="index.html">Components</a>
+        <a href="../building.html">Get started</a>
+        <a href="https://github.com/everettjf/mwtl">GitHub</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle color theme"></button>
+      </nav>
+    </div>
   </header>
-  <main class="shell section">
+  <main id="main" class="shell section">
     <div class="eyebrow">Native Windows Control Library</div>
     <h1>Specialized Common Controls</h1>
     <p class="lede">One populated gallery exercises every specialized family while keeping the HWND, messages, styles, and return values available.</p>
@@ -27,9 +35,14 @@
       <article class="card"><h3>Input and information</h3><p>DateTimePicker, MonthCalendar, HotKey, IpAddress, UpDown, SysLink, Tooltip, and ImageList.</p></article>
       <article class="card"><h3>Commands and containers</h3><p>Toolbar, StatusBar, Rebar, Pager, Animation, TaskDialog, ScrollBar, and Flat Scroll Bar integration.</p></article>
     </div>
-    <p><a class="button primary" href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Read the complete example</a></p>
+    <p class="actions"><a class="button primary" href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Read the complete example</a></p>
     <p>The API covers the control families, not every possible Win32 style combination. Advanced native messages remain directly available through <code>GetHwnd()</code>.</p>
   </main>
-  <footer class="shell footer">mwtl is an independent MIT-licensed project. Microsoft and upstream projects do not endorse mwtl.</footer>
+  <footer class="site-footer">
+    <div class="shell footer">
+      <span>mwtl is an independent MIT-licensed project. Microsoft and upstream projects do not endorse mwtl.</span>
+      <nav aria-label="Footer"><a href="index.html">Components</a><a href="https://github.com/everettjf/mwtl">GitHub</a></nav>
+    </div>
+  </footer>
 </body>
 </html>

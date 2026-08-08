@@ -1,13 +1,36 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="canonical" href="https://everettjf.github.io/mwtl/components/window.html"><title>Window - mwtl</title><link rel="stylesheet" href="../styles.css?v=20260807d"><script defer src="../assets/site.js?v=20260807d"></script></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="mwtl::WindowBase: typed virtual event hooks and macro-free native message interoperability.">
+  <link rel="canonical" href="https://everettjf.github.io/mwtl/components/window.html">
+  <title>Window — mwtl</title>
+  <meta name="theme-color" content="#f6f8fd" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0e1d" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/svg+xml" href="../assets/mwtl-mark.svg">
+  <link rel="stylesheet" href="../styles.css?v=20260808b">
+  <script>try{const t=localStorage.getItem("mwtl-theme");if(t)document.documentElement.dataset.theme=t}catch{}</script>
+  <script defer src="../assets/site.js?v=20260808b"></script>
+</head>
 <body>
-  <header class="shell nav"><a class="brand" href="../index.html"><img src="../assets/mwtl-mark.svg" alt=""><span>mwtl</span></a><nav class="nav-links"><a class="active" href="index.html">Components</a><a href="../building.html">Build</a><a href="https://github.com/everettjf/mwtl">GitHub</a></nav></header>
-  <main class="shell prose">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell nav">
+      <a class="brand" href="../index.html"><img src="../assets/mwtl-mark.svg" alt=""><span>mwtl</span></a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="active" href="index.html">Components</a>
+        <a href="../building.html">Get started</a>
+        <a href="https://github.com/everettjf/mwtl">GitHub</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle color theme"></button>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="shell prose">
     <div class="eyebrow">Component</div><h1>WindowBase</h1>
     <p><code>WindowBase</code> is the application window API: the class name appears once and typed virtual hooks propagate to Win32 unless overridden.</p>
     <h2>Macro-free message interoperability</h2>
-    <pre><code>constexpr UINT kRefresh = WM_APP + 1;
+    <pre data-title="window/main.cpp"><code>constexpr UINT kRefresh = WM_APP + 1;
 
 class MainWindow final : public mwtl::WindowBase {
 public:
@@ -30,5 +53,11 @@ public:
     <ul><li><code>BuildUI()</code> runs during WM_CREATE after the HWND is attached.</li><li><code>GetHwnd()</code> returns the native handle.</li><li><code>EventResult::Propagate()</code> continues default processing.</li><li>Every typed handler remains inside the noexcept WindowProc boundary.</li></ul>
     <p>Repository source: <a href="https://github.com/everettjf/mwtl/tree/main/examples/window">examples/window</a></p>
   </main>
-  <footer class="shell footer">Return to the <a href="index.html">component reference</a></footer>
-</body></html>
+  <footer class="site-footer">
+    <div class="shell footer">
+      <span>Return to the <a href="index.html">component reference</a></span>
+      <nav aria-label="Footer"><a href="index.html">Components</a><a href="https://github.com/everettjf/mwtl">GitHub</a></nav>
+    </div>
+  </footer>
+</body>
+</html>

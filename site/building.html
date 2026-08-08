@@ -5,16 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Install and use mwtl with CMake, Visual Studio, or VS Code on Windows x64 and ARM64.">
   <link rel="canonical" href="https://everettjf.github.io/mwtl/building.html">
-  <title>Get started with mwtl</title>
-  <link rel="stylesheet" href="styles.css?v=20260808">
-  <script defer src="assets/site.js?v=20260808"></script>
+  <title>Get started — mwtl</title>
+  <meta name="theme-color" content="#f6f8fd" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0e1d" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/svg+xml" href="assets/mwtl-mark.svg">
+  <link rel="stylesheet" href="styles.css?v=20260808b">
+  <script>try{const t=localStorage.getItem("mwtl-theme");if(t)document.documentElement.dataset.theme=t}catch{}</script>
+  <script defer src="assets/site.js?v=20260808b"></script>
 </head>
 <body>
-  <header class="shell nav"><a class="brand" href="index.html"><img src="assets/mwtl-mark.svg" alt=""><span>mwtl</span></a><nav class="nav-links" aria-label="Main navigation"><a href="components/index.html">Components</a><a class="active" href="building.html">Get started</a><a href="https://github.com/everettjf/mwtl">GitHub</a></nav></header>
-  <main class="shell prose guide">
-    <div class="eyebrow">Installation guide</div>
-    <h1>From zero to a native window.</h1>
-    <p class="lede">Choose the workflow you already use. Every path builds the same C++20 x64 or ARM64 library and links the exported <code>mwtl::mwtl</code> target.</p>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell nav">
+      <a class="brand" href="index.html"><img src="assets/mwtl-mark.svg" alt=""><span>mwtl</span></a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="components/index.html">Components</a>
+        <a class="active" href="building.html" aria-current="page">Get started</a>
+        <a href="https://github.com/everettjf/mwtl">GitHub</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle color theme"></button>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="shell prose guide">
+    <div class="hero">
+      <div class="eyebrow">Installation guide</div>
+      <h1>From zero to a native window.</h1>
+      <p class="lede">Choose the workflow you already use. Every path builds the same C++20 x64 or ARM64 library and links the exported <code>mwtl::mwtl</code> target.</p>
+      <nav class="page-toc" aria-label="On this page">
+        <a href="#cmake">CMake</a>
+        <a href="#installed-package">find_package</a>
+        <a href="#visual-studio">Visual Studio</a>
+        <a href="#vscode">VS Code</a>
+        <a href="#first-window">First window</a>
+        <a href="#repository">Build the repo</a>
+        <a href="#offline">Offline</a>
+      </nav>
+    </div>
 
     <div class="requirements">
       <div><strong>OS</strong><span>Windows 10 1809+ or Windows 11</span></div>
@@ -26,8 +52,7 @@
     <section id="cmake">
       <div class="eyebrow">Recommended</div><h2>CMake project</h2>
       <p>Fetch a pinned release directly from your application. mwtl fetches its pinned WTL 10.01 and WIL dependencies and propagates the required include paths, libraries, and C++20 setting.</p>
-      <pre><code># CMakeLists.txt
-cmake_minimum_required(VERSION 3.21)
+      <pre data-title="CMakeLists.txt"><code>cmake_minimum_required(VERSION 3.21)
 project(my_app LANGUAGES CXX)
 
 include(FetchContent)
@@ -39,19 +64,18 @@ FetchContent_MakeAvailable(mwtl)
 
 add_executable(my_app WIN32 main.cpp)
 target_link_libraries(my_app PRIVATE mwtl::mwtl)</code></pre>
-      <pre><code>cmake -S . -B build -G "Visual Studio 18 2026" -A x64
+      <pre data-title="PowerShell"><code>cmake -S . -B build -G "Visual Studio 18 2026" -A x64
 cmake --build build --config Debug</code></pre>
       <div class="callout"><strong>Visual Studio 2022:</strong> replace the generator with <code>Visual Studio 17 2022</code>. The library supports VS 2022 or newer.</div>
     </section>
 
     <section id="installed-package">
       <div class="eyebrow">Reusable installation</div><h2>Install once, consume with find_package</h2>
-      <pre><code>git clone --depth 1 https://github.com/everettjf/mwtl.git
+      <pre data-title="PowerShell"><code>git clone --depth 1 https://github.com/everettjf/mwtl.git
 cmake -S mwtl -B mwtl-build -G "Visual Studio 18 2026" -A x64
 cmake --build mwtl-build --config Release
 cmake --install mwtl-build --config Release --prefix C:/deps/mwtl</code></pre>
-      <pre><code># consumer CMakeLists.txt
-find_package(mwtl CONFIG REQUIRED)
+      <pre data-title="consumer CMakeLists.txt"><code>find_package(mwtl CONFIG REQUIRED)
 add_executable(my_app WIN32 main.cpp)
 target_link_libraries(my_app PRIVATE mwtl::mwtl)
 
@@ -80,8 +104,7 @@ cmake -S . -B build -A x64 -DCMAKE_PREFIX_PATH=C:/deps/mwtl</code></pre>
         <li>Choose <strong>Debug</strong> on the status bar and run <strong>CMake: Build</strong>.</li>
         <li>Select <code>my_app</code> as the launch target and run <strong>CMake: Debug</strong>.</li>
       </ol>
-      <pre><code>// .vscode/settings.json
-{
+      <pre data-title=".vscode/settings.json"><code>{
   "cmake.generator": "Visual Studio 18 2026",
   "cmake.configureArgs": ["-A", "x64"],
   "cmake.buildDirectory": "${workspaceFolder}/build"
@@ -91,7 +114,7 @@ cmake -S . -B build -A x64 -DCMAKE_PREFIX_PATH=C:/deps/mwtl</code></pre>
 
     <section id="first-window">
       <div class="eyebrow">Application code</div><h2>Your first mwtl window</h2>
-      <pre><code>#include &lt;mwtl/mwtl.h&gt;
+      <pre data-title="main.cpp"><code>#include &lt;mwtl/mwtl.h&gt;
 
 class MainWindow final : public mwtl::WindowBase {
 public:
@@ -121,7 +144,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 
     <section id="repository">
       <div class="eyebrow">Contributors</div><h2>Build this repository</h2>
-      <pre><code>git clone https://github.com/everettjf/mwtl.git
+      <pre data-title="PowerShell"><code>git clone https://github.com/everettjf/mwtl.git
 cd mwtl
 cmake --preset vs2026-x64
 cmake --build --preset x64-debug
@@ -131,7 +154,7 @@ ctest --preset x64-debug</code></pre>
 
     <section id="offline">
       <div class="eyebrow">Controlled environments</div><h2>Offline dependencies</h2>
-      <pre><code>cmake -S . -B build -A x64 \
+      <pre data-title="PowerShell"><code>cmake -S . -B build -A x64 \
   -DMWTL_WTL_SOURCE_DIR=C:/deps/wtl \
   -DMWTL_WIL_SOURCE_DIR=C:/deps/wil</code></pre>
       <p>Set <code>MWTL_DEPENDENCY_MODE=SYSTEM</code> to prohibit downloads and
@@ -141,6 +164,15 @@ ctest --preset x64-debug</code></pre>
       <p>You can also define <code>WTL::WTL</code> and <code>WIL::WIL</code> before adding mwtl. The build never silently selects an unidentified system copy.</p>
     </section>
   </main>
-  <footer class="shell footer">MIT licensed · Windows 10 1809+ · x64 / ARM64 · <a href="https://github.com/everettjf/mwtl">Source on GitHub</a></footer>
+  <footer class="site-footer">
+    <div class="shell footer">
+      <span>MIT licensed · Windows 10 1809+ · x64 / ARM64</span>
+      <nav aria-label="Footer">
+        <a href="components/index.html">Components</a>
+        <a href="https://github.com/everettjf/mwtl">GitHub</a>
+        <a href="https://github.com/everettjf/mwtl/blob/main/LICENSE">License</a>
+      </nav>
+    </div>
+  </footer>
 </body>
 </html>

@@ -1,4 +1,79 @@
 (() => {
+  "use strict";
+
+  /* ---------- Theme toggle ----------
+     An inline head script applies the persisted choice before first paint;
+     this wires the header button and keeps the choice in localStorage. */
+  const root = document.documentElement;
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+  const currentTheme = () =>
+    root.dataset.theme || (prefersDark.matches ? "dark" : "light");
+
+  document.querySelectorAll(".theme-toggle").forEach((button) => {
+    button.addEventListener("click", () => {
+      const next = currentTheme() === "dark" ? "light" : "dark";
+      root.dataset.theme = next;
+      try { localStorage.setItem("mwtl-theme", next); } catch { /* private mode */ }
+    });
+  });
+
+  /* ---------- Window chrome + copy button ----------
+     Every standalone code block becomes a small "native window": caption bar
+     with a title, a copy button, and Windows caption glyphs. Blocks inside
+     component cards stay plain. Without JavaScript, <pre> styling stands alone. */
+  const defaultTitle = (code) => {
+    const text = code.textContent;
+    if (/^\s*(#|\$|cmake |git |ctest )/m.test(text) && !text.includes("#include")) {
+      return /cmake_minimum_required|CMakeLists/.test(text) ? "CMakeLists.txt" : "PowerShell";
+    }
+    if (/^\s*[{[]/.test(text)) return "settings.json";
+    return "main.cpp";
+  };
+
+  document.querySelectorAll("pre").forEach((pre) => {
+    if (pre.closest(".component-card, .window")) return;
+    const code = pre.querySelector("code");
+    const title = pre.dataset.title || (code ? defaultTitle(code) : "main.cpp");
+
+    const frame = document.createElement("figure");
+    frame.className = "window";
+    const bar = document.createElement("div");
+    bar.className = "window-bar";
+
+    const label = document.createElement("span");
+    label.className = "window-title";
+    label.textContent = title;
+
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-btn";
+    copy.textContent = "Copy";
+    copy.setAttribute("aria-label", "Copy code to clipboard");
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(pre.textContent.trimEnd());
+        copy.textContent = "Copied ✓";
+        copy.classList.add("copied");
+        setTimeout(() => {
+          copy.textContent = "Copy";
+          copy.classList.remove("copied");
+        }, 1600);
+      } catch {
+        copy.textContent = "Press Ctrl+C";
+      }
+    });
+
+    const glyphs = document.createElement("span");
+    glyphs.className = "window-glyphs";
+    glyphs.setAttribute("aria-hidden", "true");
+    glyphs.textContent = "─ □ ✕";
+
+    bar.append(label, copy, glyphs);
+    pre.replaceWith(frame);
+    frame.append(bar, pre);
+  });
+
+  /* ---------- Lightweight C++ syntax highlighting ---------- */
   const keywords = new Set([
     "alignas", "auto", "bool", "break", "case", "catch", "class", "const",
     "constexpr", "continue", "default", "delete", "do", "else", "explicit",
@@ -13,7 +88,7 @@
     "KeyEvent", "Label", "ListView", "MainWindow", "RectDip", "TaskDialogResult",
     "TimerId", "TreeView", "UiTimer", "WindowBase"
   ]);
-  const tokenPattern = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|L?"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|^\s*#[^\n]*|\b(?:[A-Za-z_]\w*|\d+(?:\.\d+)?)\b/gm;
+  const tokenPattern = /(?<!:)\/\/[^\n]*|\/\*[\s\S]*?\*\/|L?"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|^\s*#[^\n]*|\b(?:[A-Za-z_]\w*|\d+(?:\.\d+)?)\b/gm;
 
   document.querySelectorAll("pre code").forEach((code) => {
     const source = code.textContent;

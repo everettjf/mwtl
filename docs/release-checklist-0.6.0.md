@@ -30,7 +30,8 @@
 - [ ] Keyboard-only navigation, default/cancel behavior, Narrator naming, and
   100%, 200%, and 300% DPI.
 - [ ] Light, dark, and high-contrast modes; unsupported backdrop fallback.
-- [ ] Windows 10 1809 smoke test and current Windows 11 smoke test.
+- [ ] Windows 10 1809 smoke test.
+- [x] Current Windows 11 native GUI smoke test.
 
 Release is blocked until every automated item and every applicable manual item
 is checked with evidence linked from the release notes or workflow run.
@@ -46,3 +47,6 @@ is checked with evidence linked from the release notes or workflow run.
 - Downloaded artifact checksums were independently recomputed and matched:
   x64 `9543baecc2e983b87d07d682fbd0ed5d71f35df818fe19502a8fb4ec95dc0d86`;
   ARM64 `4b93a693a781b5282f1be3de3adca9f10448b986075460479272162e0c6885be`.
+- Windows 11 Home build 26200 x64: the Release `mwtl.dpi`,
+  `mwtl.appearance`, `mwtl.advanced.dpi_change`, and native
+  `mwtl.hot_corners_self_test` processes all passed on 2026-08-07.

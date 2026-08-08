@@ -123,7 +123,6 @@ install(FILES
     LICENSE
     THIRD_PARTY_NOTICES.md
     README.md
-    CHANGELOG.md
     SECURITY.md
     docs/api.md
     docs/design.md

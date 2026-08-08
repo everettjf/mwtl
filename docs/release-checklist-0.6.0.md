@@ -3,7 +3,7 @@
 ## Contract and metadata
 
 - [ ] `project(mwtl VERSION 0.6.0)` matches tag `v0.6.0`.
-- [x] Changelog, migration guide, stability policy, README, and API guide agree.
+- [x] Migration guide, stability policy, README, and API guide agree.
 - [x] No stable 0.5 API removal is missing a compatibility fixture.
 - [x] Installed package contains licenses and all public/documentation files.
 

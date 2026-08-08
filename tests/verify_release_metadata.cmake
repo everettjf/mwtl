@@ -1,5 +1,4 @@
 file(READ "${PROJECT_ROOT}/CMakeLists.txt" cmake_text)
-file(READ "${PROJECT_ROOT}/CHANGELOG.md" changelog_text)
 file(READ "${PROJECT_ROOT}/.github/workflows/release.yml" release_workflow_text)
 file(READ "${PROJECT_ROOT}/.github/workflows/ci.yml" ci_workflow_text)
 
@@ -7,9 +6,6 @@ string(REGEX MATCH "project\\(mwtl VERSION ([0-9]+\\.[0-9]+\\.[0-9]+)" _ "${cmak
 set(project_version "${CMAKE_MATCH_1}")
 if(project_version STREQUAL "")
     message(FATAL_ERROR "Could not read the mwtl project version")
-endif()
-if(NOT changelog_text MATCHES "## ${project_version} - (Unreleased|[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])")
-    message(FATAL_ERROR "CHANGELOG does not contain project version ${project_version}")
 endif()
 if(NOT EXISTS "${PROJECT_ROOT}/cmake/mwtlConfig.cmake.in" OR
    NOT EXISTS "${PROJECT_ROOT}/.github/workflows/release.yml")
@@ -24,7 +20,7 @@ if(NOT EXISTS "${PROJECT_ROOT}/tests/verify_coverage.ps1" OR
     message(FATAL_ERROR "Native source coverage gate is incomplete")
 endif()
 foreach(package_document IN ITEMS
-        README.md CHANGELOG.md SECURITY.md docs/api.md docs/design.md
+        README.md SECURITY.md docs/api.md docs/design.md
         docs/stability.md docs/migration-0.6.md
         docs/release-checklist-0.6.0.md docs/accessibility.md
         docs/reference.md)

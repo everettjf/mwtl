@@ -28,7 +28,7 @@
 
 ## Publication
 
-- [x] README, API guide, changelog, security policy, and support scope agree.
+- [x] README, API guide, security policy, and support scope agree.
 - [x] The annotated release tag points to the fully validated commit.
 - [x] GitHub Release contains the ZIP, checksum, dependency revisions, and
   generated release notes.

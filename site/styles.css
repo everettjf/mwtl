@@ -302,6 +302,8 @@ code:not(pre code) {
 }
 .example-card strong { padding: .85rem 1rem 0; font-weight: 650; }
 .example-card span { padding: .2rem 1rem 1rem; color: var(--muted); font-size: .84rem; }
+.catalog-more { margin: 1.4rem 0 0; text-align: center; }
+.catalog-more a { font-weight: 600; }
 
 .example-viewer {
   width: min(1120px, calc(100vw - 2rem)); max-width: none; max-height: calc(100vh - 2rem);

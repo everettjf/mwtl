@@ -456,13 +456,30 @@ code:not(pre code) {
     padding-top: .35rem;
   }
   .nav-links a { white-space: nowrap; }
+  .example-viewer {
+    width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0;
+    border: 0; border-radius: 0;
+  }
+  .example-viewer-frame { height: 100dvh; max-height: 100dvh; }
+  .example-viewer-bar {
+    padding: max(.65rem, env(safe-area-inset-top)) .75rem .65rem;
+  }
+  .example-viewer-bar > div { min-width: 0; }
+  .example-viewer-bar strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .example-viewer-description, .example-viewer-actions > span { display: none; }
+  .example-viewer-canvas { padding: .5rem; overflow: hidden; }
+  .example-viewer-canvas img {
+    max-width: 100%; max-height: 100%; object-fit: contain; border-radius: .25rem;
+  }
+  .example-viewer-actions {
+    justify-content: flex-end;
+    padding: .65rem max(.75rem, env(safe-area-inset-right)) max(.65rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-left));
+  }
+  .example-viewer-actions .button { width: 100%; justify-content: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }
   .example-card:hover { transform: none; }
-  .example-viewer { width: calc(100vw - 1rem); max-height: calc(100vh - 1rem); }
-  .example-viewer-frame { max-height: calc(100vh - 1rem); }
-  .example-viewer-description, .example-viewer-actions > span { display: none; }
 }

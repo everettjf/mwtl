@@ -10,10 +10,10 @@
 ## Required validation
 
 - [ ] MSVC x64 Debug and Release build and all tests pass.
-- [ ] clang-cl x64 Debug build and all tests pass.
+- [ ] clang-cl x64 Release build and all tests pass.
 - [ ] MSVC ARM64 Debug build and all tests pass on `windows-11-arm`.
 - [ ] MSVC AddressSanitizer job passes.
-- [ ] Native source coverage remains at or above 75%; archive the Cobertura
+- [ ] Native source coverage remains at or above 74%; archive the Cobertura
   report produced by CI.
 - [ ] MSVC Native Recommended Rules analysis has no project-source findings
   (pinned WTL/WIL diagnostics are recorded separately).

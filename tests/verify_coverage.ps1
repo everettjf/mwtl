@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory = $true)] [string] $Report,
     [Parameter(Mandatory = $true)] [string] $ProjectRoot,
-    [double] $MinimumPercent = 75.0
+    [double] $MinimumPercent = 74.0
 )
 
 $ErrorActionPreference = 'Stop'

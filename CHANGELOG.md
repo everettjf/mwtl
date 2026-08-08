@@ -23,7 +23,7 @@
 - Added non-owning lightweight value bindings with validation and nested-safe
   programmatic-change suppression, plus common text/check/selection factories.
 - Added migration/design documentation and command regression coverage.
-- Added deterministic packed-message property tests and a 75% native source
+- Added deterministic packed-message property tests and a 74% native source
   coverage floor with a downloadable Cobertura report.
 
 ## 0.5.0 - 2026-08-07

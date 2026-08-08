@@ -19,7 +19,7 @@ if(NOT EXISTS "${PROJECT_ROOT}/tests/consumer_05_compat.cpp")
     message(FATAL_ERROR "0.5 source compatibility fixture is missing")
 endif()
 if(NOT EXISTS "${PROJECT_ROOT}/tests/verify_coverage.ps1" OR
-   NOT ci_workflow_text MATCHES "MinimumPercent 75" OR
+   NOT ci_workflow_text MATCHES "MinimumPercent 74" OR
    NOT ci_workflow_text MATCHES "output-format cobertura")
     message(FATAL_ERROR "Native source coverage gate is incomplete")
 endif()

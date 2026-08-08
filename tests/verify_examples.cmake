@@ -123,7 +123,7 @@ endif()
 
 # Keep every capture on disk for reference, but feature only visually useful
 # examples in the README instead of showing nearly blank infrastructure windows.
-set(featured_images hello controls common_controls paint)
+set(featured_images controls common_controls form_binding layout_gallery)
 foreach(example_name IN LISTS featured_images)
     string(REPLACE "_" "-" image_slug "${example_name}")
     set(image_path "docs/images/examples/${image_slug}.png")

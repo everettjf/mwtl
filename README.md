@@ -4,7 +4,12 @@
 
 <h1 align="center">mwtl</h1>
 
-<p align="center">A lightweight C++20 foundation for native Windows desktop applications.</p>
+<p align="center"><strong>Native Windows UI, without the Win32 ceremony.</strong></p>
+
+<p align="center">
+  Build real HWND applications with typed C++20 events, responsive DPI-aware
+  layout, explicit ownership, and an escape hatch to Win32 at every layer.
+</p>
 
 <p align="center">
   <a href="https://github.com/everettjf/mwtl/actions/workflows/ci.yml"><img src="https://github.com/everettjf/mwtl/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
@@ -24,6 +29,20 @@
 mwtl wraps real HWND controls with clear ownership, typed events, checked setup
 helpers, and DPI-aware responsive layout. It reduces Win32 ceremony without
 hiding native handles, messages, styles, or return values.
+
+<p align="center">
+  <a href="examples/controls/main.cpp"><img width="48%" src="docs/images/examples/controls.png" alt="Native controls gallery built with mwtl"></a>
+  <a href="examples/common_controls/main.cpp"><img width="48%" src="docs/images/examples/common-controls.png" alt="Windows Common Controls gallery built with mwtl"></a>
+</p>
+
+## Why mwtl
+
+| Native by design | Modern where it matters | Small and transparent | Ready for real desktop work |
+|---|---|---|---|
+| Real HWND controls, Win32 messages, styles, handles, and return values remain available. | Typed events, RAII resources, C++20 ranges, checked setup, and responsive layout remove repetitive plumbing. | No custom renderer, virtual DOM, code generator, reflection system, or message-map macros. | Per-Monitor V2 DPI, ARM64, accessibility helpers, shell integration, worker wakeups, and wait-aware pumping. |
+
+Use mwtl when you want Windows to look and behave like Windows, while keeping
+application code readable enough to reason about.
 
 ## Quick start
 
@@ -69,9 +88,10 @@ int WINAPI wWinMain(
 }
 ```
 
-`ControlHost` allocates control IDs automatically. `SetLayout` owns the layout
-tree and rearranges native controls on resize. Event handlers override only the
-messages the window needs.
+That is a complete native application. `ControlHost` allocates control IDs,
+`SetLayout` rearranges the real child windows on resize, and the window
+overrides only the events it needs. The underlying HWNDs remain available for
+anything outside the wrapper surface.
 
 ## Installation
 
@@ -122,7 +142,14 @@ Detailed API notes live in [docs/api.md](docs/api.md).
 ## Examples
 
 The repository contains 27 independently buildable programs. Each link opens
-the complete source.
+the complete source. Start with **Hello** for the smallest application,
+**Controls** for the basic widget set, or **Hot corners** for a complete
+multi-monitor utility.
+
+<details>
+<summary><strong>Browse all 27 runnable examples</strong></summary>
+
+<br>
 
 | Example | Source | Focus |
 |---|---|---|
@@ -154,13 +181,11 @@ the complete source.
 | Appearance | [examples/appearance/main.cpp](examples/appearance/main.cpp) | Color modes, DWM backdrops, corners, and accessibility |
 | Layout gallery | [examples/layout_gallery/main.cpp](examples/layout_gallery/main.cpp) | Responsive nested row, column, overlay, and sizing recipes |
 
+</details>
+
 <p align="center">
-  <a href="examples/hello/main.cpp"><img width="48%" src="docs/images/examples/hello.png" alt="Hello example"></a>
-  <a href="examples/controls/main.cpp"><img width="48%" src="docs/images/examples/controls.png" alt="Controls example"></a>
-</p>
-<p align="center">
-  <a href="examples/common_controls/main.cpp"><img width="48%" src="docs/images/examples/common-controls.png" alt="Common Controls example"></a>
-  <a href="examples/paint/main.cpp"><img width="48%" src="docs/images/examples/paint.png" alt="Paint example"></a>
+  <a href="examples/form_binding/main.cpp"><img width="48%" src="docs/images/examples/form-binding.png" alt="Form binding example"></a>
+  <a href="examples/layout_gallery/main.cpp"><img width="48%" src="docs/images/examples/layout-gallery.png" alt="Responsive layout gallery example"></a>
 </p>
 
 The [examples catalog](examples/README.md) lists target names and run commands.

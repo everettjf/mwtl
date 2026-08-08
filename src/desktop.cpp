@@ -230,7 +230,7 @@ bool Menu::UpdateCommand(const Command& command) noexcept {
     const UINT enabled = command.IsEnabled() ? MF_ENABLED : MF_GRAYED;
     const UINT checked = command.IsChecked() ? MF_CHECKED : MF_UNCHECKED;
     const bool enabled_ok = ::EnableMenuItem(menu_, id, MF_BYCOMMAND | enabled) !=
-        static_cast<UINT>(-1);
+        -1;
     const bool checked_ok = ::CheckMenuItem(menu_, id, MF_BYCOMMAND | checked) !=
         static_cast<DWORD>(-1);
     return enabled_ok && checked_ok;

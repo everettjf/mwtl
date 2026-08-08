@@ -2,12 +2,12 @@
   "use strict";
 
   /* ---------- Theme toggle ----------
-     An inline head script applies the persisted choice before first paint;
-     this wires the header button and keeps the choice in localStorage. */
+     The site is light (sunny) by default, independent of the system
+     preference. An inline head script applies a persisted dark choice before
+     first paint; this wires the header button and keeps the choice in
+     localStorage. */
   const root = document.documentElement;
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
-  const currentTheme = () =>
-    root.dataset.theme || (prefersDark.matches ? "dark" : "light");
+  const currentTheme = () => root.dataset.theme === "dark" ? "dark" : "light";
 
   const syncThemeButton = (button) => {
     const dark = currentTheme() === "dark";
@@ -22,9 +22,6 @@
       root.dataset.theme = next;
       try { localStorage.setItem("mwtl-theme", next); } catch { /* private mode */ }
       syncThemeButton(button);
-    });
-    prefersDark.addEventListener("change", () => {
-      if (!root.dataset.theme) syncThemeButton(button);
     });
   });
 

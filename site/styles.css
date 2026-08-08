@@ -1,79 +1,58 @@
-/* mwtl site — Fluent-inspired design system.
-   Fonts, radii, and accent colors follow the Windows 11 design language the
-   library itself targets. Theme resolution: system preference by default,
-   overridden by data-theme="light|dark" on <html> (persisted by site.js). */
+/* mwtl site — sunny Fluent-inspired design system.
+   Fonts and radii follow the Windows 11 design language the library targets;
+   the palette is a warm daylight scheme: cream paper, sunshine amber, sky
+   accents. The site is light by default regardless of system preference; a
+   warm dark theme is available only via the header toggle
+   (data-theme="dark" on <html>, persisted by site.js). */
 
 :root {
   color-scheme: light;
-  --bg: #f6f8fd;
-  --glow-a: rgba(139, 224, 255, .38);
-  --glow-b: rgba(98, 120, 245, .14);
+  --bg: #fffdf6;
+  --glow-a: rgba(255, 202, 84, .42);
+  --glow-b: rgba(135, 200, 255, .30);
   --surface: #ffffff;
-  --surface-2: #edf2fb;
-  --text: #16192e;
-  --muted: #55607e;
-  --line: #dde4f1;
-  --line-strong: #c8d3e8;
-  --accent: #1766cc;
-  --accent-soft: rgba(56, 140, 233, .12);
-  --chip-line: #b8d5f6;
-  --chip-bg: #f0f7ff;
-  --card-shadow: 0 1px 2px rgba(22, 25, 46, .05), 0 10px 30px rgba(57, 73, 201, .07);
-  --card-shadow-hover: 0 2px 4px rgba(22, 25, 46, .06), 0 16px 40px rgba(57, 73, 201, .14);
-  --header-bg: rgba(246, 248, 253, .82);
-  --code-bg: #171923;
-  --code-bg-2: #1f2230;
-  --code-line: #2c3044;
-  --code-text: #e6e8f2;
-  --code-muted: #8d93ab;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #0b0e1d;
-    --glow-a: rgba(56, 140, 233, .17);
-    --glow-b: rgba(98, 120, 245, .12);
-    --surface: #131735;
-    --surface-2: #1a2040;
-    --text: #e8ecfa;
-    --muted: #9aa5c6;
-    --line: #232a4e;
-    --line-strong: #303a66;
-    --accent: #7db8f7;
-    --accent-soft: rgba(125, 184, 247, .13);
-    --chip-line: #2d4a77;
-    --chip-bg: rgba(56, 140, 233, .12);
-    --card-shadow: 0 1px 2px rgba(2, 4, 18, .4), 0 12px 34px rgba(2, 4, 18, .45);
-    --card-shadow-hover: 0 2px 4px rgba(2, 4, 18, .45), 0 18px 44px rgba(2, 4, 18, .6);
-    --header-bg: rgba(11, 14, 29, .78);
-    --code-bg: #10131f;
-    --code-bg-2: #161a2a;
-    --code-line: #262b40;
-  }
+  --surface-2: #fdf3dd;
+  --text: #35301f;
+  --muted: #71684f;
+  --line: #efe4c9;
+  --line-strong: #e2d1a8;
+  --accent: #b45309;
+  --accent-soft: rgba(245, 158, 11, .14);
+  --chip-line: #f2cf8b;
+  --chip-bg: #fff4d8;
+  --card-shadow: 0 1px 2px rgba(90, 66, 12, .05), 0 10px 30px rgba(196, 145, 32, .10);
+  --card-shadow-hover: 0 2px 4px rgba(90, 66, 12, .07), 0 16px 40px rgba(196, 145, 32, .18);
+  --header-bg: rgba(255, 253, 246, .85);
+  --code-bg: #fffaef;
+  --code-bg-2: #f9edd3;
+  --code-line: #ecdcb8;
+  --code-text: #443a22;
+  --code-muted: #9b8a62;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0b0e1d;
-  --glow-a: rgba(56, 140, 233, .17);
-  --glow-b: rgba(98, 120, 245, .12);
-  --surface: #131735;
-  --surface-2: #1a2040;
-  --text: #e8ecfa;
-  --muted: #9aa5c6;
-  --line: #232a4e;
-  --line-strong: #303a66;
-  --accent: #7db8f7;
-  --accent-soft: rgba(125, 184, 247, .13);
-  --chip-line: #2d4a77;
-  --chip-bg: rgba(56, 140, 233, .12);
-  --card-shadow: 0 1px 2px rgba(2, 4, 18, .4), 0 12px 34px rgba(2, 4, 18, .45);
-  --card-shadow-hover: 0 2px 4px rgba(2, 4, 18, .45), 0 18px 44px rgba(2, 4, 18, .6);
-  --header-bg: rgba(11, 14, 29, .78);
-  --code-bg: #10131f;
-  --code-bg-2: #161a2a;
-  --code-line: #262b40;
+  --bg: #191510;
+  --glow-a: rgba(251, 191, 36, .10);
+  --glow-b: rgba(96, 165, 250, .08);
+  --surface: #221d14;
+  --surface-2: #2c2517;
+  --text: #f3ecdc;
+  --muted: #b0a385;
+  --line: #3a3220;
+  --line-strong: #4c4129;
+  --accent: #fbbf24;
+  --accent-soft: rgba(251, 191, 36, .14);
+  --chip-line: #6b5827;
+  --chip-bg: rgba(251, 191, 36, .12);
+  --card-shadow: 0 1px 2px rgba(8, 6, 2, .4), 0 12px 34px rgba(8, 6, 2, .45);
+  --card-shadow-hover: 0 2px 4px rgba(8, 6, 2, .45), 0 18px 44px rgba(8, 6, 2, .6);
+  --header-bg: rgba(25, 21, 16, .8);
+  --code-bg: #1f1a11;
+  --code-bg-2: #292214;
+  --code-line: #3e3520;
+  --code-text: #efe6d0;
+  --code-muted: #9b8a62;
 }
 
 * { box-sizing: border-box; }
@@ -97,7 +76,7 @@ code, pre, kbd { font-family: "Cascadia Code", "Cascadia Mono", Consolas, "SFMon
 a { color: var(--accent); text-underline-offset: .18em; }
 a:hover { text-decoration-thickness: 2px; }
 
-::selection { background: rgba(56, 140, 233, .3); }
+::selection { background: rgba(251, 191, 36, .35); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 
 .skip-link {
@@ -120,7 +99,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.75rem; }
 .brand { display: inline-flex; align-items: center; gap: .55rem; color: var(--text); text-decoration: none; font-weight: 700; letter-spacing: .03em; }
-.brand img { width: 30px; height: 30px; border-radius: 8px; box-shadow: 0 4px 14px rgba(56, 140, 233, .35); }
+.brand img { width: 30px; height: 30px; border-radius: 8px; box-shadow: 0 4px 14px rgba(230, 160, 30, .35); }
 .nav-links { display: flex; align-items: center; gap: .25rem; }
 .nav-links a {
   padding: .42rem .8rem; border-radius: .5rem;
@@ -138,7 +117,6 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .theme-toggle:hover { border-color: var(--line-strong); background: var(--surface-2); }
 .theme-toggle::before { content: "☾"; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .theme-toggle::before { content: "☀"; } }
 :root[data-theme="dark"] .theme-toggle::before { content: "☀"; }
 
 /* ---------- Type ---------- */
@@ -163,11 +141,11 @@ h3 { margin-bottom: .35rem; font-weight: 650; }
 }
 .button:hover { background: var(--surface-2); }
 .button.primary {
-  border-color: transparent; color: #fff;
-  background: linear-gradient(135deg, #388ce9, #6278f5);
-  box-shadow: 0 6px 20px rgba(56, 140, 233, .32);
+  border-color: transparent; color: #43290a;
+  background: linear-gradient(135deg, #ffd34d, #ffab2e);
+  box-shadow: 0 6px 20px rgba(255, 171, 46, .38);
 }
-.button.primary:hover { filter: brightness(1.06); background: linear-gradient(135deg, #388ce9, #6278f5); }
+.button.primary:hover { filter: brightness(1.04); background: linear-gradient(135deg, #ffd34d, #ffab2e); }
 .button:active { transform: translateY(1px); }
 
 /* ---------- Hero ---------- */
@@ -186,7 +164,7 @@ h3 { margin-bottom: .35rem; font-weight: 650; }
   border: 1px solid var(--line); border-radius: .8rem; background: var(--line);
 }
 .stat-strip div { display: grid; gap: .1rem; padding: 1rem 1.25rem; background: var(--surface); }
-.stat-strip strong { font-size: 1.35rem; font-weight: 650; letter-spacing: -.02em; }
+.stat-strip strong { font-size: 1.35rem; font-weight: 650; letter-spacing: -.02em; color: var(--accent); }
 .stat-strip span { color: var(--muted); font-size: .86rem; }
 
 /* ---------- Cards ---------- */
@@ -247,14 +225,23 @@ code:not(pre code) {
   transition: color .12s ease, border-color .12s ease;
 }
 .copy-btn:hover { color: var(--code-text); border-color: var(--code-muted); }
-.copy-btn.copied { color: #7ee2a8; border-color: #7ee2a8; }
+.copy-btn.copied { color: #15803d; border-color: #4ade80; }
+:root[data-theme="dark"] .copy-btn.copied { color: #86efac; border-color: #4ade80; }
 
-.syntax-keyword { color: #c6a0f6; font-weight: 600; }
-.syntax-type { color: #7dcfff; }
-.syntax-string { color: #eed49f; }
-.syntax-number { color: #f5a97f; }
-.syntax-comment { color: #8b93a7; font-style: italic; }
-.syntax-preprocessor { color: #f0a6ca; }
+/* Syntax colors: warm daylight palette on paper-colored panels. */
+.syntax-keyword { color: #9333ea; font-weight: 600; }
+.syntax-type { color: #0e7490; }
+.syntax-string { color: #b45309; }
+.syntax-number { color: #c2410c; }
+.syntax-comment { color: #998f76; font-style: italic; }
+.syntax-preprocessor { color: #be185d; }
+
+:root[data-theme="dark"] .syntax-keyword { color: #d8b4fe; }
+:root[data-theme="dark"] .syntax-type { color: #67e8f9; }
+:root[data-theme="dark"] .syntax-string { color: #fcd34d; }
+:root[data-theme="dark"] .syntax-number { color: #fdba74; }
+:root[data-theme="dark"] .syntax-comment { color: #8b7f60; }
+:root[data-theme="dark"] .syntax-preprocessor { color: #f9a8d4; }
 
 /* ---------- Content blocks ---------- */
 .prose { max-width: 850px; padding: 3rem 0 5rem; }

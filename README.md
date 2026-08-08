@@ -190,9 +190,9 @@ multi-monitor utility.
   <a href="examples/layout_gallery/main.cpp"><img width="48%" src="docs/images/examples/layout-gallery.png" alt="Responsive layout gallery example"></a>
 </p>
 
-The [examples catalog](examples/README.md) lists target names and run commands.
-The [website](https://everettjf.github.io/mwtl/) displays every example with
-its screenshot and source link.
+The [examples catalog](examples/README.md) lists every target and its run
+commands. The [website](https://everettjf.github.io/mwtl/) highlights selected
+content-rich examples with screenshots and source links.
 
 ## Build this repository
 
@@ -237,7 +237,6 @@ For controlled environments, see the
 - [Public header reference](docs/reference.md)
 - [Design and scope](docs/design.md)
 - [API stability](docs/stability.md)
-- [Migrating from 0.5 to 0.6](docs/migration-0.6.md)
 - [Accessibility and keyboard checklist](docs/accessibility.md)
 - [System-message recipes](docs/system-message-recipes.md)
 - [Contributing](CONTRIBUTING.md)

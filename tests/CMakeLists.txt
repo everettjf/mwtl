@@ -253,11 +253,13 @@ if(TARGET mwtl_hello)
         list(APPEND mwtl_test_runtime_path ${mwtl_clang_runtime_directories})
     endif()
     list(JOIN mwtl_test_runtime_path ";" mwtl_test_runtime_path)
+    find_program(mwtl_powershell NAMES pwsh powershell REQUIRED)
     add_test(NAME mwtl.hot_corners_self_test
-        COMMAND "${CMAKE_COMMAND}" -E env
-            "PATH=${mwtl_test_runtime_path};$ENV{PATH}"
-            "MWTL_TEST_NO_DIALOGS=1"
-            $<TARGET_FILE:mwtl_hot_corners_demo> --self-test)
+        COMMAND "${mwtl_powershell}" -NoProfile -NonInteractive
+            -ExecutionPolicy Bypass
+            -File "${CMAKE_CURRENT_SOURCE_DIR}/run_gui_self_test.ps1"
+            -Executable $<TARGET_FILE:mwtl_hot_corners_demo>
+            -RuntimePath "${mwtl_test_runtime_path}")
     set_tests_properties(mwtl.hot_corners_self_test PROPERTIES TIMEOUT 10)
 endif()
 

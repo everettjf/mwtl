@@ -4,9 +4,9 @@
 #include <exception>
 #include <stdexcept>
 
-class PaintWindow final : public mwtl::Window<PaintWindow> {
+class PaintWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         ::SetWindowPos(GetHwnd(), nullptr, 0, 0, 900, 560,
                        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
         if (!SetTitle(L"Native GDI paint demo")) {
@@ -14,7 +14,7 @@ public:
         }
     }
 
-    void OnPaint(mwtl::PaintEvent& event) {
+    mwtl::EventResult OnPaint(mwtl::PaintEvent& event) override {
         const HDC dc = event.GetDC();
         if (dc != nullptr) {
             RECT client{};
@@ -26,6 +26,7 @@ public:
                         -1, &client,
                         DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         }
+        return mwtl::EventResult::Handled();
     }
 };
 

@@ -53,7 +53,15 @@ pre { overflow-x: auto; padding: 1.2rem; border: 1px solid #303238; border-radiu
 .syntax-preprocessor { color: #f0a6ca; }
 code:not(pre code) { padding: .12rem .35rem; border-radius: .3rem; background: var(--surface-2); color: var(--cyan); }
 .callout { padding: 1rem 1.2rem; border-left: 3px solid var(--cyan); background: var(--surface); color: var(--muted); }
+.callout strong { color: var(--text); }
 .footer { padding: 2rem 0 3rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+.guide { max-width: 960px; }
+.guide h1 { max-width: 850px; font-size: clamp(3rem, 7vw, 5.4rem); }
+.guide section { scroll-margin-top: 2rem; padding: 3.5rem 0; border-top: 1px solid var(--line); }
+.guide section h2 { margin-top: .55rem; }
+.requirements { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin: 2.5rem 0 4rem; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; background: var(--line); }
+.requirements div { display: grid; gap: .25rem; padding: 1.2rem; background: var(--surface); }
+.requirements span { color: var(--muted); }
 
 .home-hero { padding-bottom: 3.5rem; }
 .home-hero h1 { max-width: 1080px; font-size: clamp(3rem, 7vw, 5.7rem); }
@@ -63,6 +71,12 @@ code:not(pre code) { padding: .12rem .35rem; border-radius: .3rem; background: v
 .home-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 3rem auto 5rem; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; background: var(--line); }
 .home-strip div { display: grid; gap: .25rem; padding: 1.25rem; background: var(--surface); }
 .home-strip span { color: var(--muted); font-size: .9rem; }
+.example-catalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 2rem; }
+.example-card { display: grid; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; color: var(--text); text-decoration: none; background: var(--surface); box-shadow: 0 10px 28px rgba(57, 73, 201, .06); transition: transform .16s ease, box-shadow .16s ease; }
+.example-card:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(57, 73, 201, .12); }
+.example-card img { width: 100%; height: 150px; object-fit: cover; object-position: top left; border-bottom: 1px solid var(--line); background: #fff; }
+.example-card strong { padding: .85rem 1rem 0; }
+.example-card span { padding: .2rem 1rem 1rem; color: var(--muted); font-size: .84rem; }
 
 .docs-body { background: var(--bg); }
 .docs-topbar { position: sticky; z-index: 20; top: 0; display: flex; align-items: center; justify-content: space-between; height: 4rem; padding: 0 2rem; border-bottom: 1px solid var(--line); background: rgba(255, 255, 255, .88); backdrop-filter: blur(18px); }
@@ -96,12 +110,18 @@ code:not(pre code) { padding: .12rem .35rem; border-radius: .3rem; background: v
 .result-note, .native-note { display: grid; align-content: center; gap: .45rem; padding: 1.4rem; color: var(--muted); }
 .result-note strong, .native-note strong { color: var(--text); }
 .source-link { margin: 1.5rem 0 0; }
+.component-catalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+.component-card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: .8rem; background: var(--surface); box-shadow: 0 10px 28px rgba(57, 73, 201, .07); }
+.component-card img { width: 100%; height: 155px; object-fit: cover; object-position: top left; border-bottom: 1px solid var(--line); background: #fff; }
+.component-card h3 { margin: 1rem 1rem .35rem; }
+.component-card pre { min-height: 5.5rem; margin: 0 1rem .8rem; padding: .75rem; font-size: .78rem; }
+.component-card a { margin: auto 1rem 1rem; font-size: .86rem; font-weight: 650; }
 
 @media (max-width: 620px) {
   .nav { align-items: flex-start; padding: 1rem 0; gap: 1rem; }
   .nav-links { flex-direction: column; gap: .35rem; }
   .hero { padding-top: 4rem; }
-  .quick-code, .home-strip, .doc-heading, .example-grid { grid-template-columns: 1fr; }
+  .quick-code, .home-strip, .doc-heading, .example-grid, .requirements { grid-template-columns: 1fr; }
   .docs-topbar { padding: 0 1rem; }
   .docs-topbar .nav-links { flex-direction: row; gap: .8rem; font-size: .84rem; }
   .docs-layout { display: block; }

@@ -1,12 +1,12 @@
 # mwtl examples
 
-The repository includes 22 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and `mwtl::Window<T>` path. Common messages use C++20 convention handlers rather than message-map macros.
+The repository includes 22 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and recommended `mwtl::WindowBase` path. Common messages use typed C++20 event handlers rather than message-map macros.
 
 | Directory | Target | Focus |
 |---|---|---|
 | `hello` | `mwtl_hello` | Smallest complete mwtl program |
 | `application` | `mwtl_application_demo` | `mwtl::Application`, process entry, run result, and instance observation |
-| `window` | `mwtl_window_demo` | `mwtl::Window<T>`, HWND access, typed convention handlers, and native messages |
+| `window` | `mwtl_window_demo` | `mwtl::WindowBase`, HWND access, typed event handlers, and native messages |
 | `native_message` | `mwtl_native_message_demo` | Post and receive an application-defined `WM_APP` message |
 | `keyboard` | `mwtl_keyboard_demo` | Handle keyboard input and close with Escape |
 | `mouse` | `mwtl_mouse_demo` | Read native mouse client coordinates |

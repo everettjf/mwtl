@@ -6,8 +6,8 @@
   <meta name="description" content="Browse mwtl components, complete code, and native Windows UI results.">
   <link rel="canonical" href="https://everettjf.github.io/mwtl/components/">
   <title>Components — mwtl</title>
-  <link rel="stylesheet" href="../styles.css?v=20260807d">
-  <script defer src="../assets/site.js?v=20260807d"></script>
+  <link rel="stylesheet" href="../styles.css?v=20260808">
+  <script defer src="../assets/site.js?v=20260808"></script>
 </head>
 <body class="docs-body">
   <header class="docs-topbar">
@@ -31,6 +31,7 @@
         <a href="#hot-corners">Hot corners</a>
         <span>Basic controls</span>
         <a href="#form-controls">Form controls</a>
+        <a href="#control-catalog">All 27 controls</a>
         <a href="#events">Command events</a>
         <a href="#layout">Responsive layout</a>
         <span>Common Controls</span>
@@ -59,7 +60,7 @@
       </section>
 
       <section id="window" class="doc-section">
-        <div class="doc-heading"><div><span class="tag">Foundation</span><h2>Window</h2></div><p>Use <code>WindowBase</code> for the concise API. The CRTP form remains available for advanced WTL integration.</p></div>
+        <div class="doc-heading"><div><span class="tag">Foundation</span><h2>Window</h2></div><p>Derive from <code>WindowBase</code> and override only the typed events the application needs.</p></div>
         <div class="example-grid">
           <div class="code-panel"><div class="panel-label">C++20</div><pre><code>class MainWindow final : public mwtl::WindowBase {
 public:
@@ -139,6 +140,54 @@ progress_.SetValue(64);</code></pre></div>
     }
     return mwtl::EventResult::Propagate();
 }</code></pre></div>
+      </section>
+
+      <section id="control-catalog" class="doc-section">
+        <div class="doc-heading"><div><span class="tag">Complete coverage</span><h2>All 27 native controls</h2></div><p>Every public child-control wrapper is shown with current creation code, its native result, and a link to the executable example that exercises it.</p></div>
+        <div class="component-catalog">
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="Label in the controls example"><h3>Label</h3><pre><code>ui.Add(label_, L"Status");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="Button in the controls example"><h3>Button</h3><pre><code>ui.Add(button_, L"Save");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="TextBox in the controls example"><h3>TextBox</h3><pre><code>ui.Add(name_, L"Ada");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="CheckBox in the controls example"><h3>CheckBox</h3><pre><code>ui.Add(enabled_, L"Enabled");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="RadioButton in the controls example"><h3>RadioButton</h3><pre><code>ui.Add(choice_, L"Option A");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="GroupBox in the controls example"><h3>GroupBox</h3><pre><code>ui.Add(group_, L"Choices");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="ComboBox in the controls example"><h3>ComboBox</h3><pre><code>ui.Add(combo_);
+mwtl::AddItems(combo_, items);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="ListBox in the controls example"><h3>ListBox</h3><pre><code>ui.Add(list_);
+mwtl::AddItems(list_, items);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="ProgressBar in the controls example"><h3>ProgressBar</h3><pre><code>ui.Add(progress_).SetValue(64);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="Slider in the controls example"><h3>Slider</h3><pre><code>ui.Add(slider_).SetValue(50);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp">Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="ScrollBar in the common controls example"><h3>ScrollBar</h3><pre><code>ui.Add(scroll_).SetRange(0, 100);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="TreeView in the common controls example"><h3>TreeView</h3><pre><code>ui.Add(tree_);
+tree_.AddItem(L"Root");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="ListView in the common controls example"><h3>ListView</h3><pre><code>ui.Add(list_);
+list_.AddItem(L"Row");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="Header in the common controls example"><h3>Header</h3><pre><code>ui.Add(header_);
+header_.AddColumn(L"Column", 160);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="TabControl in the common controls example"><h3>TabControl</h3><pre><code>ui.Add(tabs_);
+mwtl::AddTabs(tabs_, names);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="ComboBoxEx in the common controls example"><h3>ComboBoxEx</h3><pre><code>ui.Add(combo_ex_);
+combo_ex_.AddItem(L"Native");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="DateTimePicker in the common controls example"><h3>DateTimePicker</h3><pre><code>ui.Add(date_);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="MonthCalendar in the common controls example"><h3>MonthCalendar</h3><pre><code>ui.Add(calendar_);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="HotKey in the common controls example"><h3>HotKey</h3><pre><code>ui.Add(hot_key_);
+hot_key_.SetValue('K', HOTKEYF_CONTROL);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="IpAddress in the common controls example"><h3>IpAddress</h3><pre><code>ui.Add(ip_);
+ip_.SetValue(127, 0, 0, 1);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="UpDown in the common controls example"><h3>UpDown</h3><pre><code>ui.Add(spin_);
+spin_.SetBuddy(number_);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="SysLink in the common controls example"><h3>SysLink</h3><pre><code>ui.Add(link_, L"&lt;a&gt;Docs&lt;/a&gt;");</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="Toolbar in the common controls example"><h3>Toolbar</h3><pre><code>band.Add(toolbar_);
+mwtl::AddButtons(toolbar_, buttons);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="StatusBar in the common controls example"><h3>StatusBar</h3><pre><code>ui.Add(status_);
+status_.SetParts({700, -1});</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="Rebar in the common controls example"><h3>Rebar</h3><pre><code>ui.Add(rebar_);
+rebar_.AddBand(toolbar_, L"", 360);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="Pager in the common controls example"><h3>Pager</h3><pre><code>ui.Add(pager_);
+pager_.SetChild(content_);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+          <article class="component-card"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="Animation in the common controls example"><h3>Animation</h3><pre><code>ui.Add(animation_);
+animation_.Open(instance, resource_id);</code></pre><a href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp">Common Controls example</a></article>
+        </div>
       </section>
 
       <section id="data-navigation" class="doc-section">

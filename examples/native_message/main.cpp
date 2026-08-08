@@ -7,9 +7,9 @@
 namespace {
 constexpr UINT kGreetingMessage = WM_APP + 42;
 
-class NativeMessageWindow final : public mwtl::Window<NativeMessageWindow> {
+class NativeMessageWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         ::SetWindowPos(GetHwnd(), nullptr, 0, 0, 900, 560,
                        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
         if (!SetTitle(L"Native message: posting WM_APP + 42...")) {
@@ -20,7 +20,7 @@ public:
         }
     }
 
-    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) {
+    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) override {
         if (message.id != kGreetingMessage) {
             return mwtl::EventResult::Propagate();
         }

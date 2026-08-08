@@ -13,6 +13,16 @@ std::wstring Terminate(std::wstring_view value) {
     return std::wstring(value);
 }
 
+bool OpenClipboardWithRetry(HWND owner) noexcept {
+    constexpr DWORD retry_delays_ms[]{0, 1, 2, 4, 8, 16};
+    for (const DWORD delay : retry_delays_ms) {
+        if (delay != 0) ::Sleep(delay);
+        if (::OpenClipboard(owner) != FALSE) return true;
+        if (::GetLastError() != ERROR_ACCESS_DENIED) break;
+    }
+    return false;
+}
+
 template <typename Interface>
 class ComPtr final {
 public:
@@ -186,7 +196,7 @@ FileDialogResult ShowFolderDialog(const FolderDialogOptions& options) {
 }
 
 bool SetClipboardText(HWND owner, std::wstring_view text) noexcept {
-    if (::OpenClipboard(owner) == FALSE) return false;
+    if (!OpenClipboardWithRetry(owner)) return false;
     struct Close { ~Close() { ::CloseClipboard(); } } close;
     if (::EmptyClipboard() == FALSE) return false;
     const SIZE_T bytes = (text.size() + 1) * sizeof(wchar_t);
@@ -202,7 +212,7 @@ bool SetClipboardText(HWND owner, std::wstring_view text) noexcept {
 }
 
 std::wstring GetClipboardText(HWND owner) {
-    if (::OpenClipboard(owner) == FALSE) return {};
+    if (!OpenClipboardWithRetry(owner)) return {};
     struct Close { ~Close() { ::CloseClipboard(); } } close;
     HANDLE memory = ::GetClipboardData(CF_UNICODETEXT);
     if (memory == nullptr) return {};

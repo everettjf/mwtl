@@ -3,11 +3,11 @@
 #include <cstdlib>
 #include <cwchar>
 
-class DpiWindow final : public mwtl::Window<DpiWindow> {
+class DpiWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() { UpdateTitle(GetDpiContext()); }
+    void BuildUI() override { UpdateTitle(GetDpiContext()); }
 
-    mwtl::EventResult OnDpiChanged(const mwtl::DpiChangedEvent& event) noexcept {
+    mwtl::EventResult OnDpiChanged(const mwtl::DpiChangedEvent& event) noexcept override {
         UpdateTitle(mwtl::DpiContext::FromDpi(event.dpi_x));
         return mwtl::EventResult::Propagate();
     }

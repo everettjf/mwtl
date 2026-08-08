@@ -24,10 +24,9 @@
   <a href="docs/api-0.5.md">API 0.5</a>
 </p>
 
-Start with the [0.5 production API direction](docs/api-0.5.md), followed by
-the [0.4 concise API and responsive layout guide](docs/api-0.4.md).
-The [0.3 desktop and packaging APIs](docs/api-0.3.md) and the original
-[ownership guide](docs/api-0.2.md) remain available as focused references.
+Start with the [complete setup guide](https://everettjf.github.io/mwtl/building.html),
+then use the [component gallery](https://everettjf.github.io/mwtl/components/)
+and [0.5 API direction](docs/api-0.5.md) as current references.
 
 `mwtl` is a lightweight, Windows-only modern C++ foundation built on ATL/WTL and Microsoft WIL. It keeps native HWND and Win32 message interoperability while reducing application/bootstrap boilerplate and making lifetime and error boundaries explicit.
 
@@ -224,12 +223,11 @@ Build and runtime foundations include:
 - a CMake static library target named `mwtl::mwtl`;
 - pinned official WTL and WIL dependencies;
 - `mwtl::Application` with WTL `CAppModule` and message-loop lifetime management;
-- a concise `mwtl::WindowBase` for ordinary windows and CRTP `Window<T>` for
-  advanced compile-time/WTL message-map integration;
+- a concise `mwtl::WindowBase` with typed virtual event handlers;
 - exception containment around real WTL window-message dispatch and `wWinMain`;
 - Unicode-only compilation and a Per-Monitor DPI Awareness V2 manifest for the hello executable;
 - an interactive native-control `examples/hello` quick start;
-- focused `Application` and `Window<T>` component demos under `examples/`;
+- focused `Application` and `WindowBase` component demos under `examples/`;
 - CTest coverage for normal exit, creation failure cleanup, message-handler exceptions, public-header independence, and the embedded DPI manifest;
 - a static component documentation site under `site/`, ready for GitHub Pages deployment.
 
@@ -265,6 +263,29 @@ cmake -S . -B build/x64 `
 An embedding project may instead define `WTL::WTL` and `WIL::WIL` targets before calling `add_subdirectory(mwtl)`. If either target is already present, mwtl uses it and does not fetch that dependency. It never searches silently for an unidentified system copy.
 
 ## Install and consume
+
+The complete setup guide covers [CMake, Visual Studio, and VS Code](https://everettjf.github.io/mwtl/building.html). The recommended application integration is CMake `FetchContent`:
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(mwtl
+  GIT_REPOSITORY https://github.com/everettjf/mwtl.git
+  GIT_TAG v0.5.0
+  GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(mwtl)
+
+add_executable(my_app WIN32 main.cpp)
+target_link_libraries(my_app PRIVATE mwtl::mwtl)
+```
+
+Configure x64 with Visual Studio 2026:
+
+```powershell
+cmake -S . -B build -G "Visual Studio 18 2026" -A x64
+cmake --build build --config Debug
+```
+
+Use generator `Visual Studio 17 2022` when building with Visual Studio 2022.
 
 Install a Release build to a prefix:
 
@@ -322,7 +343,7 @@ The repository contains **22 independently buildable GUI examples**. They are al
 |---|---|---|---|
 | Quick start | [`examples/hello`](examples/hello/main.cpp) | `mwtl_hello` | Smallest complete program |
 | `mwtl::Application` | [`examples/application`](examples/application/main.cpp) | `mwtl_application_demo` | HINSTANCE observation, Run, exit code, and wWinMain boundary |
-| Window APIs | [`examples/window`](examples/window/main.cpp) | `mwtl_window_demo` | `WindowBase`, advanced `Window<T>`, HWND access, WM_APP messages, and `Close()` |
+| Window APIs | [`examples/window`](examples/window/main.cpp) | `mwtl_window_demo` | `WindowBase`, HWND access, WM_APP messages, and `Close()` |
 | Native message | [`examples/native_message`](examples/native_message/main.cpp) | `mwtl_native_message_demo` | Typed `WM_APP` constant, payload, `PostMessageW`, and `OnMessage` |
 | Keyboard | [`examples/keyboard`](examples/keyboard/main.cpp) | `mwtl_keyboard_demo` | `WM_KEYDOWN`, virtual-key values, and Escape-to-close |
 | Mouse | [`examples/mouse`](examples/mouse/main.cpp) | `mwtl_mouse_demo` | Client coordinates from `WM_MOUSEMOVE` and `WM_LBUTTONDOWN` |
@@ -366,7 +387,7 @@ See [examples/README.md](examples/README.md) for the complete target and run-com
 - extraction and inspection of the final hello EXE manifest with the Windows SDK manifest tool.
 - DPI conversion edge cases, C++20 consumption, custom class traits, COM STA,
   wait-handle dispatch, callback exception containment, 2,000-message wake-up
-  bursts, idle CPU behavior, and a liney-style native host fixture.
+  bursts, idle CPU behavior, and native host lifecycle behavior.
 
 The repository CI workflow builds and tests x64 Debug and Release. ARM64 is intentionally deferred until it has a maintained validation environment.
 
@@ -376,16 +397,12 @@ The documentation site source is in [site/](site/). It includes a landing page, 
 
 After the repository is public, open **Settings → Pages**, select **GitHub Actions** as the source, then run the **Deploy GitHub Pages** workflow or push a change under `site/` to `main`. No Jekyll or Node build is required.
 
-## Development documents
+## Current documentation
 
-Release history and implementation evidence live below the getting-started
-material: [development plan](docs/mwtl-0.2-plan.md),
-[design](docs/mwtl-0.2-design.md), [API and ownership](docs/api-0.2.md),
-[liney-win migration spike](docs/liney-win-migration-spike.md),
-[system-message recipes](docs/system-message-recipes.md),
-[release notes](docs/release-notes-0.2.0.md),
-[performance evidence](docs/performance-0.2.0.md), and the
-[release checklist](docs/release-checklist-0.2.0.md).
+- [0.5 API direction](docs/api-0.5.md)
+- [system-message recipes](docs/system-message-recipes.md)
+- [0.5 release checklist](docs/release-checklist-0.5.0.md)
+- [complete web guide](https://everettjf.github.io/mwtl/)
 
 ## Modern event handlers
 
@@ -404,8 +421,6 @@ mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) override;
 
 Return `EventResult::Propagate()` when WTL/default processing should continue,
 or `EventResult::Handled(value)` when a specific native result is required.
-The advanced `Window<T>` form instead discovers handlers at compile time with
-C++20 `requires` and also permits consuming `void` handlers.
 
 ### Typed keyboard input
 
@@ -416,7 +431,7 @@ public:
 
     mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) override {
         if (event.virtual_key == VK_ESCAPE) {
-            static_cast<void>(Close());
+            Close();
             return mwtl::EventResult::Handled();
         }
         return mwtl::EventResult::Propagate();
@@ -430,10 +445,12 @@ public:
 using mwtl::operator""_dip;
 
 void BuildUI() {
-    name_.Create(*this, {100}, L"Ada",
-                 {{24.0_dip, 24.0_dip}, {280.0_dip, 32.0_dip}});
-    greet_.Create(*this, {101}, L"Greet",
-                  {{320.0_dip, 24.0_dip}, {120.0_dip, 32.0_dip}});
+    mwtl::ControlHost ui{*this};
+    ui.Add(name_, L"Ada");
+    ui.Add(greet_, L"Greet");
+    SetLayout(mwtl::Row().Margin(24.0_dip).Gap(16.0_dip)
+        .Add(name_, mwtl::Stretch())
+        .Add(greet_, mwtl::Fixed(120.0_dip)));
 }
 
 void OnCommand(const mwtl::CommandEvent& event) {
@@ -472,7 +489,7 @@ static constexpr mwtl::TimerId kRefreshTimer{1};
 mwtl::UiTimer timer_;  // KillTimer is automatic.
 ```
 
-### Raw messages and WTL compatibility
+### Raw messages
 
 ```cpp
 static constexpr UINT kRefresh = WM_APP + 1;
@@ -484,10 +501,6 @@ mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) {
     return mwtl::EventResult::Propagate();
 }
 ```
-
-Existing WTL `BEGIN_MSG_MAP` code remains source-compatible. A derived WTL map
-can still chain to `mwtl::Window<T>`; the convention layer and the legacy map
-both execute inside the same `SafeWindowProc` exception boundary.
 
 ## License
 

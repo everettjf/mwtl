@@ -3,9 +3,9 @@
 #include <cstdlib>
 #include <objbase.h>
 
-class ComWindow final : public mwtl::Window<ComWindow> {
+class ComWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         APTTYPE type{};
         APTTYPEQUALIFIER qualifier{};
         const bool sta = SUCCEEDED(::CoGetApartmentType(&type, &qualifier)) &&

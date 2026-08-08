@@ -4,9 +4,9 @@
 #include <chrono>
 #include <thread>
 
-class SelfDrawnWindow final : public mwtl::Window<SelfDrawnWindow> {
+class SelfDrawnWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         SetTitle(L"Self-drawn host - worker-driven dirty frames");
         const mwtl::WindowWakeup wake = GetWakeup();
         producer_ = std::jthread([wake](std::stop_token stop) {
@@ -17,12 +17,13 @@ public:
         });
     }
 
-    void OnWakeup() noexcept {
+    mwtl::EventResult OnWakeup() noexcept override {
         ++frame_;
         ::InvalidateRect(GetHwnd(), nullptr, FALSE);
+        return mwtl::EventResult::Handled();
     }
 
-    void OnPaint(mwtl::PaintEvent& event) noexcept {
+    mwtl::EventResult OnPaint(mwtl::PaintEvent& event) noexcept override {
         const HDC dc = event.GetDC();
         if (dc != nullptr) {
             RECT client{};
@@ -34,6 +35,7 @@ public:
             ::SetDCBrushColor(dc, RGB(33, 115, 190));
             ::FillRect(dc, &marker, static_cast<HBRUSH>(::GetStockObject(DC_BRUSH)));
         }
+        return mwtl::EventResult::Handled();
     }
 
 private:

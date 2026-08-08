@@ -4,9 +4,9 @@
 #include <exception>
 #include <stdexcept>
 
-class ApplicationWindow final : public mwtl::Window<ApplicationWindow> {
+class ApplicationWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         if (!SetTitle(L"mwtl::Application demo")) {
             throw std::runtime_error("SetTitle failed");
         }

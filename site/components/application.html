@@ -9,9 +9,9 @@
     <h2>Complete example</h2>
     <pre><code>#include &lt;mwtl/mwtl.h&gt;
 
-class MainWindow final : public mwtl::Window&lt;MainWindow&gt; {
+class MainWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() { SetTitle(L"Application demo"); }
+    void BuildUI() override { SetTitle(L"Application demo"); }
 };
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
@@ -27,5 +27,5 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
     <div class="callout">Application is neither copyable nor movable and manages one active run at a time. Keep a final catch boundary in wWinMain.</div>
     <p>Repository source: <a href="https://github.com/everettjf/mwtl/tree/main/examples/application">examples/application</a></p>
   </main>
-  <footer class="shell footer">Next: <a href="window.html">mwtl::Window&lt;T&gt;</a></footer>
+  <footer class="shell footer">Next: <a href="window.html">mwtl::WindowBase</a></footer>
 </body></html>

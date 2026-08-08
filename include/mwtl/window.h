@@ -521,8 +521,8 @@ private:
     std::shared_ptr<detail::WindowWakeState> wake_state_;
 };
 
-// Concise inheritance for ordinary applications. The WTL-required CRTP type is
-// fixed here; use Window<T> directly for compile-time dispatch or WTL maps.
+// Concise inheritance for applications. The WTL-required CRTP type is kept as
+// an implementation detail of the virtual event surface.
 class WindowBase : public Window<WindowBase> {
 public:
     virtual ~WindowBase() = default;

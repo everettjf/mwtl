@@ -2,11 +2,11 @@
 
 #include <cstdlib>
 
-class SystemWindow final : public mwtl::Window<SystemWindow> {
+class SystemWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() { SetTitle(L"Native system lifecycle messages"); }
+    void BuildUI() override { SetTitle(L"Native system lifecycle messages"); }
 
-    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) noexcept {
+    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) noexcept override {
         if (message.id == WM_QUERYENDSESSION) {
             return mwtl::EventResult::Handled(TRUE);
         }

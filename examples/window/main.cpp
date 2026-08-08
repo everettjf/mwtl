@@ -8,19 +8,20 @@ namespace {
 
 constexpr UINT kShowNativeMessage = WM_APP + 1;
 
-class WindowDemo final : public mwtl::Window<WindowDemo> {
+class WindowDemo final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         if (!SetTitle(L"mwtl::Window demo — click the client area or press Esc")) {
             throw std::runtime_error("SetTitle failed");
         }
     }
 
-    void OnLeftButtonDown(const mwtl::MouseEvent&) {
+    mwtl::EventResult OnLeftButtonDown(const mwtl::MouseEvent&) override {
         ::SendMessageW(GetHwnd(), kShowNativeMessage, 0, 0);
+        return mwtl::EventResult::Handled();
     }
 
-    mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) {
+    mwtl::EventResult OnKeyDown(const mwtl::KeyEvent& event) override {
         if (event.virtual_key == VK_ESCAPE) {
             Close();
             return mwtl::EventResult::Handled();
@@ -28,7 +29,7 @@ public:
         return mwtl::EventResult::Propagate();
     }
 
-    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) {
+    mwtl::EventResult OnMessage(const mwtl::WindowMessage& message) override {
         if (message.id == kShowNativeMessage) {
             SetTitle(L"Native WM_APP message received — press Esc to close");
             return mwtl::EventResult::Handled();

@@ -4,8 +4,8 @@
 <body>
   <header class="shell nav"><a class="brand" href="../index.html"><img src="../assets/mwtl-mark.svg" alt=""><span>mwtl</span></a><nav class="nav-links"><a class="active" href="index.html">Components</a><a href="../building.html">Build</a><a href="https://github.com/everettjf/mwtl">GitHub</a></nav></header>
   <main class="shell prose">
-    <div class="eyebrow">Component</div><h1>WindowBase and Window&lt;T&gt;</h1>
-    <p><code>WindowBase</code> is the concise default: the class name appears once and virtual hooks propagate to Win32 unless overridden. <code>Window&lt;T&gt;</code> remains the advanced CRTP path for compile-time dispatch, custom class traits, and legacy WTL message maps.</p>
+    <div class="eyebrow">Component</div><h1>WindowBase</h1>
+    <p><code>WindowBase</code> is the application window API: the class name appears once and typed virtual hooks propagate to Win32 unless overridden.</p>
     <h2>Macro-free message interoperability</h2>
     <pre><code>constexpr UINT kRefresh = WM_APP + 1;
 
@@ -27,7 +27,7 @@ public:
     }
 };</code></pre>
     <h2>Key behavior</h2>
-    <ul><li><code>BuildUI()</code> runs during WM_CREATE after the HWND is attached.</li><li><code>GetHwnd()</code> returns the native handle.</li><li><code>EventResult::Propagate()</code> continues default processing.</li><li>The advanced <code>Window&lt;T&gt;</code> form supports existing WTL maps and void convention handlers.</li><li>Both paths remain inside the same noexcept WindowProc boundary.</li></ul>
+    <ul><li><code>BuildUI()</code> runs during WM_CREATE after the HWND is attached.</li><li><code>GetHwnd()</code> returns the native handle.</li><li><code>EventResult::Propagate()</code> continues default processing.</li><li>Every typed handler remains inside the noexcept WindowProc boundary.</li></ul>
     <p>Repository source: <a href="https://github.com/everettjf/mwtl/tree/main/examples/window">examples/window</a></p>
   </main>
   <footer class="shell footer">Return to the <a href="index.html">component reference</a></footer>

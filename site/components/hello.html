@@ -12,13 +12,17 @@ class MainWindow final : public mwtl::WindowBase {
 public:
     void BuildUI() override {
         SetTitle(L"mwtl hello");
-        label_.Create(*this, mwtl::ControlId{100}, L"Hello from modern WTL", {24, 24, 260, 28});
-        close_.Create(*this, mwtl::ControlId{101}, L"Close", {24, 64, 100, 32});
+        mwtl::ControlHost ui{*this};
+        ui.Add(label_, L"Hello from modern Windows");
+        ui.Add(close_, L"Close");
+        SetLayout(mwtl::Column().Margin(24.0_dip).Gap(12.0_dip)
+            .Add(label_, mwtl::Auto())
+            .Add(close_, mwtl::Fixed(36.0_dip)));
     }
 
     mwtl::EventResult OnCommand(const mwtl::CommandEvent&amp; event) override {
         if (event.IsClicked(close_)) {
-            static_cast&lt;void&gt;(Close());
+            Close();
             return mwtl::EventResult::Handled();
         }
         return mwtl::EventResult::Propagate();

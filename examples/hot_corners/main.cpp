@@ -87,9 +87,9 @@ bool IsFullscreenBusy() noexcept {
            state == QUNS_PRESENTATION_MODE;
 }
 
-class HotCornersWindow final : public Window<HotCornersWindow> {
+class HotCornersWindow final : public WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         SetTitle(L"mwtl Hot Corners - x64 multi-monitor reference");
         BuildMenu();
         CreateControls();
@@ -106,7 +106,7 @@ public:
             RestoreWindowPlacement(GetHwnd(), saved);
     }
 
-    EventResult OnCommand(const CommandEvent& event) {
+    EventResult OnCommand(const CommandEvent& event) override {
         if (event.IsClicked(enabled_)) {
             settings_.enabled = enabled_.IsChecked();
             tracker_.Reset(); SaveSettings(); UpdateStatus();
@@ -145,7 +145,7 @@ public:
         return EventResult::Propagate();
     }
 
-    EventResult OnClose() {
+    EventResult OnClose() override {
         StoreVisibleMonitor(); SaveSettings(); RemoveTrayIcon();
         SavedWindowPlacement saved{};
         if (CaptureWindowPlacement(GetHwnd(), saved))
@@ -153,7 +153,7 @@ public:
         return EventResult::Propagate();
     }
 
-    EventResult OnTimer(TimerId id) {
+    EventResult OnTimer(TimerId id) override {
         if (id == kSelfTest) {
             ::KillTimer(GetHwnd(), kSelfTest.value);
             Activate({0, hot_corners::Corner::top_left});
@@ -177,7 +177,7 @@ public:
         return EventResult::Handled();
     }
 
-    EventResult OnMessage(const WindowMessage& event) {
+    EventResult OnMessage(const WindowMessage& event) override {
         if (event.id == WM_DISPLAYCHANGE || event.id == WM_SETTINGCHANGE) {
             StoreVisibleMonitor(); RefreshMonitors(); PopulateMonitorList(); LoadVisibleMonitor();
             return EventResult::Handled();
@@ -193,7 +193,7 @@ public:
         return EventResult::Propagate();
     }
 
-    EventResult OnDpiChanged(const DpiChangedEvent& event) { ApplyFont(event.dpi_x); return EventResult::Propagate(); }
+    EventResult OnDpiChanged(const DpiChangedEvent& event) override { ApplyFont(event.dpi_x); return EventResult::Propagate(); }
 
 private:
     void BuildMenu() {

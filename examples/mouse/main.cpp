@@ -4,20 +4,22 @@
 #include <exception>
 #include <stdexcept>
 
-class MouseWindow final : public mwtl::Window<MouseWindow> {
+class MouseWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         if (!SetTitle(L"Mouse demo — move or click in the client area")) {
             throw std::runtime_error("SetTitle failed");
         }
     }
 
-    void OnMouseMove(const mwtl::MouseEvent& event) {
+    mwtl::EventResult OnMouseMove(const mwtl::MouseEvent& event) override {
         ShowPoint(L"WM_MOUSEMOVE", event.position);
+        return mwtl::EventResult::Handled();
     }
 
-    void OnLeftButtonDown(const mwtl::MouseEvent& event) {
+    mwtl::EventResult OnLeftButtonDown(const mwtl::MouseEvent& event) override {
         ShowPoint(L"WM_LBUTTONDOWN", event.position);
+        return mwtl::EventResult::Handled();
     }
 
 private:

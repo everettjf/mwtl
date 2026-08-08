@@ -4,15 +4,15 @@
 #include <exception>
 #include <stdexcept>
 
-class ResizeWindow final : public mwtl::Window<ResizeWindow> {
+class ResizeWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         if (!SetTitle(L"Resize demo — resize this window")) {
             throw std::runtime_error("SetTitle failed");
         }
     }
 
-    mwtl::EventResult OnResize(const mwtl::ResizeEvent& event) {
+    mwtl::EventResult OnResize(const mwtl::ResizeEvent& event) override {
         wchar_t title[128]{};
         _snwprintf_s(title, _countof(title), _TRUNCATE,
                      L"WM_SIZE: %ld × %ld",

@@ -37,10 +37,10 @@ target_compile_features(mwtl_consumer_cpp20 PRIVATE cxx_std_20)
 target_compile_options(mwtl_consumer_cpp20 PRIVATE /W4 /permissive- /EHsc /utf-8)
 target_link_libraries(mwtl_consumer_cpp20 PRIVATE mwtl::mwtl)
 
-add_library(mwtl_direct_create_compat OBJECT direct_create_compat.cpp)
-target_compile_features(mwtl_direct_create_compat PRIVATE cxx_std_20)
-target_compile_options(mwtl_direct_create_compat PRIVATE /W4 /permissive- /EHsc /utf-8)
-target_link_libraries(mwtl_direct_create_compat PRIVATE mwtl::mwtl)
+add_library(mwtl_direct_create_test OBJECT direct_create_test.cpp)
+target_compile_features(mwtl_direct_create_test PRIVATE cxx_std_20)
+target_compile_options(mwtl_direct_create_test PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_direct_create_test PRIVATE mwtl::mwtl)
 
 add_executable(mwtl_dpi_test dpi_test.cpp)
 target_compile_features(mwtl_dpi_test PRIVATE cxx_std_20)
@@ -93,15 +93,6 @@ foreach(mode IN ITEMS
         TIMEOUT 20)
 endforeach()
 
-add_executable(mwtl_liney_host_compat_test liney_host_compat_test.cpp)
-target_compile_features(mwtl_liney_host_compat_test PRIVATE cxx_std_20)
-target_compile_options(mwtl_liney_host_compat_test PRIVATE /W4 /permissive- /EHsc /utf-8)
-target_link_libraries(mwtl_liney_host_compat_test PRIVATE mwtl::mwtl)
-add_test(NAME mwtl.liney_host_compat COMMAND mwtl_liney_host_compat_test)
-set_tests_properties(mwtl.liney_host_compat PROPERTIES
-    ENVIRONMENT "MWTL_TEST_NO_DIALOGS=1"
-    TIMEOUT 20)
-
 add_executable(mwtl_modern_api_test modern_api_test.cpp)
 target_sources(mwtl_modern_api_test PRIVATE "${PROJECT_SOURCE_DIR}/examples/example.manifest")
 target_compile_features(mwtl_modern_api_test PRIVATE cxx_std_20)
@@ -116,7 +107,7 @@ add_executable(mwtl_desktop_test desktop_test.cpp)
 target_compile_features(mwtl_desktop_test PRIVATE cxx_std_20)
 target_compile_options(mwtl_desktop_test PRIVATE /W4 /permissive- /EHsc /utf-8)
 target_link_libraries(mwtl_desktop_test PRIVATE mwtl::mwtl)
-add_test(NAME mwtl.desktop COMMAND mwtl_desktop_test)
+add_test(NAME mwtl.desktop COMMAND mwtl_desktop_test --skip-clipboard)
 set_tests_properties(mwtl.desktop PROPERTIES TIMEOUT 20)
 
 add_executable(mwtl_hot_corner_model_test

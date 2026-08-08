@@ -4,15 +4,15 @@
 #include <exception>
 #include <stdexcept>
 
-class WindowStateWindow final : public mwtl::Window<WindowStateWindow> {
+class WindowStateWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         if (!SetTitle(L"Window state demo — minimize or maximize")) {
             throw std::runtime_error("SetTitle failed");
         }
     }
 
-    mwtl::EventResult OnResize(const mwtl::ResizeEvent& event) {
+    mwtl::EventResult OnResize(const mwtl::ResizeEvent& event) override {
         const wchar_t* label = L"restored";
         if (event.state == mwtl::WindowSizeState::minimized) label = L"minimized";
         if (event.state == mwtl::WindowSizeState::maximized) label = L"maximized";

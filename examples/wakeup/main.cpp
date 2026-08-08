@@ -4,9 +4,9 @@
 #include <cstdlib>
 #include <thread>
 
-class WakeWindow final : public mwtl::Window<WakeWindow> {
+class WakeWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         SetTitle(L"Worker thread will wake this HWND safely");
         const mwtl::WindowWakeup wake = GetWakeup();
         worker_ = std::jthread([wake](std::stop_token stop) {
@@ -20,8 +20,9 @@ public:
         });
     }
 
-    void OnWakeup() noexcept {
+    mwtl::EventResult OnWakeup() noexcept override {
         SetTitle(L"Safe cross-thread wake-up received");
+        return mwtl::EventResult::Handled();
     }
 
 private:

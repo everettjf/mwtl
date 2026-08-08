@@ -6,8 +6,8 @@
   <meta name="description" content="mwtl 0.5 is a lightweight C++20 library for native Windows controls, typed events, and DPI-aware responsive layout.">
   <link rel="canonical" href="https://everettjf.github.io/mwtl/">
   <title>mwtl — modern native Windows UI</title>
-  <link rel="stylesheet" href="styles.css?v=20260807d">
-  <script defer src="assets/site.js?v=20260807d"></script>
+  <link rel="stylesheet" href="styles.css?v=20260808">
+  <script defer src="assets/site.js?v=20260808"></script>
 </head>
 <body>
   <header class="shell nav">
@@ -26,7 +26,7 @@
       <p class="lede">Concise creation, typed events, checked batches, and DPI-aware responsive layout around real HWND controls—without closing off Win32.</p>
       <div class="actions">
         <a class="button primary" href="components/index.html">Explore components</a>
-        <a class="button" href="building.html">Build the examples</a>
+        <a class="button" href="building.html">Get started</a>
       </div>
     </section>
 
@@ -73,6 +73,36 @@ public:
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
     return mwtl::RunApplication&lt;HelloWindow&gt;(instance, show);
 }</code></pre>
+    </section>
+
+    <section class="shell section" aria-labelledby="examples-title">
+      <div class="eyebrow">22 runnable programs</div>
+      <h2 id="examples-title">Every example, with its native result.</h2>
+      <p class="lede">Each card links to the complete source. All programs are independently buildable x64 targets and use the shared Per-Monitor V2 manifest.</p>
+      <div class="example-catalog">
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/hello/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/hello.png" alt="Hello example"><strong>Hello</strong><span>Smallest complete application</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/application/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/application.png" alt="Application example"><strong>Application</strong><span>Startup and exit lifecycle</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/window/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/window.png" alt="Window example"><strong>Window</strong><span>Typed events and native messages</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/native_message/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/native-message.png" alt="Native message example"><strong>Native message</strong><span>WM_APP interoperability</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/keyboard/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/keyboard.png" alt="Keyboard example"><strong>Keyboard</strong><span>Typed key input</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/mouse/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/mouse.png" alt="Mouse example"><strong>Mouse</strong><span>Client coordinates and clicks</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/resize/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/resize.png" alt="Resize example"><strong>Resize</strong><span>Size and window state</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/timer/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/timer.png" alt="Timer example"><strong>Timer</strong><span>RAII and chrono intervals</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/paint/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/paint.png" alt="Paint example"><strong>Paint</strong><span>Native GDI drawing</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/minmax/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/minmax.png" alt="Minimum size example"><strong>Minimum size</strong><span>WM_GETMINMAXINFO</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/close_policy/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/close-policy.png" alt="Close policy example"><strong>Close policy</strong><span>Typed close interception</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/window_state/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/window-state.png" alt="Window state example"><strong>Window state</strong><span>Restore, minimize, maximize</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/dpi/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/dpi.png" alt="DPI example"><strong>DPI</strong><span>Per-monitor scaling</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/window_options/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/window-options.png" alt="Window options example"><strong>Window options</strong><span>Styles, resources, bounds</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/wait_aware/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/wait-aware.png" alt="Wait-aware pump example"><strong>Wait-aware pump</strong><span>Efficient handles and idle work</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/wakeup/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/wakeup.png" alt="Wakeup example"><strong>Wakeup</strong><span>Lifetime-safe worker notification</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/com_sta/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/com-sta.png" alt="COM STA example"><strong>COM STA</strong><span>Apartment lifecycle</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/controls/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/controls.png" alt="Controls example"><strong>Controls</strong><span>Complete form-control gallery</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/common_controls/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/common-controls.png" alt="Common Controls example"><strong>Common Controls</strong><span>Complete specialized gallery</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/self_drawn_host/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/self-drawn-host.png" alt="Self-drawn host example"><strong>Self-drawn host</strong><span>Worker-driven dirty frames</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/system_lifecycle/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/system-lifecycle.png" alt="System lifecycle example"><strong>System lifecycle</strong><span>Power, display, IME, session</span></a>
+        <a class="example-card" href="https://github.com/everettjf/mwtl/blob/main/examples/hot_corners/main.cpp"><img src="https://raw.githubusercontent.com/everettjf/mwtl/main/docs/images/examples/hot-corners.png" alt="Hot corners example"><strong>Hot corners</strong><span>Complete multi-monitor utility</span></a>
+      </div>
     </section>
 
     <section class="shell home-strip">

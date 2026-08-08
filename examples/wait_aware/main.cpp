@@ -8,9 +8,9 @@ HWND demo_window = nullptr;
 unsigned idle_ticks = 0;
 }
 
-class WaitWindow final : public mwtl::Window<WaitWindow> {
+class WaitWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         demo_window = GetHwnd();
         SetTitle(L"Wait-aware pump - idle ticks update this title");
     }

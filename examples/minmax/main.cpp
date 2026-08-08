@@ -4,16 +4,17 @@
 #include <exception>
 #include <stdexcept>
 
-class MinMaxWindow final : public mwtl::Window<MinMaxWindow> {
+class MinMaxWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         if (!SetTitle(L"WM_GETMINMAXINFO — minimum 480 × 280 pixels")) {
             throw std::runtime_error("SetTitle failed");
         }
     }
 
-    void OnMinMaxInfo(mwtl::MinMaxInfoEvent event) {
+    mwtl::EventResult OnMinMaxInfo(mwtl::MinMaxInfoEvent event) override {
         event.info.ptMinTrackSize = {480, 280};
+        return mwtl::EventResult::Handled();
     }
 };
 

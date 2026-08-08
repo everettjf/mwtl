@@ -7,9 +7,9 @@
 
 using namespace std::chrono_literals;
 
-class TimerWindow final : public mwtl::Window<TimerWindow> {
+class TimerWindow final : public mwtl::WindowBase {
 public:
-    void BuildUI() {
+    void BuildUI() override {
         ::SetWindowPos(GetHwnd(), nullptr, 0, 0, 900, 560,
                        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
         if (!SetTitle(L"Timer demo — waiting for WM_TIMER")) {
@@ -20,14 +20,15 @@ public:
         }
     }
 
-    void OnTimer(mwtl::TimerId timer_id) {
+    mwtl::EventResult OnTimer(mwtl::TimerId timer_id) override {
         if (timer_id != kTimer) {
-            return;
+            return mwtl::EventResult::Propagate();
         }
         wchar_t title[96]{};
         _snwprintf_s(title, _countof(title), _TRUNCATE,
                      L"WM_TIMER tick %u", ++ticks_);
         SetTitle(title);
+        return mwtl::EventResult::Handled();
     }
 
 private:

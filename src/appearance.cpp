@@ -4,6 +4,8 @@
 #include <initguid.h>
 #include <oleacc.h>
 
+#include <cstring>
+
 #include <wil/resource.h>
 
 namespace mwtl {
@@ -14,14 +16,20 @@ using DwmSetWindowAttributeFn = HRESULT(WINAPI*)(HWND, DWORD, LPCVOID, DWORD);
 DwmSetWindowAttributeFn GetDwmSetWindowAttribute() noexcept {
     static wil::unique_hmodule module(
         ::LoadLibraryExW(L"dwmapi.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32));
-    return module ? reinterpret_cast<DwmSetWindowAttributeFn>(
-        ::GetProcAddress(module.get(), "DwmSetWindowAttribute")) : nullptr;
+    if (!module) return nullptr;
+    const FARPROC address =
+        ::GetProcAddress(module.get(), "DwmSetWindowAttribute");
+    static_assert(sizeof(address) == sizeof(DwmSetWindowAttributeFn));
+    DwmSetWindowAttributeFn function = nullptr;
+    std::memcpy(&function, &address, sizeof(function));
+    return function;
 }
 
 }  // namespace
 
 bool IsHighContrastEnabled() noexcept {
-    HIGHCONTRASTW contrast{sizeof(contrast)};
+    HIGHCONTRASTW contrast{};
+    contrast.cbSize = sizeof(contrast);
     return ::SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(contrast),
         &contrast, 0) != FALSE && (contrast.dwFlags & HCF_HIGHCONTRASTON) != 0;
 }

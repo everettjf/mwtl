@@ -98,11 +98,12 @@ endif()
 target_include_directories(mwtl
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${mwtl_wtl_include_dirs}>
-        $<BUILD_INTERFACE:${mwtl_wil_include_dirs}>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(mwtl SYSTEM PUBLIC
+    $<BUILD_INTERFACE:${mwtl_wtl_include_dirs}>
+    $<BUILD_INTERFACE:${mwtl_wil_include_dirs}>)
 target_link_libraries(mwtl
     PRIVATE
         comctl32

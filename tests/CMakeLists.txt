@@ -244,8 +244,12 @@ if(TARGET mwtl_hello)
                 -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_manifest.cmake")
         set_tests_properties(mwtl.manifest.${example_target} PROPERTIES TIMEOUT 20)
     endforeach()
+    get_filename_component(
+        mwtl_test_compiler_directory "${CMAKE_CXX_COMPILER}" DIRECTORY)
     add_test(NAME mwtl.hot_corners_self_test
-        COMMAND $<TARGET_FILE:mwtl_hot_corners_demo> --self-test)
+        COMMAND "${CMAKE_COMMAND}" -E env
+            "PATH=${mwtl_test_compiler_directory};$ENV{PATH}"
+            $<TARGET_FILE:mwtl_hot_corners_demo> --self-test)
     set_tests_properties(mwtl.hot_corners_self_test PROPERTIES TIMEOUT 10)
 endif()
 

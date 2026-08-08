@@ -21,9 +21,8 @@ if(NOT EXISTS "${PROJECT_ROOT}/tests/verify_coverage.ps1" OR
 endif()
 foreach(package_document IN ITEMS
         README.md SECURITY.md docs/api.md docs/design.md
-        docs/stability.md docs/migration-0.6.md
-        docs/release-checklist-0.6.0.md docs/accessibility.md
-        docs/reference.md)
+        docs/stability.md docs/accessibility.md
+        docs/reference.md docs/system-message-recipes.md)
     if(NOT cmake_text MATCHES "install\\([^)]*${package_document}")
         message(FATAL_ERROR
             "Release package does not install ${package_document}")

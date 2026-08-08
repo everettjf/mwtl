@@ -127,10 +127,9 @@ install(FILES
     docs/api.md
     docs/design.md
     docs/stability.md
-    docs/migration-0.6.md
-    docs/release-checklist-0.6.0.md
     docs/accessibility.md
     docs/reference.md
+    docs/system-message-recipes.md
     DESTINATION ${CMAKE_INSTALL_DATADIR}/mwtl)
 install(FILES cmake/Dependencies.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mwtl)

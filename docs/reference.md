@@ -1,6 +1,6 @@
 # Public header reference
 
-This index is the searchable map of the mwtl 0.6 public surface. Include the
+This index is the searchable map of the current mwtl public surface. Include the
 smallest header that owns the API; use `mwtl/mwtl.h` only when broad convenience
 is more important than compile-time isolation.
 

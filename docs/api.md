@@ -1,8 +1,7 @@
 # Current mwtl API
 
-> This document describes 0.6. Stability guarantees and evolution rules are in
-> [stability.md](stability.md); 0.5 users should read
-> [migration-0.6.md](migration-0.6.md).
+> This document describes the current public API. Stability guarantees and
+> evolution rules are in [stability.md](stability.md).
 
 ## Commands and appearance
 

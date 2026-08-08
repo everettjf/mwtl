@@ -234,7 +234,12 @@ if(TARGET mwtl_hello)
             mwtl_common_controls_demo
             mwtl_self_drawn_host_demo
             mwtl_system_lifecycle_demo
-            mwtl_hot_corners_demo)
+            mwtl_hot_corners_demo
+            mwtl_form_binding_demo
+            mwtl_commands_demo
+            mwtl_desktop_integration_demo
+            mwtl_appearance_demo
+            mwtl_layout_gallery_demo)
         add_test(
             NAME mwtl.manifest.${example_target}
             COMMAND "${CMAKE_COMMAND}"

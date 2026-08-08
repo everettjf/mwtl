@@ -121,7 +121,7 @@ Detailed API notes live in [docs/api.md](docs/api.md).
 
 ## Examples
 
-The repository contains 22 independently buildable programs. Each link opens
+The repository contains 27 independently buildable programs. Each link opens
 the complete source.
 
 | Example | Source | Focus |
@@ -148,6 +148,11 @@ the complete source.
 | Self-drawn host | [examples/self_drawn_host/main.cpp](examples/self_drawn_host/main.cpp) | Worker-driven native drawing |
 | System lifecycle | [examples/system_lifecycle/main.cpp](examples/system_lifecycle/main.cpp) | Power, display, IME, and session messages |
 | Hot corners | [examples/hot_corners/main.cpp](examples/hot_corners/main.cpp) | Complete multi-monitor utility |
+| Form binding | [examples/form_binding/main.cpp](examples/form_binding/main.cpp) | Live model binding, validation, and explicit push/pull flow |
+| Commands | [examples/commands/main.cpp](examples/commands/main.cpp) | One command model shared by menu, toolbar, and accelerators |
+| Desktop integration | [examples/desktop_integration/main.cpp](examples/desktop_integration/main.cpp) | Modern dialogs, clipboard, drag-drop, and window placement |
+| Appearance | [examples/appearance/main.cpp](examples/appearance/main.cpp) | Color modes, DWM backdrops, corners, and accessibility |
+| Layout gallery | [examples/layout_gallery/main.cpp](examples/layout_gallery/main.cpp) | Responsive nested row, column, overlay, and sizing recipes |
 
 <p align="center">
   <a href="examples/hello/main.cpp"><img width="48%" src="docs/images/examples/hello.png" alt="Hello example"></a>

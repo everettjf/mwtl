@@ -23,6 +23,8 @@
 - Added non-owning lightweight value bindings with validation and nested-safe
   programmatic-change suppression, plus common text/check/selection factories.
 - Added migration/design documentation and command regression coverage.
+- Added five polished recipe applications for bindings, commands, desktop
+  integration, appearance, and responsive layout, bringing the catalog to 27.
 - Added deterministic packed-message property tests and a 74% native source
   coverage floor with a downloadable Cobertura report.
 

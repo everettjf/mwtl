@@ -1,0 +1,1 @@
+mwtl_add_example(mwtl_desktop_integration_demo main.cpp)

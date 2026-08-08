@@ -1,6 +1,6 @@
 # mwtl examples
 
-The repository includes 22 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and recommended `mwtl::WindowBase` path. Common messages use typed C++20 event handlers rather than message-map macros. Hot Corners is the complete reference application: it combines commands, persistence, background polling, tray integration, accessibility-aware appearance, multi-monitor state, and DPI behavior.
+The repository includes 27 focused executables. Each example is intentionally small enough to read as a complete recipe while still using the real `mwtl::Application` and recommended `mwtl::WindowBase` path. Common messages use typed C++20 event handlers rather than message-map macros. Hot Corners is the complete reference application: it combines commands, persistence, background polling, tray integration, accessibility-aware appearance, multi-monitor state, and DPI behavior.
 
 | Directory | Target | Focus |
 |---|---|---|
@@ -26,6 +26,11 @@ The repository includes 22 focused executables. Each example is intentionally sm
 | `self_drawn_host` | `mwtl_self_drawn_host_demo` | Worker-driven dirty frames, GDI paint, wake token, and wait-aware pump |
 | `system_lifecycle` | `mwtl_system_lifecycle_demo` | Power, display, settings, IME, end-session, and accessibility hand-off messages |
 | `hot_corners` | `mwtl_hot_corners_demo` | Multi-monitor hot corners using virtual-desktop coordinates and dwell detection |
+| `form_binding` | `mwtl_form_binding_demo` | Live bindings, validation, model preview, and explicit `Push()`/`Pull()` flow |
+| `commands` | `mwtl_commands_demo` | Shared command state across menu, toolbar, and keyboard accelerators |
+| `desktop_integration` | `mwtl_desktop_integration_demo` | Modern dialogs, clipboard, file drops, task dialogs, and persistent placement |
+| `appearance` | `mwtl_appearance_demo` | System/light/dark title bars, backdrops, corners, and accessibility helpers |
+| `layout_gallery` | `mwtl_layout_gallery_demo` | Responsive nested rows, columns, overlays, sizing, alignment, and dynamic content |
 
 Configure with `MWTL_BUILD_EXAMPLES=ON`, then build one target or all targets:
 

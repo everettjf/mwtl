@@ -1,0 +1,1 @@
+mwtl_add_example(mwtl_form_binding_demo main.cpp)

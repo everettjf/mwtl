@@ -20,7 +20,12 @@ set(example_names
     common_controls
     self_drawn_host
     system_lifecycle
-    hot_corners)
+    hot_corners
+    form_binding
+    commands
+    desktop_integration
+    appearance
+    layout_gallery)
 
 file(READ "${PROJECT_ROOT}/README.md" root_readme)
 file(READ "${PROJECT_ROOT}/examples/README.md" examples_readme)
@@ -135,6 +140,6 @@ if(NOT root_readme MATCHES "docs/images/mwtl-mark.svg")
 endif()
 
 list(LENGTH example_names example_count)
-if(example_count LESS 21)
-    message(FATAL_ERROR "fewer than 21 examples are cataloged")
+if(NOT example_count EQUAL 27)
+    message(FATAL_ERROR "example catalog must contain exactly 27 programs")
 endif()

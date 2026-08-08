@@ -2,6 +2,7 @@
 
 #include <wil/resource.h>
 
+#include <cstring>
 #include <string>
 #include <utility>
 
@@ -34,8 +35,11 @@ TaskDialogResult ShowTaskDialog(HWND owner, std::wstring_view title, std::wstrin
         const auto release_common_controls = wil::scope_exit(
             [common_controls]() noexcept { ::FreeLibrary(common_controls); });
 
-        const auto task_dialog = reinterpret_cast<TaskDialogIndirectFunction>(
-            ::GetProcAddress(common_controls, "TaskDialogIndirect"));
+        const FARPROC address =
+            ::GetProcAddress(common_controls, "TaskDialogIndirect");
+        static_assert(sizeof(address) == sizeof(TaskDialogIndirectFunction));
+        TaskDialogIndirectFunction task_dialog = nullptr;
+        std::memcpy(&task_dialog, &address, sizeof(task_dialog));
         if (task_dialog == nullptr) {
             const DWORD error = ::GetLastError();
             result.status = HRESULT_FROM_WIN32(error);

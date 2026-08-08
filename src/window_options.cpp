@@ -3,6 +3,7 @@
 #include <wil/resource.h>
 
 #include <algorithm>
+#include <cstring>
 
 namespace mwtl::detail {
 namespace {
@@ -12,8 +13,11 @@ UINT GetMonitorDpi(HMONITOR monitor) noexcept {
     wil::unique_hmodule module(::LoadLibraryExW(
         L"shcore.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32));
     if (module) {
-        const auto get_dpi = reinterpret_cast<GetDpiForMonitorFn>(
-            ::GetProcAddress(module.get(), "GetDpiForMonitor"));
+        const FARPROC address =
+            ::GetProcAddress(module.get(), "GetDpiForMonitor");
+        static_assert(sizeof(address) == sizeof(GetDpiForMonitorFn));
+        GetDpiForMonitorFn get_dpi = nullptr;
+        std::memcpy(&get_dpi, &address, sizeof(get_dpi));
         UINT x = DpiContext::kDefaultDpi;
         UINT y = DpiContext::kDefaultDpi;
         // MDT_EFFECTIVE_DPI is zero. Avoid a Shcore header/link dependency and

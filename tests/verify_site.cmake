@@ -28,12 +28,16 @@ if(NOT site_script MATCHES "aria-pressed" OR
    NOT site_script MATCHES "Switch to.*theme")
     message(FATAL_ERROR "theme toggle state is not accessible")
 endif()
+if(NOT site_script MATCHES "showModal" OR
+   NOT site_script MATCHES "target=\\\"_blank\\\"")
+    message(FATAL_ERROR "example preview dialog is missing")
+endif()
 
 file(GLOB_RECURSE html_files "${SITE_ROOT}/*.html")
 foreach(html_file IN LISTS html_files)
     file(READ "${html_file}" html)
-    if(NOT html MATCHES "styles\\.css\\?v=20260808f" OR
-       NOT html MATCHES "assets/site\\.js\\?v=20260808f")
+    if(NOT html MATCHES "styles\\.css\\?v=20260808g" OR
+       NOT html MATCHES "assets/site\\.js\\?v=20260808g")
         message(FATAL_ERROR "stale or inconsistent site asset version in ${html_file}")
     endif()
     string(REGEX MATCHALL "href=\"[^\"]+\"" hrefs "${html}")

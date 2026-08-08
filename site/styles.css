@@ -303,6 +303,31 @@ code:not(pre code) {
 .example-card strong { padding: .85rem 1rem 0; font-weight: 650; }
 .example-card span { padding: .2rem 1rem 1rem; color: var(--muted); font-size: .84rem; }
 
+.example-viewer {
+  width: min(1120px, calc(100vw - 2rem)); max-width: none; max-height: calc(100vh - 2rem);
+  padding: 0; overflow: hidden; border: 1px solid var(--line-strong); border-radius: 1rem;
+  color: var(--text); background: var(--surface); box-shadow: 0 30px 90px rgba(23, 25, 87, .28);
+}
+.example-viewer::backdrop { background: rgba(10, 13, 48, .68); backdrop-filter: blur(8px); }
+.example-viewer-frame { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; max-height: calc(100vh - 2rem); }
+.example-viewer-bar, .example-viewer-actions {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .9rem 1rem; border-bottom: 1px solid var(--line); background: var(--surface-2);
+}
+.example-viewer-bar > div { display: flex; align-items: baseline; gap: .75rem; min-width: 0; }
+.example-viewer-description { overflow: hidden; color: var(--muted); font-size: .86rem; text-overflow: ellipsis; white-space: nowrap; }
+.example-viewer-close {
+  flex: 0 0 auto; width: 2.25rem; height: 2.25rem; border: 1px solid var(--line); border-radius: .55rem;
+  color: var(--muted); background: var(--surface); font: 1.4rem/1 system-ui; cursor: pointer;
+}
+.example-viewer-close:hover { color: var(--text); border-color: var(--line-strong); }
+.example-viewer-canvas { display: grid; place-items: center; min-height: 0; padding: 1rem; overflow: auto; background: #eef3ff; }
+.example-viewer-canvas img { display: block; max-width: 100%; max-height: calc(100vh - 10rem); width: auto; height: auto; border-radius: .4rem; box-shadow: 0 12px 40px rgba(23, 25, 87, .18); }
+.example-viewer-actions { border-top: 1px solid var(--line); border-bottom: 0; }
+.example-viewer-actions > span { color: var(--muted); font-size: .82rem; }
+.example-viewer-actions .button { min-height: 2.7rem; padding: .65rem 1rem; }
+:root[data-theme="dark"] .example-viewer-canvas { background: #0d1037; }
+
 /* ---------- Guide (building.html) ---------- */
 .guide { max-width: 960px; }
 .guide h1 { max-width: 850px; }
@@ -437,4 +462,7 @@ code:not(pre code) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }
   .example-card:hover { transform: none; }
+  .example-viewer { width: calc(100vw - 1rem); max-height: calc(100vh - 1rem); }
+  .example-viewer-frame { max-height: calc(100vh - 1rem); }
+  .example-viewer-description, .example-viewer-actions > span { display: none; }
 }

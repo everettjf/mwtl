@@ -126,4 +126,50 @@
     fragment.append(document.createTextNode(source.slice(cursor)));
     code.replaceChildren(fragment);
   });
+
+  /* ---------- Example image viewer ---------- */
+  const exampleCards = document.querySelectorAll(".example-card");
+  if (exampleCards.length) {
+    const dialog = document.createElement("dialog");
+    dialog.className = "example-viewer";
+    dialog.setAttribute("aria-labelledby", "example-viewer-title");
+    dialog.innerHTML = `
+      <div class="example-viewer-frame">
+        <header class="example-viewer-bar">
+          <div><strong id="example-viewer-title"></strong><span class="example-viewer-description"></span></div>
+          <button class="example-viewer-close" type="button" aria-label="Close preview">&times;</button>
+        </header>
+        <div class="example-viewer-canvas"><img alt=""></div>
+        <footer class="example-viewer-actions">
+          <span>Native screenshot</span>
+          <a class="button primary example-viewer-source" target="_blank" rel="noopener noreferrer">Source code <span aria-hidden="true">↗</span></a>
+        </footer>
+      </div>`;
+    document.body.append(dialog);
+
+    const title = dialog.querySelector("#example-viewer-title");
+    const description = dialog.querySelector(".example-viewer-description");
+    const preview = dialog.querySelector("img");
+    const source = dialog.querySelector(".example-viewer-source");
+    const close = dialog.querySelector(".example-viewer-close");
+
+    exampleCards.forEach((card) => {
+      card.setAttribute("aria-haspopup", "dialog");
+      card.addEventListener("click", (event) => {
+        event.preventDefault();
+        const image = card.querySelector("img");
+        title.textContent = card.querySelector("strong").textContent;
+        description.textContent = card.querySelector("span").textContent;
+        preview.src = image.currentSrc || image.src;
+        preview.alt = image.alt;
+        source.href = card.href;
+        dialog.showModal();
+      });
+    });
+
+    close.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
 })();

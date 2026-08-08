@@ -1,5 +1,5 @@
 /* mwtl site — Fluent-inspired design derived from the project mark:
-   luminous cyan, Windows blue, electric violet, and deep cosmic navy.
+   luminous cyan, Windows blue, and electric violet on a clean neutral base.
    The site is light by default; its dark counterpart is available through
    the header toggle (data-theme="dark" on <html>, persisted by site.js). */
 
@@ -30,27 +30,27 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #090b24;
-  --glow-a: rgba(53, 185, 237, .14);
-  --glow-b: rgba(73, 59, 196, .20);
-  --surface: #121634;
-  --surface-2: #1a2048;
-  --text: #f1f7ff;
-  --muted: #a6b3d4;
-  --line: #252c5a;
-  --line-strong: #3c4787;
+  --bg: #000000;
+  --glow-a: transparent;
+  --glow-b: transparent;
+  --surface: #0a0a0a;
+  --surface-2: #151515;
+  --text: #f5f5f5;
+  --muted: #a3a3a3;
+  --line: #272727;
+  --line-strong: #454545;
   --accent: #8be0ff;
-  --accent-soft: rgba(113, 217, 255, .11);
-  --chip-line: #35558c;
-  --chip-bg: rgba(56, 140, 233, .12);
-  --card-shadow: 0 1px 2px rgba(2, 3, 16, .5), 0 14px 38px rgba(2, 3, 16, .46);
-  --card-shadow-hover: 0 3px 7px rgba(2, 3, 16, .55), 0 22px 52px rgba(2, 3, 16, .66);
-  --header-bg: rgba(9, 11, 36, .82);
-  --code-bg: #0d1033;
-  --code-bg-2: #171957;
-  --code-line: #303978;
-  --code-text: #effaff;
-  --code-muted: #9eacd2;
+  --accent-soft: rgba(255, 255, 255, .07);
+  --chip-line: #3f3f3f;
+  --chip-bg: #151515;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, .7), 0 14px 38px rgba(0, 0, 0, .55);
+  --card-shadow-hover: 0 3px 7px rgba(0, 0, 0, .75), 0 22px 52px rgba(0, 0, 0, .7);
+  --header-bg: rgba(0, 0, 0, .86);
+  --code-bg: #080808;
+  --code-bg-2: #121212;
+  --code-line: #303030;
+  --code-text: #f1f1f1;
+  --code-muted: #a1a1a1;
 }
 
 * { box-sizing: border-box; }
@@ -308,7 +308,7 @@ code:not(pre code) {
   padding: 0; overflow: hidden; border: 1px solid var(--line-strong); border-radius: 1rem;
   color: var(--text); background: var(--surface); box-shadow: 0 30px 90px rgba(23, 25, 87, .28);
 }
-.example-viewer::backdrop { background: rgba(10, 13, 48, .68); backdrop-filter: blur(8px); }
+.example-viewer::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(8px); }
 .example-viewer-frame { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; max-height: calc(100vh - 2rem); }
 .example-viewer-bar, .example-viewer-actions {
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
@@ -326,7 +326,7 @@ code:not(pre code) {
 .example-viewer-actions { border-top: 1px solid var(--line); border-bottom: 0; }
 .example-viewer-actions > span { color: var(--muted); font-size: .82rem; }
 .example-viewer-actions .button { min-height: 2.7rem; padding: .65rem 1rem; }
-:root[data-theme="dark"] .example-viewer-canvas { background: #0d1037; }
+:root[data-theme="dark"] .example-viewer-canvas { background: #050505; }
 
 /* ---------- Guide (building.html) ---------- */
 .guide { max-width: 960px; }

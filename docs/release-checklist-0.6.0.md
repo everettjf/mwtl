@@ -3,25 +3,25 @@
 ## Contract and metadata
 
 - [ ] `project(mwtl VERSION 0.6.0)` matches tag `v0.6.0`.
-- [ ] Changelog, migration guide, stability policy, README, and API guide agree.
-- [ ] No stable 0.5 API removal is missing a compatibility fixture.
-- [ ] Installed package contains licenses and all public/documentation files.
+- [x] Changelog, migration guide, stability policy, README, and API guide agree.
+- [x] No stable 0.5 API removal is missing a compatibility fixture.
+- [x] Installed package contains licenses and all public/documentation files.
 
 ## Required validation
 
-- [ ] MSVC x64 Debug and Release build and all tests pass.
-- [ ] clang-cl x64 Release build and all non-GUI-launch tests pass; the GUI
+- [x] MSVC x64 Debug and Release build and all tests pass.
+- [x] clang-cl x64 Release build and all non-GUI-launch tests pass; the GUI
   self-test is covered by the MSVC matrices because the hosted VS 2022 image
   cannot activate clang-cl GUI executables (Win32 14001).
-- [ ] MSVC ARM64 Debug build and all tests pass on `windows-11-arm`.
-- [ ] MSVC AddressSanitizer job passes.
-- [ ] Native source coverage remains at or above 74%; archive the Cobertura
+- [x] MSVC ARM64 Debug build and all tests pass on `windows-11-arm`.
+- [x] MSVC AddressSanitizer job passes.
+- [x] Native source coverage remains at or above 74%; archive the Cobertura
   report produced by CI.
-- [ ] MSVC Native Recommended Rules analysis has no project-source findings
+- [x] MSVC Native Recommended Rules analysis has no project-source findings
   (pinned WTL/WIL diagnostics are recorded separately).
-- [ ] Independent headers, API surface, package consumer, examples, manifests,
+- [x] Independent headers, API surface, package consumer, examples, manifests,
   site links, resource lifetime, and layout quality gates pass.
-- [ ] Release ZIPs for x64 and ARM64 are produced and their SHA-256 files match.
+- [x] Release ZIPs for x64 and ARM64 are produced and their SHA-256 files match.
 
 ## Manual Windows checks
 
@@ -34,3 +34,15 @@
 
 Release is blocked until every automated item and every applicable manual item
 is checked with evidence linked from the release notes or workflow run.
+
+## Evidence
+
+- Automated build, test, analysis, sanitizer, architecture, and coverage gates:
+  [CI run 31238085763](https://github.com/everettjf/mwtl/actions/runs/31238085763).
+- Non-publishing x64/ARM64 package rehearsal:
+  [Release package run 31238655129](https://github.com/everettjf/mwtl/actions/runs/31238655129).
+  Both jobs built and tested the project, produced one ZIP and one checksum
+  file, and uploaded their artifacts; the publish job was skipped.
+- Downloaded artifact checksums were independently recomputed and matched:
+  x64 `9543baecc2e983b87d07d682fbd0ed5d71f35df818fe19502a8fb4ec95dc0d86`;
+  ARM64 `4b93a693a781b5282f1be3de3adca9f10448b986075460479272162e0c6885be`.

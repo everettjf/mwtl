@@ -184,7 +184,8 @@ ctest --preset x64-release
 ```
 
 The project rejects non-Windows, non-MSVC-compatible ABI, and 32-bit
-configurations. CI validates MSVC x64 and ARM64, clang-cl, AddressSanitizer,
+configurations. CI validates MSVC x64 and ARM64, clang-cl (with its GUI-launch
+self-test covered by the MSVC matrices due to a hosted-runner activation issue), AddressSanitizer,
 Debug/Release, public-header independence, package consumption, manifests,
 examples, resource lifetime, API surface, deterministic property cases, and a
 74% native source-coverage floor with an archived Cobertura report.

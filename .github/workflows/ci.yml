@@ -77,7 +77,9 @@ jobs:
       - name: Build
         run: cmake --build build/clang-cl --config Release --parallel
       - name: Test
-        run: ctest --test-dir build/clang-cl -C Release --output-on-failure
+        # The hosted VS 2022 image cannot activate clang-cl GUI executables
+        # (Win32 14001); the same GUI self-test runs in the MSVC matrices.
+        run: ctest --test-dir build/clang-cl -C Release --output-on-failure -E mwtl.hot_corners_self_test
 
   address-sanitizer:
     name: MSVC AddressSanitizer

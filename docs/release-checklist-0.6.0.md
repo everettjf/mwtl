@@ -10,7 +10,9 @@
 ## Required validation
 
 - [ ] MSVC x64 Debug and Release build and all tests pass.
-- [ ] clang-cl x64 Release build and all tests pass.
+- [ ] clang-cl x64 Release build and all non-GUI-launch tests pass; the GUI
+  self-test is covered by the MSVC matrices because the hosted VS 2022 image
+  cannot activate clang-cl GUI executables (Win32 14001).
 - [ ] MSVC ARM64 Debug build and all tests pass on `windows-11-arm`.
 - [ ] MSVC AddressSanitizer job passes.
 - [ ] Native source coverage remains at or above 74%; archive the Cobertura

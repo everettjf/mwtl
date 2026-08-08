@@ -256,6 +256,7 @@ if(TARGET mwtl_hello)
     add_test(NAME mwtl.hot_corners_self_test
         COMMAND "${CMAKE_COMMAND}" -E env
             "PATH=${mwtl_test_runtime_path};$ENV{PATH}"
+            "MWTL_TEST_NO_DIALOGS=1"
             $<TARGET_FILE:mwtl_hot_corners_demo> --self-test)
     set_tests_properties(mwtl.hot_corners_self_test PROPERTIES TIMEOUT 10)
 endif()

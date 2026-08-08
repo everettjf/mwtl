@@ -1,22 +1,31 @@
 #include "detail/diagnostics.h"
 
 #include <cstdio>
+#include <cwchar>
 
 namespace mwtl::detail {
 namespace {
 
-bool ShouldShowUserDialog(bool requested) noexcept {
+bool TestDialogsDisabled() noexcept {
 #ifdef MWTL_TESTING
     wchar_t value[2]{};
-    if (::GetEnvironmentVariableW(L"MWTL_TEST_NO_DIALOGS", value, _countof(value)) != 0) {
-        return false;
-    }
+    return ::GetEnvironmentVariableW(
+        L"MWTL_TEST_NO_DIALOGS", value, _countof(value)) != 0;
+#else
+    return false;
 #endif
-    return requested;
+}
+
+bool ShouldShowUserDialog(bool requested) noexcept {
+    return requested && !TestDialogsDisabled();
 }
 
 void Emit(const wchar_t* text, bool show_user) noexcept {
     ::OutputDebugStringW(text);
+    if (TestDialogsDisabled()) {
+        std::fputws(text, stderr);
+        std::fflush(stderr);
+    }
     if (ShouldShowUserDialog(show_user)) {
         ::MessageBoxW(nullptr, text, L"mwtl startup error", MB_OK | MB_ICONERROR | MB_TASKMODAL);
     }

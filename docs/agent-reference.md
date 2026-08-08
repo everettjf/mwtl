@@ -1,0 +1,131 @@
+# Agent-oriented public API reference
+
+This reference summarizes the contracts coding agents most often need. Exact
+signatures live in the named public header and remain authoritative.
+
+## `RunApplication` and `Application`
+
+- Header: `<mwtl/application.h>`
+- Purpose: process entry, module/COM setup, main-window lifetime, message loop,
+  and the outer exception boundary.
+- Construction: normally call `RunApplication<MainWindow>(instance, show,
+  options)` from `wWinMain`.
+- Requirement: the window derives from the mwtl window marker, implements
+  `void BuildUI()`, and is constructible from the supplied arguments.
+- Failure: returns `EXIT_FAILURE` after reporting setup or uncaught run errors.
+- Related: `ApplicationOptions`, `WindowOptions`, `MessagePump`.
+
+## `WindowBase`
+
+- Header: `<mwtl/window.h>`
+- Ownership: owns its top-level HWND while attached; non-copyable.
+- Threading: create, use, and destroy on the UI thread.
+- Setup: override `BuildUI()`; store child controls as members.
+- Events: override typed `OnCommand`, `OnClose`, `OnDpiChanged`, `OnWakeup`, or
+  `OnMessage` handlers. Return `Propagate()` unless consuming the event.
+- Common operations: `SetTitle`, `SetLayout`, `Close`, `GetHwnd`,
+  `GetDpiContext`, `GetWakeup`, `SetAccelerators`.
+
+## `ControlHost`
+
+- Header: `<mwtl/control_host.h>`
+- Purpose: checked creation of native child controls and automatic control-ID
+  allocation during `BuildUI()`.
+- Ownership: does not own the C++ control wrapper; controls remain window
+  members.
+- Use: `mwtl::ControlHost ui{*this}; ui.Add(button_, L"Save");`.
+- Failure: creation failures use the library's checked diagnostic path.
+
+## `NativeControl` and core controls
+
+- Header: `<mwtl/controls.h>`
+- Types: `Label`, `Button`, `TextBox`, `CheckBox`, `RadioButton`, `GroupBox`,
+  `ComboBox`, `ListBox`, `ProgressBar`, and `Slider`.
+- Ownership: a wrapper owns its child HWND; move-only; destruction is
+  UI-thread-affine.
+- Common operations: `GetHwnd`, `GetId`, `SetText`, `GetText`, `SetEnabled`,
+  `SetVisible`, `Focus`, and `Destroy`.
+- Creation: prefer `ControlHost`; direct `Create` is available when explicit
+  IDs and bounds are required.
+- Failure: most creating/mutating operations return `bool`; check them or use
+  `Must` during setup.
+
+## Layout
+
+- Header: `<mwtl/layout.h>`
+- Entry points: `Row()`, `Column()`, `Overlay()` return move-only `LayoutNode`.
+- Sizing: `Auto(min,max)`, `Fixed(dip)`, `Stretch(weight,min,max)`.
+- Units: `Dip`, usually written with `operator""_dip`.
+- Lifetime: controls must have valid HWNDs when added and must outlive the
+  retained layout.
+- Behavior: layout repositions real child HWNDs on resize and DPI changes.
+
+## Events and `EventResult`
+
+- Header: `<mwtl/events.h>`
+- Command matching: `event.IsClicked(control)` or `event.Is(control,
+  notification_code)`.
+- `Handled()`: the application consumed the event/result.
+- `Propagate()`: continue default/native dispatch.
+- Native escape: `WindowMessage` exposes message id, `WPARAM`, and `LPARAM`.
+
+## Binding
+
+- Header: `<mwtl/binding.h>`
+- `ValueBinding<Control, Value>` keeps explicit references to a control and
+  model value plus read/write/optional validation callables.
+- `Pull()` validates before committing and returns a result with `accepted` and
+  `message`; `Push()` writes the model to the control.
+- Lifetime: binding, control, and model value must have compatible lifetimes.
+
+## Commands
+
+- Headers: `<mwtl/command.h>`, `<mwtl/command_controls.h>`, `<mwtl/desktop.h>`.
+- `Command` contains a stable ID, label, callback, enabled/checked state, and
+  optional shortcut.
+- `CommandSet` stores commands and dispatches a `CommandEvent`.
+- Native menu and toolbar presentations do not automatically redraw after all
+  state changes; synchronize them as shown in `examples/commands`.
+
+## `WindowWakeup`
+
+- Header: `<mwtl/wakeup.h>`
+- Purpose: copyable, lifetime-safe worker-to-window notification token.
+- Worker operation: `bool TryWake() const noexcept`.
+- UI operation: override `OnWakeup()` and update controls there.
+- Ownership: internally holds a weak reference; it does not keep the window
+  alive. False during shutdown is expected.
+
+## Timers and message pumps
+
+- Headers: `<mwtl/timer.h>`, `<mwtl/message_pump.h>`.
+- `UiTimer` is move-only RAII state associated with the window thread.
+- The default pump handles ordinary applications. Use the wait-aware pump only
+  when integrating kernel handles or explicit idle work.
+
+## Desktop integration
+
+- Header: `<mwtl/desktop.h>`.
+- Includes menus, accelerator tables, file/folder dialogs, clipboard, file
+  drops, and window placement.
+- Dialog results distinguish acceptance, cancellation, and failure.
+- Native handles returned or accepted by helpers retain the ownership stated by
+  the corresponding API; never infer ownership from the raw handle type.
+
+## Appearance, DPI, and accessibility
+
+- Headers: `<mwtl/appearance.h>`, `<mwtl/dpi.h>`.
+- `AppearanceOptions` requests system/light/dark mode, backdrop, and corners on
+  a best-effort basis.
+- High Contrast takes precedence over decorative choices.
+- Layout uses DIPs. Raw Win32 APIs use pixels unless documented otherwise.
+- Accessibility helpers set native names and dialog behavior; they supplement,
+  not replace, correct labels and keyboard navigation.
+
+## Checked operations
+
+- Headers: `<mwtl/must.h>`, `<mwtl/error.h>`.
+- `Must(value, context)` converts failed setup results into rich diagnostics.
+- Use it for operations that must succeed before the window can function.
+- Do not let resulting exceptions escape a Win32 callback.
+

@@ -1,0 +1,37 @@
+# mwtl — Modern Windows Thin Layer
+
+> Native Windows UI for C++20 with real HWND controls, typed events, explicit
+> ownership, DPI-aware retained layout, and a Win32 escape hatch.
+
+Use mwtl only for 64-bit Windows x64/ARM64 projects with an MSVC-compatible ABI.
+
+## Agent entry points
+
+- Canonical usage rules: docs/agent-usage.md
+- Common invalid patterns: docs/common-mistakes.md
+- Task recipes: docs/recipes/index.md
+- Public symbol contracts: docs/agent-reference.md
+- Natural-language terminology: docs/terminology.md
+- Machine-readable capability map: docs/capabilities.json
+- Machine-readable example catalog: docs/examples.json
+- Copyable starters: templates/basic-app and templates/form-app
+- Compiled API scratchpad: tools/api-probe
+- Composed applications: docs/reference-apps/index.md
+
+## Core invariants
+
+- Applications derive their main window from WindowBase and create child
+  controls through ControlHost.
+- Controls own real child HWNDs and normally live as window members.
+- UI wrappers are creating-thread-affine.
+- Workers notify through WindowWakeup and update controls in OnWakeup.
+- Layout uses DIPs and references already-created HWNDs.
+- Return Propagate for events not consumed by the application.
+- No exception crosses a Win32 callback.
+- Only public headers under include/mwtl are application API.
+
+## Install
+
+Use CMake FetchContent pinned to a release tag or immutable commit, or consume
+`mwtl::mwtl` through `find_package`. A correct executable is `WIN32`, uses
+`wWinMain`, C++20, Unicode, and a Per-Monitor-V2 manifest.

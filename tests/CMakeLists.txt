@@ -58,6 +58,12 @@ target_compile_features(mwtl_consumer_cpp20 PRIVATE cxx_std_20)
 target_compile_options(mwtl_consumer_cpp20 PRIVATE /W4 /permissive- /EHsc /utf-8)
 target_link_libraries(mwtl_consumer_cpp20 PRIVATE mwtl::mwtl)
 
+# Keep the coding-agent public API probe compiled with every repository build.
+add_library(mwtl_agent_api_probe OBJECT "${PROJECT_SOURCE_DIR}/tools/api-probe/main.cpp")
+target_compile_features(mwtl_agent_api_probe PRIVATE cxx_std_20)
+target_compile_options(mwtl_agent_api_probe PRIVATE /W4 /permissive- /EHsc /utf-8)
+target_link_libraries(mwtl_agent_api_probe PRIVATE mwtl::mwtl)
+
 add_library(mwtl_05_compat OBJECT consumer_05_compat.cpp)
 target_compile_features(mwtl_05_compat PRIVATE cxx_std_20)
 target_compile_options(mwtl_05_compat PRIVATE /W4 /permissive- /EHsc /utf-8)
@@ -303,3 +309,10 @@ add_test(
         "-DPROJECT_ROOT=${PROJECT_SOURCE_DIR}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_release_metadata.cmake")
 set_tests_properties(mwtl.release_metadata PROPERTIES TIMEOUT 20)
+
+add_test(
+    NAME mwtl.agent_assets
+    COMMAND "${CMAKE_COMMAND}"
+        "-DPROJECT_ROOT=${PROJECT_SOURCE_DIR}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/verify_agent_assets.cmake")
+set_tests_properties(mwtl.agent_assets PROPERTIES TIMEOUT 20)

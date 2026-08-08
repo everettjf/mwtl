@@ -130,6 +130,14 @@ install(FILES
     docs/accessibility.md
     docs/reference.md
     docs/system-message-recipes.md
+    docs/agent-usage.md
+    docs/agent-reference.md
+    docs/common-mistakes.md
+    docs/terminology.md
+    docs/capabilities.json
+    docs/examples.json
+    docs/llms.txt
+    docs/llms-full.txt
     DESTINATION ${CMAKE_INSTALL_DATADIR}/mwtl)
 install(FILES cmake/Dependencies.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mwtl)

@@ -1,0 +1,28 @@
+# mwtl coding-agent context
+
+mwtl is a C++20 thin layer around real native Windows HWND controls. It targets
+64-bit x64 and ARM64 Windows with an MSVC-compatible ABI. It is not a
+cross-platform toolkit, virtual DOM, or custom renderer.
+
+Start from templates/basic-app. Derive from mwtl::WindowBase, implement
+BuildUI(), keep controls as members, create them with ControlHost, arrange them
+with Row/Column/Overlay using DIP values, and call RunApplication from wWinMain.
+
+Control wrappers own child HWNDs and are UI-thread-affine. ControlHost creates
+but does not own wrappers. Retained layout references already-created HWNDs.
+Workers copy WindowWakeup, call TryWake, and update controls only in OnWakeup.
+Return EventResult::Propagate for unconsumed events. No exception crosses a
+Win32 callback. Never use mwtl::detail or headers under src.
+
+Task sources:
+- window: examples/hello/main.cpp
+- form: examples/form_binding/main.cpp
+- layout: examples/layout_gallery/main.cpp
+- commands: examples/commands/main.cpp
+- background work: examples/wakeup/main.cpp and examples/hot_corners
+- desktop integration: examples/desktop_integration/main.cpp
+- DPI/appearance: examples/dpi/main.cpp and examples/appearance/main.cpp
+
+Detailed usage:
+https://github.com/everettjf/mwtl/blob/main/docs/agent-usage.md
+

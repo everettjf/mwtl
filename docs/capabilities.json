@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "library": "mwtl",
+  "language": "C++20",
+  "platforms": ["Windows x64", "Windows ARM64"],
+  "capabilities": [
+    {
+      "id": "application-window",
+      "intent": ["create a Windows app", "open a native window"],
+      "symbols": ["mwtl::WindowBase", "mwtl::RunApplication"],
+      "headers": ["mwtl/window.h", "mwtl/application.h"],
+      "example": "examples/hello/main.cpp",
+      "recipe": "docs/recipes/create-window.md"
+    },
+    {
+      "id": "native-form",
+      "intent": ["build a form", "validate input", "bind controls"],
+      "symbols": ["mwtl::ControlHost", "mwtl::ValueBinding", "mwtl::ValidationResult"],
+      "headers": ["mwtl/control_host.h", "mwtl/binding.h"],
+      "example": "examples/form_binding/main.cpp",
+      "constraints": ["controls, model values, and bindings need compatible lifetimes"]
+    },
+    {
+      "id": "responsive-layout",
+      "intent": ["responsive layout", "row", "column", "overlay"],
+      "symbols": ["mwtl::Row", "mwtl::Column", "mwtl::Overlay", "mwtl::Stretch"],
+      "headers": ["mwtl/layout.h"],
+      "example": "examples/layout_gallery/main.cpp",
+      "constraints": ["layout uses DIPs and references already-created HWNDs"]
+    },
+    {
+      "id": "commands",
+      "intent": ["menu", "toolbar", "keyboard shortcut", "shared action"],
+      "symbols": ["mwtl::Command", "mwtl::CommandSet", "mwtl::Toolbar", "mwtl::Menu"],
+      "headers": ["mwtl/command.h", "mwtl/command_controls.h", "mwtl/desktop.h"],
+      "example": "examples/commands/main.cpp"
+    },
+    {
+      "id": "background-ui-update",
+      "intent": ["background worker", "update UI from thread", "notify window"],
+      "symbols": ["mwtl::WindowWakeup"],
+      "headers": ["mwtl/wakeup.h"],
+      "example": "examples/wakeup/main.cpp",
+      "constraints": ["workers never access UI wrappers", "TryWake false is normal during shutdown"]
+    },
+    {
+      "id": "desktop-integration",
+      "intent": ["open file", "save file", "choose folder", "clipboard", "file drop", "window placement"],
+      "symbols": ["mwtl::FileDialogOptions", "mwtl::SavedWindowPlacement"],
+      "headers": ["mwtl/desktop.h"],
+      "example": "examples/desktop_integration/main.cpp"
+    },
+    {
+      "id": "appearance-accessibility",
+      "intent": ["dark mode", "mica", "high contrast", "accessible name", "DPI"],
+      "symbols": ["mwtl::AppearanceOptions", "mwtl::ApplyWindowAppearance", "mwtl::SetAccessibleName"],
+      "headers": ["mwtl/appearance.h", "mwtl/dpi.h"],
+      "example": "examples/appearance/main.cpp",
+      "constraints": ["appearance is best effort", "High Contrast takes precedence"]
+    }
+  ]
+}
+

@@ -59,3 +59,19 @@ Run a target from its configuration directory, for example:
 ```
 
 The examples remain native: every component is a real child HWND and direct Win32/WTL interoperability remains available. The wrappers provide ownership and typed ergonomics, not a closed rendering framework.
+
+## Agent retrieval guide
+
+| User intent | Start here | Primary symbols | Complexity |
+|---|---|---|---|
+| Smallest application | `hello` | `WindowBase`, `RunApplication` | starter |
+| Native input form | `form_binding` | `ControlHost`, `ValueBinding`, `Column` | composed |
+| Responsive UI | `layout_gallery` | `Row`, `Column`, `Overlay` | composed |
+| Shared actions | `commands` | `CommandSet`, `Toolbar`, `Menu` | composed |
+| Background notification | `wakeup` | `WindowWakeup`, `OnWakeup` | focused |
+| Full worker lifecycle | `hot_corners` | wakeup, commands, persistence | reference app |
+| Files and shell integration | `desktop_integration` | dialogs, clipboard, placement | composed |
+| Native look and accessibility | `appearance` | appearance and accessibility helpers | composed |
+
+Coding agents should copy a complete example and modify it instead of merging
+unrelated fragments. See `docs/agent-usage.md` for lifetime and threading rules.

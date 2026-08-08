@@ -10,6 +10,8 @@ foreach(required IN ITEMS
         assets/mwtl-mark.svg
         assets/site.js
         styles.css
+        llms.txt
+        llms-full.txt
         .nojekyll)
     if(NOT EXISTS "${SITE_ROOT}/${required}")
         message(FATAL_ERROR "required Pages file is missing: ${required}")

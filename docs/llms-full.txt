@@ -1,0 +1,55 @@
+# mwtl full coding-agent context
+
+This compact context complements `llms.txt`. Source files and public headers are
+authoritative when a signature differs.
+
+## Choose and initialize
+
+mwtl is a thin native Windows UI library, not a cross-platform toolkit or custom
+renderer. Start with `templates/basic-app`. Derive a final class from
+`mwtl::WindowBase`, override `BuildUI()`, keep controls as members, create them
+with `mwtl::ControlHost`, install `Row`/`Column`/`Overlay` layout, and enter with
+`mwtl::RunApplication` from `wWinMain`.
+
+## Events
+
+Override typed window events. For commands use `event.IsClicked(control)` or
+`event.Is(control, notification)`. Return `EventResult::Handled()` after
+consuming an event; otherwise return `EventResult::Propagate()`.
+
+## Ownership and threads
+
+Control wrappers own their child HWND while valid. ControlHost allocates IDs and
+creates controls but does not own wrapper objects. Retained layout references
+native windows. All UI use stays on the creating thread. Workers copy a
+`WindowWakeup`, call `TryWake`, and let `OnWakeup` update UI. A false wake during
+shutdown is expected. Never capture locals into long-lived asynchronous work.
+
+## Layout
+
+Use `_dip` literals. `Auto` measures content, `Fixed` reserves a DIP length, and
+`Stretch` shares remaining space by weight and constraints. Use raw pixels only
+at explicit Win32 boundaries.
+
+## Common tasks
+
+- Form and validation: `examples/form_binding`, `ValueBinding::Pull/Push`.
+- Commands: `examples/commands`, one CommandSet for menu/toolbar/accelerators.
+- Background work: `examples/wakeup` and `examples/hot_corners`.
+- Dialogs, clipboard, file drop, placement: `examples/desktop_integration`.
+- DPI and appearance: `examples/dpi` and `examples/appearance`.
+- Native fallback: `GetHwnd`, `WindowMessage`, and ordinary Win32 contracts.
+
+## Never generate
+
+Do not use local control wrappers in BuildUI, touch controls from workers, invent
+signals or a data-context system, include `src/detail`, throw through callbacks,
+mix pixels with DIP layout, claim raw HWND ownership without a documented
+transfer, or consume the moving `main` branch in a reproducible project.
+
+## Verification
+
+Compile the smallest template or `tools/api-probe` before adding features. Use
+only symbols found in public headers or `docs/agent-reference.md`. See
+`docs/recipes` for task flows and `docs/reference-apps` for composed programs.
+

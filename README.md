@@ -106,7 +106,7 @@ project(my_app LANGUAGES CXX)
 include(FetchContent)
 FetchContent_Declare(mwtl
   GIT_REPOSITORY https://github.com/everettjf/mwtl.git
-  GIT_TAG main
+  GIT_TAG e0c162b962ea29fda5567ae389b6fd8587907f4e
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(mwtl)
 
@@ -231,6 +231,11 @@ For controlled environments, see the
 
 ## Documentation
 
+- [Using mwtl with coding agents](docs/agent-usage.md)
+- [Copyable application templates](templates/)
+- [Task recipes](docs/recipes/)
+- [Agent-oriented public API contracts](docs/agent-reference.md)
+- [Compact agent context](docs/llms.txt)
 - [Get started](https://everettjf.github.io/mwtl/building.html)
 - [Component reference](https://everettjf.github.io/mwtl/components/)
 - [Current API notes](docs/api.md)

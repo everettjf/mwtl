@@ -1,0 +1,21 @@
+# mwtl
+
+Native Windows UI for C++20 with real HWND controls, typed events, explicit
+ownership, DPI-aware layout, and a direct Win32 escape hatch.
+
+Canonical coding-agent context:
+https://github.com/everettjf/mwtl/blob/main/docs/agent-usage.md
+
+Full compact context:
+https://everettjf.github.io/mwtl/llms-full.txt
+
+Capability map:
+https://github.com/everettjf/mwtl/blob/main/docs/capabilities.json
+
+Templates:
+https://github.com/everettjf/mwtl/tree/main/templates
+
+Rules: Windows x64/ARM64, MSVC-compatible ABI, C++20. Controls own real HWNDs,
+UI wrappers are thread-affine, workers use WindowWakeup, layout uses DIPs, and
+unhandled events propagate.
+

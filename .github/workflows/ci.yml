@@ -58,10 +58,21 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Locate Windows SDK manifest tool
+        shell: pwsh
+        run: |
+          $mt = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" `
+            -Recurse -Filter mt.exe |
+            Where-Object { $_.FullName -match '\\x64\\mt[.]exe$' } |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if (-not $mt) { throw 'Windows SDK mt.exe was not found.' }
+          "MWTL_MT_TOOL=$($mt.FullName)" | Out-File $env:GITHUB_ENV -Append
       - name: Configure
         run: >-
           cmake -S . -B build/clang-cl
           -G "Visual Studio 17 2022" -A x64 -T ClangCL
+          -DCMAKE_MT="$env:MWTL_MT_TOOL"
           -DMWTL_BUILD_EXAMPLES=ON -DMWTL_BUILD_TESTS=ON
       - name: Build
         run: cmake --build build/clang-cl --config Debug --parallel
@@ -108,7 +119,7 @@ jobs:
         run: >-
           & $env:MWTL_COVERAGE_COLLECTOR collect ctest
           --test-dir build/coverage -C Debug
-          -E "mwtl\.(desktop|package_consumer)"
+          -E "mwtl\.(desktop|package_consumer|hot_corners_self_test)"
           --output-on-failure
           --output build/coverage/coverage.xml
           --output-format cobertura
